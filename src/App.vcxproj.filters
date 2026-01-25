@@ -58,6 +58,8 @@
       <Filter>lxlib</Filter>
     </ClCompile>
     <ClCompile Include="cfg2.cpp" />
+    <ClCompile Include="CinderImGui.cpp" />
+    <ClCompile Include="IntegratedConsole.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -93,6 +95,8 @@
     </ClInclude>
     <ClInclude Include="cfg2.h" />
     <ClInclude Include="CinderImGui.h" />
+    <ClInclude Include="CinderImGuiConfig.h" />
+    <ClInclude Include="IntegratedConsole.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="hcl_lib.fs">

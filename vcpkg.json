@@ -5,6 +5,7 @@
       "features": [
         "opengl3-binding"
       ]
-    }
+    },
+    "fftw3"
   ]
 }
