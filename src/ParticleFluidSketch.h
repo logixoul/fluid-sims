@@ -35,13 +35,11 @@ struct ParticleFluidSketch {
 
 	void setup()
 	{
-		ci::app::setWindowSize(800, 800);
-
 		sz = ivec2(ci::app::getWindowWidth() / scale, ci::app::getWindowHeight() / scale);
 
 		reset();
 	}
-	void keyDown(ci::app::KeyEvent e)
+	void keyDown()
 	{
 		if (keys['r'])
 		{
@@ -54,18 +52,18 @@ struct ParticleFluidSketch {
 	}
 	vec2 direction;
 	vec2 lastm;
-	void mouseDrag(ci::app::MouseEvent e)
+	void mouseDrag(ivec2 pos)
 	{
-		mm(e);
+		mm(pos);
 	}
-	void mouseMove(ci::app::MouseEvent e)
+	void mouseMove(ivec2 pos)
 	{
-		mm(e);
+		mm(pos);
 	}
-	void mm(ci::app::MouseEvent e)
+	void mm(ivec2 pos)
 	{
-		direction = vec2(e.getPos()) - lastm;
-		lastm = e.getPos();
+		direction = vec2(pos) - lastm;
+		lastm = pos;
 	}
 	float surfaceTensionThreshold = 1.0f;
 	float pushawayCoef = .2f;

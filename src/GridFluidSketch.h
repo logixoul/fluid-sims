@@ -48,7 +48,7 @@ struct GridFluidSketch {
 
 		reset();
 	}
-	void keyDown(ci::app::KeyEvent e)
+	void keyDown()
 	{
 		if (keys[' ']) {
 			doFluidStep();
@@ -77,18 +77,18 @@ struct GridFluidSketch {
 	}
 	vec2 direction;
 	vec2 lastm;
-	void mouseDrag(ci::app::MouseEvent e)
+	void mouseDrag(ivec2 pos)
 	{
-		mm(e);
+		mm(pos);
 	}
-	void mouseMove(ci::app::MouseEvent e)
+	void mouseMove(ivec2 pos)
 	{
-		mm(e);
+		mm(pos);
 	}
-	void mm(ci::app::MouseEvent e)
+	void mm(ivec2 pos)
 	{
-		direction = vec2(e.getPos()) - lastm;
-		lastm = e.getPos();
+		direction = vec2(pos) - lastm;
+		lastm = pos;
 	}
 	gl::TextureRef gtexF32(Array2D<float> a)
 	{
@@ -296,8 +296,6 @@ struct GridFluidSketch {
 		mousePos /= scale;
 		if (mouseDown_[0])
 		{
-			//vec2 scaledm = vec2(getMousePos()-getWindow()->getPos()) / float(::scale); //vec2(mouseX * (float)sx, mouseY * (float)sy);
-			
 			lxArea a = lxArea(ivec2(mousePos), ivec2(mousePos));
 			int r = 80 / pow(2, scale);
 			a.expand(r, r);

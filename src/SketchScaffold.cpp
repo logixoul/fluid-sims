@@ -52,16 +52,16 @@ struct SketchScaffold : ci::app::App {
 			keys2[e.getChar()] = !keys2[e.getChar()];
 		}
 		
-		sketch.keyDown(e);
+		sketch.keyDown();
 	}
 
 	void mouseDrag(ci::app::MouseEvent e)
 	{
-		sketch.mouseDrag(e);
+		sketch.mouseDrag(e.getPos());
 	}
 	void mouseMove(ci::app::MouseEvent e)
 	{
-		sketch.mouseMove(e);
+		sketch.mouseMove(e.getPos());
 	}
 
 	void keyUp(ci::app::KeyEvent e) {

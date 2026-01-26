@@ -54,5 +54,6 @@ private:
 	static void registerTimer(MyTimer* timer);
 	static vector<MyTimer*> timers;
 	static vector<MyTimer*> newTimers;
+	static int elapsedFrames;
 	friend class MyTimer;
 };

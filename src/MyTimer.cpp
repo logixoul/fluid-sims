@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 vector<MyTimer*> TimerManager::timers;
 vector<MyTimer*> TimerManager::newTimers;
+int TimerManager::elapsedFrames = 0;
 
 MyTimer::MyTimer()
 {
@@ -36,7 +37,7 @@ void MyTimer::setInterval(double sec)
 void MyTimer::start()
 {
 	timerImpl.start();
-	startedOnFrame = ci::app::getElapsedFrames();
+	startedOnFrame = TimerManager::elapsedFrames;
 }
 
 bool MyTimer::isStopped() const
@@ -64,8 +65,8 @@ void TimerManager::update()
 	for (MyTimer* timer : timersCopy) {
 		if (timer->isStopped())
 			continue;
-		bool shouldFireTimeout = timer->getSeconds() > timer->interval && ci::app::getElapsedFrames() != timer->startedOnFrame && timer->interval != 0;
-		shouldFireTimeout |= (ci::app::getElapsedFrames() == timer->startedOnFrame + 2) && timer->interval == 0;
+		bool shouldFireTimeout = timer->getSeconds() > timer->interval && elapsedFrames != timer->startedOnFrame && timer->interval != 0;
+		shouldFireTimeout |= (elapsedFrames == timer->startedOnFrame + 2) && timer->interval == 0;
 		if (shouldFireTimeout) {
 			//timer->timeout();
 			delete timer;
@@ -76,6 +77,8 @@ void TimerManager::update()
 	timers = leftTimers;
 	timers.insert(timers.end(), newTimers.begin(), newTimers.end());
 	newTimers.clear();
+
+	elapsedFrames++;
 }
 
 void TimerManager::registerTimer(MyTimer* timer)
