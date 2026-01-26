@@ -175,6 +175,7 @@
     </ClInclude>
     <ClInclude Include="GridFluidSketch.h" />
     <ClInclude Include="IntegratedConsole.h" />
+    <ClInclude Include="lxGlslProg.h" />
     <ClInclude Include="lxTextureRef.h" />
     <ClInclude Include="lxVaoVbo.h" />
     <ClInclude Include="ParticleFluidSketch.h" />

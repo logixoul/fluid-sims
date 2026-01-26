@@ -32,10 +32,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
+#include "lxGlslProg.h"
 #include <glm/gtx/io.hpp>
 #include "lxTextureRef.h"
 #include "lxVaoVbo.h"
 #include <unordered_map>
+
+
 namespace gl {
 	typedef lxTextureRef TextureRef;
 	typedef lxTexture Texture;

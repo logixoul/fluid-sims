@@ -142,8 +142,8 @@ inline void lxDraw(lxTextureRef const& tex) {
 	glActiveTexture(GL_TEXTURE0);
 	tex->bind();
 
-	static const auto glslFormat = ci::gl::GlslProg::Format().vertex(genericVertexShaderSource).fragment(genericFragmentShaderSource);
-	static const auto glsl = ci::gl::GlslProg::create(glslFormat);
+	//static const auto glslFormat = ci::gl::GlslProg::Format().vertex(genericVertexShaderSource).fragment(genericFragmentShaderSource);
+	static const auto glsl = std::make_shared<lxGlslProg>(genericFragmentShaderSource, genericVertexShaderSource);
 	glsl->bind();
 	glsl->uniform("uTex", 0);
 	glsl->uniform("uPositionOffset", glm::vec2(0, 0));
