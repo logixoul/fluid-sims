@@ -146,7 +146,7 @@
     <ClCompile Include="MyTimer.cpp" />
     <ClCompile Include="gpuBlur2_5.cpp">
     </ClCompile>
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="SketchScaffold.cpp" />
     <ClCompile Include="precompiled.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
@@ -155,7 +155,6 @@
     </ClCompile>
     <ClCompile Include="shade.cpp" />
     <ClCompile Include="stb_image.cpp" />
-    <ClCompile Include="stefanfw.cpp" />
     <ClCompile Include="stuff.cpp" />
     <ClCompile Include="TextureCache.cpp" />
     <ClCompile Include="util.cpp" />
@@ -175,8 +174,8 @@
     <ClInclude Include="ParticleFluidSketch.h" />
     <ClInclude Include="precompiled.h" />
     <ClInclude Include="shade.h" />
+    <ClInclude Include="SketchScaffold.h" />
     <ClInclude Include="stb_image.h" />
-    <ClInclude Include="stefanfw.h" />
     <ClInclude Include="stuff.h" />
     <ClInclude Include="TextureCache.h" />
     <ClInclude Include="util.h" />

@@ -4,10 +4,10 @@
 #include "shade.h"
 #include "gpgpu.h"
 #include "gpuBlur2_5.h"
-#include "stefanfw.h"
 #include "Array2D_imageProc.h"
 #include "util.h"
 #include "CinderImGui.h"
+#include "SketchScaffold.h"
 
 #define GET_FLOAT_LOGSCALE(name, defaultValue, min, max) \
 	static float name = defaultValue; \
@@ -16,8 +16,8 @@
 struct GridFluidSketch {
 	int wsx = 1280, wsy = 720;
 	const int scale = 6;
-	int sx = wsx;
-	int sy = wsy;
+	int sx;
+	int sy;
 	ivec2 sz;
 	struct Material {
 		Array2D<float> density;
@@ -45,8 +45,6 @@ struct GridFluidSketch {
 		}
 
 		glDisable(GL_BLEND);
-
-		ci::app::setWindowSize(wsx, wsy);
 
 		reset();
 	}

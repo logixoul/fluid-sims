@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="SketchScaffold.cpp" />
     <ClCompile Include="precompiled.cpp" />
     <ClCompile Include="Array2D_imageProc.cpp">
       <Filter>lxlib</Filter>
@@ -16,9 +16,6 @@
       <Filter>lxlib</Filter>
     </ClCompile>
     <ClCompile Include="shade.cpp">
-      <Filter>lxlib</Filter>
-    </ClCompile>
-    <ClCompile Include="stefanfw.cpp">
       <Filter>lxlib</Filter>
     </ClCompile>
     <ClCompile Include="stuff.cpp">
@@ -45,9 +42,6 @@
     <ClInclude Include="shade.h">
       <Filter>lxlib</Filter>
     </ClInclude>
-    <ClInclude Include="stefanfw.h">
-      <Filter>lxlib</Filter>
-    </ClInclude>
     <ClInclude Include="stuff.h">
       <Filter>lxlib</Filter>
     </ClInclude>
@@ -68,6 +62,7 @@
     <ClInclude Include="lxGlslProg.h" />
     <ClInclude Include="lxAreaRectf.h" />
     <ClInclude Include="lxApp.h" />
+    <ClInclude Include="SketchScaffold.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="OldCode.txt" />

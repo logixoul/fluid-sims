@@ -3,12 +3,12 @@
 #include "shade.h"
 #include "gpgpu.h"
 #include "gpuBlur2_5.h"
-#include "stefanfw.h"
 #include "Array2D_imageProc.h"
 #include "IntegratedConsole.h"
 
 #include "util.h"
 #include "CinderImGui.h"
+#include "SketchScaffold.h"
 
 struct ParticleFluidSketch {
 	typedef Array2D<float> Image;

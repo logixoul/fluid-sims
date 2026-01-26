@@ -2,6 +2,12 @@
 #include "ParticleFluidSketch.h"
 #include "GridFluidSketch.h"
 #include "CinderImGui.h"
+#include "MyTimer.h"
+#include "SketchScaffold.h"
+
+bool keys[256];
+bool keys2[256];
+bool mouseDown_[3];
 
 struct SketchScaffold : ci::app::App {
 	//ParticleFluidSketch sketch;
@@ -10,6 +16,8 @@ struct SketchScaffold : ci::app::App {
 	shared_ptr<IntegratedConsole> integratedConsole;
 	void setup()
 	{
+		ci::app::setWindowSize(1280, 720);
+
 		::enableGlDebugOutput();
 
 		ImGui::Initialize();
@@ -21,7 +29,6 @@ struct SketchScaffold : ci::app::App {
 		enableDenormalFlushToZero();
 
 		disableGLReadClamp();
-		stefanfw::eventHandler.subscribeToEvents(*this);
 
 		sketch.setup();
 	}
@@ -29,16 +36,22 @@ struct SketchScaffold : ci::app::App {
 	void update()
 	{
 		ImGui::Begin("Parameters");
-		stefanfw::beginFrame();
+		
 		sketch.stefanUpdate();
 		sketch.stefanDraw();
-		stefanfw::endFrame();
+		TimerManager::update();
 		ImGui::End();
 
 		integratedConsole->update();
 	}
 
 	void keyDown(ci::app::KeyEvent e) {
+		keys[e.getChar()] = true;
+		if (e.isControlDown() && e.getCode() != ci::app::KeyEvent::KEY_LCTRL)
+		{
+			keys2[e.getChar()] = !keys2[e.getChar()];
+		}
+		
 		sketch.keyDown(e);
 	}
 
@@ -49,6 +62,19 @@ struct SketchScaffold : ci::app::App {
 	void mouseMove(ci::app::MouseEvent e)
 	{
 		sketch.mouseMove(e);
+	}
+
+	void keyUp(ci::app::KeyEvent e) {
+		keys[e.getChar()] = false;
+	}
+
+	void mouseDown(ci::app::MouseEvent e)
+	{
+		mouseDown_[e.isLeft() ? 0 : e.isMiddle() ? 1 : 2] = true;
+	}
+	void mouseUp(ci::app::MouseEvent e)
+	{
+		mouseDown_[e.isLeft() ? 0 : e.isMiddle() ? 1 : 2] = false;
 	}
 };
 
