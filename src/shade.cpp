@@ -195,18 +195,18 @@ gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string const& fsha
 	//const string fshader = "void shade() { }";
 	static std::mutex mapMutex;
 	unique_lock<std::mutex> ul(mapMutex);
-	static std::map<string, gl::GlslProgRef> shaders;
-	gl::GlslProgRef shader;
+	static std::map<string, lxGlslProgRef> shaders;
+	lxGlslProgRef shader;
 	if(shaders.find(fshader) == shaders.end())
 	{
 		string uniformDeclarations;
 		std::string completeFshader = getCompleteFshader(texv, opts._uniforms, fshader, &uniformDeclarations);
 		string completeVshader = Str()
 			<< "#version 150"
-			<< "#extension GL_ARB_explicit_uniform_location : enable"
+			<< "#extension GL_ARB_explicit_attrib_location : enable"
 			//<< "#extension GL_ARB_shader_image_load_store : enable"
-			<< "in vec4 ciPosition;"
-			<< "in vec2 ciTexCoord0;"
+			<< "layout(location = 0) in vec4 ciPosition;"
+			<< "layout(location = 1) in vec2 ciTexCoord0;"
 			<< "out highp vec2 tc;"
 			<< "out highp vec2 relOutTc;" // relative out texcoord
 			<< "uniform vec2 uTexCoordOffset, uTexCoordScale;"
@@ -221,17 +221,10 @@ gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string const& fsha
 			<< opts._vshaderExtra
 			<< "}";
 			try{
-			auto fmt = gl::GlslProg::Format()
-				.vertex(completeVshader)
-				.fragment(completeFshader)
-				.attribLocation("ciPosition", 0)
-				.attribLocation("ciTexCoord0", 1)
-				.preprocess(false)
-				;
-			shader = gl::GlslProg::create(fmt);
+			shader = std::make_shared<lxGlslProg>(completeFshader, completeVshader);
 			shaders[fshader] = shader;
 		} catch(std::exception const& e) {
-			cout << "gl::GlslProgCompileExc: " << e.what() << endl;
+			cout << "lxGlslProgCompileExc: " << e.what() << endl;
 			cout << "source:" << endl;
 			cout << completeFshader << endl;
 			string s; cin >> s;
