@@ -6,9 +6,8 @@
 #include "gpuBlur2_5.h"
 #include "stefanfw.h"
 #include "Array2D_imageProc.h"
-#include "cfg1.h"
-
 #include "util.h"
+#include "CinderImGui.h"
 
 #define GET_FLOAT_LOGSCALE(name, defaultValue, min, max) \
 	static float name = defaultValue; \

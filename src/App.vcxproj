@@ -148,9 +148,7 @@
     </ClCompile>
     <ClCompile Include="easyfft.cpp">
     </ClCompile>
-    <ClCompile Include="cfg2.cpp" />
     <ClCompile Include="gpgpu.cpp" />
-    <ClCompile Include="cfg1.cpp" />
     <ClCompile Include="IntegratedConsole.cpp" />
     <ClCompile Include="MyTimer.cpp" />
     <ClCompile Include="gpuBlur2_5.cpp">
@@ -177,7 +175,6 @@
     </ClInclude>
     <ClInclude Include="easyfft.h">
     </ClInclude>
-    <ClInclude Include="cfg2.h" />
     <ClInclude Include="gpgpu.h" />
     <ClInclude Include="gpuBlur2_5.h">
     </ClInclude>

@@ -6,9 +6,6 @@
     <ClCompile Include="Array2D_imageProc.cpp">
       <Filter>lxlib</Filter>
     </ClCompile>
-    <ClCompile Include="cfg1.cpp">
-      <Filter>lxlib</Filter>
-    </ClCompile>
     <ClCompile Include="easyfft.cpp">
       <Filter>lxlib</Filter>
     </ClCompile>
@@ -42,7 +39,6 @@
     <ClCompile Include="util.cpp">
       <Filter>lxlib</Filter>
     </ClCompile>
-    <ClCompile Include="cfg2.cpp" />
     <ClCompile Include="CinderImGui.cpp" />
     <ClCompile Include="IntegratedConsole.cpp" />
   </ItemGroup>
@@ -78,7 +74,6 @@
     <ClInclude Include="util.h">
       <Filter>lxlib</Filter>
     </ClInclude>
-    <ClInclude Include="cfg2.h" />
     <ClInclude Include="CinderImGui.h" />
     <ClInclude Include="CinderImGuiConfig.h" />
     <ClInclude Include="IntegratedConsole.h" />

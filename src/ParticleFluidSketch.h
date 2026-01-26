@@ -5,11 +5,10 @@
 #include "gpuBlur2_5.h"
 #include "stefanfw.h"
 #include "Array2D_imageProc.h"
-#include "cfg1.h"
-#include "cfg2.h"
 #include "IntegratedConsole.h"
 
 #include "util.h"
+#include "CinderImGui.h"
 
 struct ParticleFluidSketch {
 	typedef Array2D<float> Image;
@@ -44,11 +43,6 @@ struct ParticleFluidSketch {
 	}
 	void keyDown(ci::app::KeyEvent e)
 	{
-		if (e.getChar() == 'd')
-		{
-			//cfg2::params->isVisible() ? cfg2::params->hide() : cfg2::params->show();
-		}
-
 		if (keys[' ']) {
 			doFluidStep();
 		}

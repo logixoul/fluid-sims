@@ -1,6 +1,7 @@
 #include "precompiled.h"
 #include "ParticleFluidSketch.h"
 #include "GridFluidSketch.h"
+#include "CinderImGui.h"
 
 struct SketchScaffold : ci::app::App {
 	//ParticleFluidSketch sketch;
@@ -9,7 +10,10 @@ struct SketchScaffold : ci::app::App {
 	shared_ptr<IntegratedConsole> integratedConsole;
 	void setup()
 	{
-		cfg2::init();
+		ImGui::Initialize();
+		ImGuiIO& io = ImGui::GetIO();
+		io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\segoeui.ttf", 18.0f);
+
 		integratedConsole = make_shared<IntegratedConsole>();;
 
 		enableDenormalFlushToZero();
@@ -22,12 +26,12 @@ struct SketchScaffold : ci::app::App {
 
 	void update()
 	{
-		cfg2::begin();
+		ImGui::Begin("Parameters");
 		stefanfw::beginFrame();
 		sketch.stefanUpdate();
 		sketch.stefanDraw();
 		stefanfw::endFrame();
-		cfg2::end();
+		ImGui::End();
 
 		integratedConsole->update();
 	}
