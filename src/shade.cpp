@@ -63,10 +63,6 @@ void endRTT()
 }
 
 void drawRect() {
-	//auto ctx = gl::Context::getCurrent();
-
-	//ctx->getDrawTextureVao()->bind();
-	
 	static std::shared_ptr<QuadGpu> quad = createQuadVAO_VBOs();
 	quad->vao.bind();
 	glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -269,13 +265,10 @@ gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string const& fsha
 	int location = 0;
 	shader->uniform("viewportSize", viewportSize);
 	location++;
-	//::setUniform(location++, vec2(result->getSize()));
 	shader->uniform("tex", 0); bindTexture(tex0, GL_TEXTURE0 + 0);
 	shader->uniform("texSize", vec2(tex0->getSize()));
 	shader->uniform("tsize", vec2(1.0) / vec2(tex0->getSize()));
 	for (int i = 1; i < texv.size(); i++) {
-		//shader.
-		//string index = texIndex(texv[i]);
 		shader->uniform(samplerName(i), i); bindTexture(texv[i], GL_TEXTURE0 + i);
 		shader->uniform(samplerName(i)+"Size", vec2(texv[i]->getSize()));
 		shader->uniform("tsize" + samplerSuffix(i), vec2(1)/vec2(texv[i]->getSize()));
@@ -296,13 +289,10 @@ gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string const& fsha
 	else {
 		throw std::runtime_error("Nondefault srcArea not implemented yet");
 	}
-	//tex0->setTopDown(true);
 	ci::Rectf texRect(0.0f, 0.0f, 1.0f, 1.0f);// = tex0->getAreaTexCoords(srcArea);
-	//tex0->setTopDown(false);
 	shader->uniform("uTexCoordOffset", texRect.getUpperLeft());
 	shader->uniform("uTexCoordScale", texRect.getSize());
 
-	//glUseProgram(shader->getHandle()); // we did this further up, but the ->uniform calls have messed it up
 	shader->bind();
 
 	if (opts._enableResult) {

@@ -1,11 +1,9 @@
 #pragma once
 #include "precompiled.h"
 #include <cinder/gl/Context.h>
-#include <cinder/gl/scoped.h>
 #include "stb_image.h"
-#include <cstddef>   // offsetof
-#include <cstdint>
-#include <stdexcept>
+//#include "shade.h" // for drawRect
+extern void drawRect();
 
 class lxTexture
 {
@@ -143,15 +141,12 @@ static const std::string genericFragmentShaderSource =
 inline void lxDraw(lxTextureRef const& tex) {
 	auto ctx = ci::gl::Context::getCurrent();
 
-	ci::gl::ScopedVao vaoScp(ctx->getDrawTextureVao());
-	//ci::gl::ScopedBuffer vboScp(ctx->getDrawTextureVbo());
 	glActiveTexture(GL_TEXTURE0);
 	tex->bind();
 
-	//auto glsl = ci::gl::getStockShader(ci::gl::ShaderDef().uniformBasedPosAndTexCoord().color().texture(texture));
 	static const auto glslFormat = ci::gl::GlslProg::Format().vertex(genericVertexShaderSource).fragment(genericFragmentShaderSource);
 	static const auto glsl = ci::gl::GlslProg::create(glslFormat);
-	ci::gl::ScopedGlslProg glslScp(glsl);
+	glsl->bind();
 	glsl->uniform("uTex", 0);
 	glsl->uniform("uPositionOffset", glm::vec2(0, 0));
 	glsl->uniform("uPositionScale", tex->getSize());
@@ -160,7 +155,8 @@ inline void lxDraw(lxTextureRef const& tex) {
 
 	ctx->setDefaultShaderVars();
 	glViewport(0, 0, ci::app::getWindowWidth(), ci::app::getWindowHeight());
-	ctx->drawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	
+	::drawRect();
 }
 
 inline void lxClear() {

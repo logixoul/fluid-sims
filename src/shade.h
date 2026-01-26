@@ -32,7 +32,7 @@ struct GpuScope {
 void beginRTT(gl::TextureRef fbotex);
 void endRTT();
 
-void drawRect();
+extern void drawRect();
 
 struct Str {
 	string s;

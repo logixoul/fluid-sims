@@ -43,8 +43,6 @@ namespace gl {
 	using GlslProg = ci::gl::GlslProg;
 	using GlslProgRef = ci::gl::GlslProgRef;
 	using Context = ci::gl::Context;
-	using ScopedBuffer = ci::gl::ScopedBuffer;
-	using VboRef = ci::gl::VboRef;
 }
 #define IMGUI_USER_CONFIG "CinderImGuiConfig.h"
 #define CINDER_IMGUI_EXTERNAL
