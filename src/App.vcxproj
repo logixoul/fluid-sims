@@ -159,6 +159,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="shade.cpp" />
+    <ClCompile Include="stb_image.cpp" />
     <ClCompile Include="stefanfw.cpp" />
     <ClCompile Include="stuff.cpp" />
     <ClCompile Include="TextureCache.cpp" />
@@ -178,6 +179,7 @@
     <ClInclude Include="ParticleFluidSketch.h" />
     <ClInclude Include="precompiled.h" />
     <ClInclude Include="shade.h" />
+    <ClInclude Include="stb_image.h" />
     <ClInclude Include="stefanfw.h" />
     <ClInclude Include="stuff.h" />
     <ClInclude Include="TextureCache.h" />

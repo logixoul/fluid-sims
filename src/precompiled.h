@@ -29,11 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <cinder/app/App.h>
 #include <cinder/app/RendererGl.h>
 #include <cinder/gl/GlslProg.h>
-//#include <cinder/gl/Texture.h>
 #include <cinder/gl/gl.h>
-#include <cinder/ImageIo.h> // todo rm?
 
-//#include <cinder/Vector.h>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>

@@ -2,6 +2,7 @@
 #include "precompiled.h"
 #include <cinder/gl/Context.h>
 #include <cinder/gl/scoped.h>
+#include "stb_image.h"
 
 class lxTexture
 {
@@ -36,10 +37,17 @@ public:
 		init(width, height, format);
 	}
 	lxTexture(std::string filePath, Format const& format) {
-		ci::Surface8u surf = ci::loadImage(ci::app::loadAsset(filePath));
-		init(surf.getWidth(), surf.getHeight(), format);
+		/*ci::Surface8u surf = ci::loadImage(ci::app::loadAsset(filePath));*/
+		int width, height, n;
+		filePath = "../assets/" + filePath;
+		unsigned char *data = stbi_load(filePath.c_str(), &width, &height, &n, 4);
+		if (data == nullptr)
+			throw std::runtime_error("Couldn't load image");
+
+		init(width, height, format);
 		bind();
-		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, mWidth, mHeight, GL_RGBA, GL_UNSIGNED_BYTE, surf.getData());
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, mWidth, mHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		stbi_image_free(data);
 	}
 	void bind() {
 		glBindTexture(GL_TEXTURE_2D, mId);

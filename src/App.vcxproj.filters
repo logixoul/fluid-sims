@@ -32,6 +32,7 @@
     </ClCompile>
     <ClCompile Include="CinderImGui.cpp" />
     <ClCompile Include="IntegratedConsole.cpp" />
+    <ClCompile Include="stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -62,6 +63,7 @@
     <ClInclude Include="ParticleFluidSketch.h" />
     <ClInclude Include="GridFluidSketch.h" />
     <ClInclude Include="lxTextureRef.h" />
+    <ClInclude Include="stb_image.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="OldCode.txt" />
