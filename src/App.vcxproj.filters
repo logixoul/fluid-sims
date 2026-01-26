@@ -6,9 +6,6 @@
     <ClCompile Include="Array2D_imageProc.cpp">
       <Filter>lxlib</Filter>
     </ClCompile>
-    <ClCompile Include="easyfft.cpp">
-      <Filter>lxlib</Filter>
-    </ClCompile>
     <ClCompile Include="gpgpu.cpp">
       <Filter>lxlib</Filter>
     </ClCompile>
@@ -19,9 +16,6 @@
       <Filter>lxlib</Filter>
     </ClCompile>
     <ClCompile Include="shade.cpp">
-      <Filter>lxlib</Filter>
-    </ClCompile>
-    <ClCompile Include="simplexnoise.cpp">
       <Filter>lxlib</Filter>
     </ClCompile>
     <ClCompile Include="stefanfw.cpp">
@@ -44,9 +38,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
-    <ClInclude Include="easyfft.h">
-      <Filter>lxlib</Filter>
-    </ClInclude>
     <ClInclude Include="gpgpu.h">
       <Filter>lxlib</Filter>
     </ClInclude>
@@ -54,9 +45,6 @@
       <Filter>lxlib</Filter>
     </ClInclude>
     <ClInclude Include="shade.h">
-      <Filter>lxlib</Filter>
-    </ClInclude>
-    <ClInclude Include="simplexnoise.h">
       <Filter>lxlib</Filter>
     </ClInclude>
     <ClInclude Include="stefanfw.h">
@@ -79,17 +67,6 @@
     <ClInclude Include="IntegratedConsole.h" />
     <ClInclude Include="ParticleFluidSketch.h" />
     <ClInclude Include="GridFluidSketch.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="hcl_lib.fs">
-      <Filter>lxlib</Filter>
-    </None>
-    <None Include="simplexnoise3d.fs.glsl">
-      <Filter>lxlib</Filter>
-    </None>
-    <None Include="stuff.fs">
-      <Filter>lxlib</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="OldCode.txt" />

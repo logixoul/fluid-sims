@@ -43,9 +43,6 @@ struct ParticleFluidSketch {
 	}
 	void keyDown(ci::app::KeyEvent e)
 	{
-		if (keys[' ']) {
-			doFluidStep();
-		}
 		if (keys['r'])
 		{
 			reset();

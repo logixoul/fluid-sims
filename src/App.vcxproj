@@ -146,8 +146,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="easyfft.cpp">
-    </ClCompile>
     <ClCompile Include="gpgpu.cpp" />
     <ClCompile Include="IntegratedConsole.cpp" />
     <ClCompile Include="MyTimer.cpp" />
@@ -161,7 +159,6 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="shade.cpp" />
-    <ClCompile Include="simplexnoise.cpp" />
     <ClCompile Include="stefanfw.cpp" />
     <ClCompile Include="stuff.cpp" />
     <ClCompile Include="sw.cpp" />
@@ -173,8 +170,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="easyfft.h">
-    </ClInclude>
     <ClInclude Include="gpgpu.h" />
     <ClInclude Include="gpuBlur2_5.h">
     </ClInclude>
@@ -183,17 +178,11 @@
     <ClInclude Include="ParticleFluidSketch.h" />
     <ClInclude Include="precompiled.h" />
     <ClInclude Include="shade.h" />
-    <ClInclude Include="simplexnoise.h" />
     <ClInclude Include="stefanfw.h" />
     <ClInclude Include="stuff.h" />
     <ClInclude Include="sw.h" />
     <ClInclude Include="TextureCache.h" />
     <ClInclude Include="util.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="hcl_lib.fs" />
-    <None Include="simplexnoise3d.fs.glsl" />
-    <None Include="stuff.fs" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\vcpkg-notes.txt" />

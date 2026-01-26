@@ -25,26 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 typedef unsigned char byte;
 
-/*template< typename T >
-struct array_deleter
-{
-	void operator ()(T const * p)
-	{
-		//delete[] p;
-		fftwf_free(const_cast<T*>(p));
-	}
-};
-
-template<class T>
-class ArrayDeleter
-{
-	std::shared_ptr<T> sp;
-public:
-	ArrayDeleter(T* arrayPtr) {
-		sp = std::shared_ptr<T>(arrayPtr, array_deleter<T>());
-	}
-};*/
-
 template<class T>
 class ArrayDeleter
 {
@@ -130,21 +110,6 @@ struct Array2D
 	Array2D(int w, int h, T const& defaultValue = T()) : deleter(Init(w, h)) { fill(defaultValue); }
 	Array2D(ivec2 s, T const& defaultValue = T()) : deleter(Init(s.x, s.y)) { fill(defaultValue); }
 	Array2D() : deleter(Init(0, 0)) { }
-	
-	Array2D(ci::Surface8u const& surface) : deleter(Init(surface.getWidth(), surface.getHeight()))
-	{
-		::copyCvtData(surface, *this);
-	}
-
-	Array2D(ci::SurfaceT<float> const& surface) : deleter(Init(surface.getWidth(), surface.getHeight()))
-	{
-		::copyCvtData(surface, *this);
-	}
-
-	Array2D(ci::ChannelT<float> const& surface) : deleter(Init(surface.getWidth(), surface.getHeight()))
-	{
-		::copyCvtData(surface, *this);
-	}
 	
 #ifdef OPENCV_CORE_HPP
 	template<class TSrc>
