@@ -66,9 +66,6 @@ void setDefaults(gl::TextureRef tex) {
 	tex->setWrap(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
 }
 
-//static void clearContents(gl::TextureRef const& tex) {
-//}
-
 static std::mutex mut;
 
 gl::TextureRef TextureCache::get(TextureCacheKey const & key)

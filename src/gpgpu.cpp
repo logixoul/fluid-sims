@@ -217,6 +217,8 @@ Operable op(gl::TextureRef tex) {
 	return Operable(tex);
 }
 
+
+
 inline Operable::Operable(gl::TextureRef aTex) {
 	tex = aTex;
 }

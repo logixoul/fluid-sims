@@ -1,6 +1,8 @@
 #include "precompiled.h"
 #include "easyfft.h"
 
+#ifdef FFTW3_H
+
 class PlanCache {
 public:
 	static fftwf_plan getPlan(ivec2 arrSize, int direction, int flags) {
@@ -68,3 +70,5 @@ Array2D<float> ifft(Array2D<Complexf> in, int flags)
 	}
 	return out_real;
 }
+
+#endif

@@ -87,8 +87,11 @@ private:
 		if (*refcountPtr == 0)
 		{
 			delete refcountPtr;
-			//delete[] array;
+#ifdef FFTW3_H
 			fftwf_free(arrayPtr);
+#else
+			delete[] arrayPtr;
+#endif
 		}
 	}
 
@@ -192,8 +195,12 @@ private:
 	}
 	T* Init(int w, int h) {
 		// fftwf_malloc so we can use "new-array execute" fftw functions
+#ifdef FFTW3_H
+		fftwf_free(arrayPtr);
 		auto data = (T*)fftwf_malloc(w * h * sizeof(T));
-		//auto data = new T[w * h];
+#else
+		auto data = new T[w * h];
+#endif
 		Init(w, h, data);
 		return data;
 	}

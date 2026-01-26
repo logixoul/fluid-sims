@@ -52,7 +52,6 @@ gl::TextureRef dotTex(gl::TextureRef lhs, gl::TextureRef rhs);
 
 float dot(gl::TextureRef lhs, gl::TextureRef rhs);
 
-
 struct Operable {
 	explicit Operable(gl::TextureRef aTex);
 	Operable operator+(gl::TextureRef other);
@@ -83,5 +82,4 @@ private:
 };
 
 Operable op(gl::TextureRef tex);
-
 
