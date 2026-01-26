@@ -31,6 +31,17 @@ T& getWrapped(Array2D<T>& src, int x, int y)
 	return getWrapped(src, ivec2(x, y));
 }
 struct WrapModes {
+	struct GetMirrorWrapped {
+		template<class T>
+		static T& fetch(Array2D<T>& src, int x, int y)
+		{
+			if (x >= src.w) x = src.w - (x - src.w) - 1;
+			else if (x < 0) x = -x;
+			if (y >= src.h) y = src.h - (y - src.h) - 1;
+			else if (y < 0) y = -y;
+			return src(x, y);
+		}
+	};
 	struct GetWrapped {
 		template<class T>
 		static T& fetch(Array2D<T>& src, int x, int y)

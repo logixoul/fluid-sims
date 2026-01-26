@@ -1,8 +1,10 @@
 #include "precompiled.h"
 #include "ParticleFluidSketch.h"
+#include "GridFluidSketch.h"
 
 struct SketchScaffold : ci::app::App {
-	ParticleFluidSketch sketch;
+	//ParticleFluidSketch sketch;
+	GridFluidSketch sketch;
 
 	shared_ptr<IntegratedConsole> integratedConsole;
 	void setup()

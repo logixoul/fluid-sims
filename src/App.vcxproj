@@ -188,6 +188,7 @@
     <ClInclude Include="gpgpu.h" />
     <ClInclude Include="gpuBlur2_5.h">
     </ClInclude>
+    <ClInclude Include="GridFluidSketch.h" />
     <ClInclude Include="IntegratedConsole.h" />
     <ClInclude Include="ParticleFluidSketch.h" />
     <ClInclude Include="precompiled.h" />
