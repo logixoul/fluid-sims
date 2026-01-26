@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #undef max
 #include <cinder/app/App.h>
 #include <cinder/app/RendererGl.h>
-#include <cinder/gl/GlslProg.h>
 
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
@@ -42,9 +41,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 namespace gl {
 	typedef lxTextureRef TextureRef;
 	typedef lxTexture Texture;
-	//using namespace ci::gl;
-	using GlslProg = ci::gl::GlslProg;
-	using GlslProgRef = ci::gl::GlslProgRef;
 }
 #define IMGUI_USER_CONFIG "CinderImGuiConfig.h"
 #define CINDER_IMGUI_EXTERNAL
