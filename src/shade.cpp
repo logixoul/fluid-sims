@@ -63,12 +63,14 @@ void endRTT()
 }
 
 void drawRect() {
-	auto ctx = gl::Context::getCurrent();
+	//auto ctx = gl::Context::getCurrent();
 
-	ctx->getDrawTextureVao()->bind();
-	//ctx->getDrawTextureVbo()->bind(); // this seems to be unnecessary
-
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	//ctx->getDrawTextureVao()->bind();
+	
+	static std::shared_ptr<QuadGpu> quad = createQuadVAO_VBOs();
+	quad->vao.bind();
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	lxVAO::unbind();
 }
 
 auto samplerSuffix = [&](int i) -> string {

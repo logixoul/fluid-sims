@@ -3,6 +3,9 @@
 #include <cinder/gl/Context.h>
 #include <cinder/gl/scoped.h>
 #include "stb_image.h"
+#include <cstddef>   // offsetof
+#include <cstdint>
+#include <stdexcept>
 
 class lxTexture
 {
@@ -138,10 +141,10 @@ static const std::string genericFragmentShaderSource =
 "}";
 
 inline void lxDraw(lxTextureRef const& tex) {
-	auto ctx = ci::gl::context();
+	auto ctx = ci::gl::Context::getCurrent();
 
 	ci::gl::ScopedVao vaoScp(ctx->getDrawTextureVao());
-	ci::gl::ScopedBuffer vboScp(ctx->getDrawTextureVbo());
+	//ci::gl::ScopedBuffer vboScp(ctx->getDrawTextureVbo());
 	glActiveTexture(GL_TEXTURE0);
 	tex->bind();
 
