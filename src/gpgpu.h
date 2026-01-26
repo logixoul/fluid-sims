@@ -46,9 +46,9 @@ gl::TextureRef gauss3tex(gl::TextureRef src);
 
 gl::TextureRef get_laplace_tex(gl::TextureRef src, GLuint wrap);
 
-gl::TextureRef dotTex(gl::TextureRef lhs, gl::TextureRef rhs);
+/*gl::TextureRef dotTex(gl::TextureRef lhs, gl::TextureRef rhs);
 
-float dot(gl::TextureRef lhs, gl::TextureRef rhs);
+float dot(gl::TextureRef lhs, gl::TextureRef rhs);*/
 
 struct Operable {
 	explicit Operable(gl::TextureRef aTex);

@@ -130,6 +130,8 @@ void TextureCache::clearCaches()
 
 void TextureCache::printTextures()
 {
+	throw std::runtime_error("TextureCache::printTextures(): Not implemented");
+#if 0
 	unique_lock<std::mutex> ul(::mut);
 	cout << "==============" << endl;
 	int totalBytes = 0;
@@ -156,6 +158,7 @@ void TextureCache::printTextures()
 		totalBytes += bytes;
 	}
 	cout << "megabytes = " << totalBytes /1'000'000 << endl;
+#endif
 }
 
 void TextureCache::deleteTexture(gl::TextureRef texToDel)

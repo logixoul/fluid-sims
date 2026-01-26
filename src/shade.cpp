@@ -94,9 +94,9 @@ std::string getCompleteFshader(vector<gl::TextureRef> const& texv, vector<Unifor
 	for(int i = 0; i < texv.size(); i++)
 	{
 		string samplerType = "sampler2D";
-		GLenum fmt, type;
-		texv[i]->getInternalFormatInfo(texv[i]->getInternalFormat(), &fmt, &type);
-		if (type == GL_UNSIGNED_INT) samplerType = "usampler2D";
+		//GLenum fmt, type;
+		//gl::Texture::getInternalFormatInfo(texv[i]->getInternalFormat(), &fmt, &type);
+		//if (type == GL_UNSIGNED_INT) samplerType = "usampler2D";
 		uniformDeclarations << "uniform " + samplerType + " " + samplerName(i) + ";\n";
 		uniformDeclarations << "uniform vec2 " + samplerName(i) + "Size;\n";
 		uniformDeclarations << "uniform vec2 tsize" + samplerSuffix(i) + ";\n";
@@ -296,11 +296,14 @@ gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string const& fsha
 	}*/
 	auto srcArea = opts._area;
 	if (srcArea == ci::Area::zero()) {
-		srcArea = tex0->getBounds();
+		srcArea = ci::Area(0, 0, tex0->getWidth(), tex0->getHeight());
 	}
-	tex0->setTopDown(true);
-	ci::Rectf texRect = tex0->getAreaTexCoords(srcArea);
-	tex0->setTopDown(false);
+	else {
+		throw std::runtime_error("Nondefault srcArea not implemented yet");
+	}
+	//tex0->setTopDown(true);
+	ci::Rectf texRect(0.0f, 0.0f, 1.0f, 1.0f);// = tex0->getAreaTexCoords(srcArea);
+	//tex0->setTopDown(false);
 	shader->uniform("uTexCoordOffset", texRect.getUpperLeft());
 	shader->uniform("uTexCoordScale", texRect.getSize());
 

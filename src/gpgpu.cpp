@@ -119,6 +119,8 @@ static int nextPowerOf2(int v) {
 		return 1 << int(std::ceil(Lf));
 	}
 }
+// haven't reimplemented the following yet
+#if 0
 
 static void drawBetter(gl::TextureRef& texture, const ci::Area& srcArea, const ci::Rectf& dstRect, gl::GlslProgRef glslArg)
 {
@@ -188,7 +190,6 @@ gl::TextureRef sumTex(gl::TextureRef in) {
 	return res;
 }
 
-
 gl::TextureRef dotTex(gl::TextureRef lhs, gl::TextureRef rhs) {
 	auto muld = maketex(lhs->getWidth(), lhs->getHeight(), lhs->getInternalFormat(), false);
 	shade2(lhs, rhs,
@@ -200,11 +201,12 @@ gl::TextureRef dotTex(gl::TextureRef lhs, gl::TextureRef rhs) {
 	);
 	return sumTex(muld);
 }
+#endif
 
-float dot(gl::TextureRef lhs, gl::TextureRef rhs) {
+/*float dot(gl::TextureRef lhs, gl::TextureRef rhs) {
 	auto muld = dotTex(lhs, rhs);
 	return dl<float>(muld)(0, 0);
-}
+}*/
 
 Operable op(gl::TextureRef tex) {
 	return Operable(tex);
@@ -241,12 +243,12 @@ void Operable::operator*=(gl::TextureRef other) {
 void Operable::operator/=(gl::TextureRef other) {
 	tex = shade2(tex, other, "_out = fetch4() / fetch4(tex2);");
 }
-float Operable::dot(gl::TextureRef other) {
+/*float Operable::dot(gl::TextureRef other) {
 	return ::dot(tex, other);
 }
 gl::TextureRef Operable::dotTex(gl::TextureRef other) {
 	return ::dotTex(tex, other);
-}
+}*/
 Operable::operator gl::TextureRef() {
 	return tex;
 }

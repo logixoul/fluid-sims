@@ -29,8 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <cinder/app/App.h>
 #include <cinder/app/RendererGl.h>
 #include <cinder/gl/GlslProg.h>
-#include <cinder/gl/Texture.h>
-#include <cinder/gl/Fbo.h>
+//#include <cinder/gl/Texture.h>
 #include <cinder/gl/gl.h>
 #include <cinder/ImageIo.h> // todo rm?
 
@@ -39,11 +38,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <glm/gtx/io.hpp>
+#include "lxTextureRef.h"
+namespace gl {
+	typedef lxTextureRef TextureRef;
+	typedef lxTexture Texture;
+	using namespace ci::gl;
+}
 #define IMGUI_USER_CONFIG "CinderImGuiConfig.h"
 #define CINDER_IMGUI_EXTERNAL
 
 using namespace glm;
 using namespace std;
-//using namespace ci;
-namespace gl = ci::gl;
-//#include <fftw3.h>
+//namespace gl = ci::gl;

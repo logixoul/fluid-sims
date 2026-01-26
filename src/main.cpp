@@ -10,6 +10,8 @@ struct SketchScaffold : ci::app::App {
 	shared_ptr<IntegratedConsole> integratedConsole;
 	void setup()
 	{
+		::enableGlDebugOutput();
+
 		ImGui::Initialize();
 		ImGuiIO& io = ImGui::GetIO();
 		io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\segoeui.ttf", 18.0f);

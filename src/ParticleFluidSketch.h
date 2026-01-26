@@ -130,7 +130,8 @@ struct ParticleFluidSketch {
 		),
 			ShadeOpts().uniform("bloomIntensity", bloomIntensity)
 			);*/
-		static auto envMap = gl::Texture::create(ci::loadImage(ci::app::loadAsset("milkyway.png")));
+		static const auto format = gl::Texture::Format().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR).magFilter(GL_LINEAR).loadTopDown(true).wrap(GL_MIRRORED_REPEAT);
+		static auto envMap = gl::Texture::create("milkyway.png", format);
 		//static auto envMap = gl::TextureCubeMap::create(loadImage(loadAsset("envmap_cube.jpg")), gl::TextureCubeMap::Format().mipmap());
 		//gl::TextureBaseRef test=envMap;
 		auto grads = get_gradients_tex(limitedTex);
@@ -198,7 +199,7 @@ struct ParticleFluidSketch {
 
 			//videoWriter->write(tex2);
 
-		gl::draw(tex2, ci::app::getWindowBounds());
+		lxDraw(tex2);
 
 		/*gl::setMatricesWindow(getWindowSize(), true);
 		for (auto& p : particles) {

@@ -183,8 +183,8 @@ struct GridFluidSketch {
 		),
 			ShadeOpts().uniform("bloomIntensity", bloomIntensity)
 		);
-		static const auto format = gl::Texture::Format().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR).magFilter(GL_LINEAR).loadTopDown(true).wrap(GL_MIRRORED_REPEAT);
-		static auto envMap = gl::Texture::create(ci::loadImage(ci::app::loadAsset("milkyway.png")), format);
+		static const auto format = gl::Texture::Format().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR).magFilter(GL_LINEAR).loadTopDown(true).wrap(GL_MIRRORED_REPEAT).internalFormat(GL_RGBA8);
+		static auto envMap = gl::Texture::create("milkyway.png", format);
 		static auto envMap2 = shade2(envMap, MULTILINE(
 			vec3 c = fetch3();
 		c /= vec3(1.0) - c * 0.99;
@@ -284,7 +284,8 @@ struct GridFluidSketch {
 		);
 		//videoWriter->write(tex2);
 
-		gl::draw(tex2, ci::app::getWindowBounds());
+		lxDraw(tex2);
+		//lxDraw(envMap);
 	}
 	void stefanUpdate()
 	{

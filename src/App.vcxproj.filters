@@ -61,6 +61,7 @@
     <ClInclude Include="IntegratedConsole.h" />
     <ClInclude Include="ParticleFluidSketch.h" />
     <ClInclude Include="GridFluidSketch.h" />
+    <ClInclude Include="lxTextureRef.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="OldCode.txt" />

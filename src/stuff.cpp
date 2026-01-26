@@ -117,9 +117,7 @@ gl::TextureRef gtex(Array2D<vec4> a)
 
 gl::TextureRef gtex(Array2D<uvec4> a)
 {
-	gl::Texture::Format fmt;
-	fmt.setInternalFormat(GL_RGBA32UI);
-	gl::TextureRef tex = gl::Texture2d::create(a.w, a.h, fmt);
+	gl::TextureRef tex = maketex(a.w, a.h, GL_RGBA32UI);
 	bind(tex);
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RGBA_INTEGER, GL_UNSIGNED_INT, a.data);
 	return tex;
@@ -176,6 +174,8 @@ void setWrap(gl::TextureRef tex, GLenum wrap) {
 }
 
 gl::TextureRef maketex(int w, int h, GLint ifmt, bool allocateMipmaps, bool clear) {
+	std::cout << "maketex with ifmt=" << ifmt << endl;
+
 	TextureCacheKey key;
 	key.ifmt = ifmt;
 	key.size = ivec2(w, h);

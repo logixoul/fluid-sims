@@ -66,7 +66,7 @@ gl::TextureRef maketex(int w, int h, GLint ifmt, bool allocateMipmaps = false, b
 
 template<class T>
 Array2D<T> gettexdata(gl::TextureRef tex, GLenum format, GLenum type) {
-	return gettexdata<T>(tex, format, type, tex->getBounds());
+	return gettexdata<T>(tex, format, type, ci::Area(0, 0, tex->getWidth(), tex->getHeight()));
 }
 
 template<class T>
