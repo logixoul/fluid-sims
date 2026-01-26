@@ -30,7 +30,7 @@ int denormal_check::num;
 string FileCache::get(string filename) {
 	if(FileCache_db.find(filename)== FileCache_db.end()) {
 		//std::vector<unsigned char> buffer;
-		auto dataSource = loadAsset(filename);
+		auto dataSource = ci::app::loadAsset(filename);
 		auto buffer = dataSource->getBuffer();
 		auto data = (char*)buffer->getData();
 		string bufferStr(data, data + buffer->getSize());
@@ -159,12 +159,12 @@ float expRange(float x, float min, float max) {
 }
 
 float niceExpRangeX(float mouseX, float min, float max) {
-	float x2 = sign(mouseX)*std::max(0.0f, abs(mouseX) - 40.0f / (float)App::get()->getWindowWidth());
+	float x2 = sign(mouseX)*std::max(0.0f, abs(mouseX) - 40.0f / (float)ci::app::App::get()->getWindowWidth());
 	return sign(x2)*expRange(abs(x2), min, max);
 }
 
 float niceExpRangeY(float mouseY, float min, float max) {
-	float y2 = sign(mouseY)*std::max(0.0f, abs(mouseY) - 40.0f / (float)App::get()->getWindowHeight());
+	float y2 = sign(mouseY)*std::max(0.0f, abs(mouseY) - 40.0f / (float)ci::app::App::get()->getWindowHeight());
 	return sign(y2)*expRange(abs(y2), min, max);
 }
 

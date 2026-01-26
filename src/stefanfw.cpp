@@ -48,26 +48,26 @@ namespace stefanfw {
 	}
 
 	// todo make this take ref
-	bool EventHandler::keyDown(KeyEvent e) {
+	bool EventHandler::keyDown(ci::app::KeyEvent e) {
 		keys[e.getChar()] = true;
-		if(e.isControlDown()&&e.getCode()!=KeyEvent::KEY_LCTRL)
+		if(e.isControlDown()&&e.getCode()!= ci::app::KeyEvent::KEY_LCTRL)
 		{
 			keys2[e.getChar()] = !keys2[e.getChar()];
 		}
 		return true;
 	}
 
-	bool EventHandler::keyUp(KeyEvent e) {
+	bool EventHandler::keyUp(ci::app::KeyEvent e) {
 		keys[e.getChar()] = false;
 		return true;
 	}
 
-	bool EventHandler::mouseDown(MouseEvent e)
+	bool EventHandler::mouseDown(ci::app::MouseEvent e)
 	{
 		mouseDown_[e.isLeft() ? 0 : e.isMiddle() ? 1 : 2] = true;
 		return true;
 	}
-	bool EventHandler::mouseUp(MouseEvent e)
+	bool EventHandler::mouseUp(ci::app::MouseEvent e)
 	{
 		mouseDown_[e.isLeft() ? 0 : e.isMiddle() ? 1 : 2] = false;
 		return true;
@@ -75,10 +75,10 @@ namespace stefanfw {
 
 	void EventHandler::subscribeToEvents(ci::app::App& app) {
 		auto window = app.getWindow();
-		window->getSignalKeyDown().connect([&](KeyEvent& e) { keyDown(e); });
-		window->getSignalKeyUp().connect([&](KeyEvent& e) { keyUp(e); });
-		window->getSignalMouseDown().connect([&](MouseEvent& e) { mouseDown(e); });
-		window->getSignalMouseUp().connect([&](MouseEvent& e) { mouseUp(e); });
+		window->getSignalKeyDown().connect([&](ci::app::KeyEvent& e) { keyDown(e); });
+		window->getSignalKeyUp().connect([&](ci::app::KeyEvent& e) { keyUp(e); });
+		window->getSignalMouseDown().connect([&](ci::app::MouseEvent& e) { mouseDown(e); });
+		window->getSignalMouseUp().connect([&](ci::app::MouseEvent& e) { mouseUp(e); });
 	}
 
 } // namespace stefanfw

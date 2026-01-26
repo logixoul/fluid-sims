@@ -37,9 +37,9 @@ struct ParticleFluidSketch {
 
 	void setup()
 	{
-		setWindowSize(800, 800);
+		ci::app::setWindowSize(800, 800);
 
-		sz = ivec2(getWindowWidth() / scale, getWindowHeight() / scale);
+		sz = ivec2(ci::app::getWindowWidth() / scale, ci::app::getWindowHeight() / scale);
 
 		reset();
 	}
@@ -104,7 +104,7 @@ struct ParticleFluidSketch {
 
 		gl::clear(Color(0, 0, 0));
 
-		gl::setMatricesWindow(getWindowSize(), false);
+		gl::setMatricesWindow(ci::app::getWindowSize(), false);
 		auto img = Array2D<float>(sz);
 		for (auto& particle : particles) {
 			aaPoint<float, WrapModes::GetClamped>(img, particle.pos, 47);
@@ -140,7 +140,7 @@ struct ParticleFluidSketch {
 		),
 			ShadeOpts().uniform("bloomIntensity", bloomIntensity)
 			);*/
-		static auto envMap = gl::Texture::create(ci::loadImage(loadAsset("milkyway.png")));
+		static auto envMap = gl::Texture::create(ci::loadImage(ci::app::loadAsset("milkyway.png")));
 		//static auto envMap = gl::TextureCubeMap::create(loadImage(loadAsset("envmap_cube.jpg")), gl::TextureCubeMap::Format().mipmap());
 		//gl::TextureBaseRef test=envMap;
 		auto grads = get_gradients_tex(limitedTex);
@@ -208,7 +208,7 @@ struct ParticleFluidSketch {
 
 			//videoWriter->write(tex2);
 
-		gl::draw(tex2, getWindowBounds());
+		gl::draw(tex2, ci::app::getWindowBounds());
 
 		/*gl::setMatricesWindow(getWindowSize(), true);
 		for (auto& p : particles) {
@@ -226,7 +226,7 @@ struct ParticleFluidSketch {
 		vec2 scaledm = vec2(mouseX * (float)sz.x, mouseY * (float)sz.y);
 		if (mouseDown_[0])
 		{
-			float t = getElapsedFrames();
+			float t = ci::app::getElapsedFrames();
 
 			Particle part; part.pos = scaledm + vec2(sin(t), cos(t)) * 30.0f;
 			particles.push_back(part);

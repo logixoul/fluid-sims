@@ -30,10 +30,10 @@ namespace stefanfw {
 	void beginFrame();
 	void endFrame();
 	struct EventHandler {
-		bool keyDown(KeyEvent e);
-		bool keyUp(KeyEvent e);
-		bool mouseDown(MouseEvent e);
-		bool mouseUp(MouseEvent e);
+		bool keyDown(ci::app::KeyEvent e);
+		bool keyUp(ci::app::KeyEvent e);
+		bool mouseDown(ci::app::MouseEvent e);
+		bool mouseUp(ci::app::MouseEvent e);
 		void subscribeToEvents(ci::app::App& app);
 	} extern eventHandler;
 };

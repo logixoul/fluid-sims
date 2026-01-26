@@ -69,7 +69,7 @@ struct GridFluidSketch {
 
 		glDisable(GL_BLEND);
 
-		setWindowSize(wsx, wsy);
+		ci::app::setWindowSize(wsx, wsy);
 
 		reset();
 	}
@@ -147,7 +147,7 @@ struct GridFluidSketch {
 	{
 		gl::clear(Color(0, 0, 0));
 
-		gl::setMatricesWindow(getWindowSize(), false);
+		gl::setMatricesWindow(ci::app::getWindowSize(), false);
 
 		auto colorAmount = cfg1::getOpt("[c] colorAmount", 0.06f,
 			[&]() { return keys['c']; },
@@ -211,7 +211,7 @@ struct GridFluidSketch {
 			ShadeOpts().uniform("bloomIntensity", bloomIntensity)
 		);
 		static const auto format = gl::Texture::Format().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR).magFilter(GL_LINEAR).loadTopDown(true).wrap(GL_MIRRORED_REPEAT);
-		static auto envMap = gl::Texture::create(ci::loadImage(loadAsset("milkyway.png")), format);
+		static auto envMap = gl::Texture::create(ci::loadImage(ci::app::loadAsset("milkyway.png")), format);
 		static auto envMap2 = shade2(envMap, MULTILINE(
 			vec3 c = fetch3();
 		c /= vec3(1.0) - c * 0.99;
@@ -311,7 +311,7 @@ struct GridFluidSketch {
 		);
 		//videoWriter->write(tex2);
 
-		gl::draw(tex2, getWindowBounds());
+		gl::draw(tex2, ci::app::getWindowBounds());
 	}
 	void stefanUpdate()
 	{
