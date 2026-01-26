@@ -25,7 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <complex>
 #undef min
 #undef max
-//#include <cinder/ip/Resize.h>
 #include <cinder/app/App.h>
 #include <cinder/app/RendererGl.h>
 #include <cinder/gl/GlslProg.h>

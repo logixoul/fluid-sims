@@ -49,6 +49,9 @@ public:
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, mWidth, mHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
 		stbi_image_free(data);
 	}
+	~lxTexture() {
+		glDeleteTextures(1, &mId);
+	}
 	void bind() {
 		glBindTexture(GL_TEXTURE_2D, mId);
 	}
@@ -153,6 +156,7 @@ inline void lxDraw(lxTextureRef const& tex) {
 	glsl->uniform("uTexCoordScale", glm::vec2(1.0f, -1.0f));
 
 	ctx->setDefaultShaderVars();
+	glViewport(0, 0, ci::app::getWindowWidth(), ci::app::getWindowHeight());
 	ctx->drawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
 

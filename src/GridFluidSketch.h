@@ -124,8 +124,6 @@ struct GridFluidSketch {
 	{
 		lxClear();
 
-		gl::setMatricesWindow(ci::app::getWindowSize(), false);
-
 		static float colorAmount = 0.06f;
 		ImGui::DragFloat("colorAmount", &colorAmount, 1.0f, 0.01, 8.0, "%.3f", ImGuiSliderFlags_Logarithmic);
 		static float matterAmount = 13.0f;

@@ -94,7 +94,6 @@ struct ParticleFluidSketch {
 
 		lxClear();
 
-		gl::setMatricesWindow(ci::app::getWindowSize(), false);
 		auto img = Array2D<float>(sz);
 		for (auto& particle : particles) {
 			aaPoint<float, WrapModes::GetClamped>(img, particle.pos, 47);

@@ -319,14 +319,11 @@ gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string const& fsha
 
 		glColorMask(false, false, false, false);
 	}
-	 
-	gl::pushMatrices();
+	
 	{
-		gl::ScopedViewport sv(opts._dstPos, viewportSize);
-		gl::setMatricesWindow(ivec2(1, 1), true);
-		gl::disableAlphaBlending();
+		glViewport(0, 0, viewportSize.x, viewportSize.y);
+		glDisable(GL_BLEND);
 		::drawRect();
-		gl::popMatrices();
 	}
 	if (opts._enableResult) {
 		endRTT();
