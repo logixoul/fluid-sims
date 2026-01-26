@@ -20,7 +20,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #pragma once
 #include "precompiled.h"
 
-extern float mouseX, mouseY;
 extern bool keys[256];
 extern bool keys2[256];
 extern bool mouseDown_[3];

@@ -274,7 +274,6 @@ gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string const& fsha
 	int location = 0;
 	shader->uniform("viewportSize", viewportSize);
 	location++;
-	shader->uniform("mouse", vec2(mouseX, mouseY));
 	//::setUniform(location++, vec2(result->getSize()));
 	shader->uniform("tex", 0); bindTexture(tex0, GL_TEXTURE0 + 0);
 	shader->uniform("texSize", vec2(tex0->getSize()));

@@ -222,17 +222,18 @@ struct ParticleFluidSketch {
 			doFluidStep();
 
 		} // if ! pause
-		vec2 scaledm = vec2(mouseX * (float)sz.x, mouseY * (float)sz.y);
+		vec2 mousePos = this->lastm;
+		mousePos /= scale;
 		if (mouseDown_[0])
 		{
 			float t = ci::app::getElapsedFrames();
 
-			Particle part; part.pos = scaledm + vec2(sin(t), cos(t)) * 30.0f;
+			Particle part; part.pos = mousePos + vec2(sin(t), cos(t)) * 30.0f;
 			particles.push_back(part);
 		}
 		else if (mouseDown_[2]) {
 			for (Particle& part : particles) {
-				if (distance(part.pos, scaledm) < 40) {
+				if (distance(part.pos, mousePos) < 40) {
 					const float velocityScaleFactor = 0.6f / (float)scale;
 					part.velocity += velocityScaleFactor * direction;
 					float speed = glm::length(part.velocity);

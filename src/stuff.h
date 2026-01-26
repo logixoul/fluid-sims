@@ -40,9 +40,9 @@ gl::TextureRef gtex(Array2D<uvec4> a);
 int sign(float f);
 float expRange(float x, float min, float max);
 
-float niceExpRangeX(float mouseX, float min, float max);
+float niceExpRangeX(float x, float min, float max);
 
-float niceExpRangeY(float mouseY, float min, float max);
+float niceExpRangeY(float y, float min, float max);
 
 // todo rm
 /*template<class Func>

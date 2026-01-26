@@ -10,6 +10,10 @@
 
 #include "util.h"
 
+#define GET_FLOAT_LOGSCALE(name, defaultValue, min, max) \
+	static float name = defaultValue; \
+	ImGui::DragFloat(#name, &name, 0.5f, min, max, "%.3f", ImGuiSliderFlags_Logarithmic);
+
 struct GridFluidSketch {
 	int wsx = 1280, wsy = 720;
 	const int scale = 6;
@@ -123,16 +127,12 @@ struct GridFluidSketch {
 
 		gl::setMatricesWindow(ci::app::getWindowSize(), false);
 
-		auto colorAmount = cfg1::getOpt("[c] colorAmount", 0.06f,
-			[&]() { return keys['c']; },
-			[&]() { return expRange(mouseY, 0.001, 8.0); });
-
-		auto matterAmount = cfg1::getOpt("[m] matterAmount", 13.0f,
-			[&]() { return keys['m']; },
-			[&]() { return expRange(mouseY, 0.001, 8.0); });
-		auto matterThreshold = cfg1::getOpt("[M] matterThreshold", 1.0f,
-			[&]() { return keys['M']; },
-			[&]() { return expRange(mouseY, 0.001, 8.0); });
+		static float colorAmount = 0.06f;
+		ImGui::DragFloat("colorAmount", &colorAmount, 1.0f, 0.01, 8.0, "%.3f", ImGuiSliderFlags_Logarithmic);
+		static float matterAmount = 13.0f;
+		ImGui::DragFloat("matterAmount", &matterAmount, 1.0f, 0.01, 8.0, "%.3f", ImGuiSliderFlags_Logarithmic);
+		static float matterThreshold = 1.0f;
+		ImGui::DragFloat("matterThreshold", &matterThreshold, 1.0f, 0.01, 8.0, "%.3f", ImGuiSliderFlags_Logarithmic);
 
 		auto density = empty_like(red.density);
 		forxy(density) {
@@ -296,18 +296,20 @@ struct GridFluidSketch {
 		} // if ! pause
 		auto material = keys['g'] ? &red : &green;
 
+		vec2 mousePos = this->lastm;
+		mousePos /= scale;
 		if (mouseDown_[0])
 		{
 			//vec2 scaledm = vec2(getMousePos()-getWindow()->getPos()) / float(::scale); //vec2(mouseX * (float)sx, mouseY * (float)sy);
-			vec2 scaledm = vec2(mouseX * (float)sx, mouseY * (float)sy);
-			Area a(scaledm, scaledm);
+			
+			Area a(mousePos, mousePos);
 			int r = 80 / pow(2, scale);
 			a.expand(r, r);
 			for (int x = a.x1; x <= a.x2; x++)
 			{
 				for (int y = a.y1; y <= a.y2; y++)
 				{
-					vec2 v = vec2(x, y) - scaledm;
+					vec2 v = vec2(x, y) - mousePos;
 					float w = std::max(0.0f, 1.0f - length(v) / r);
 					w = 3 * w * w - 2 * w * w * w;
 					material->density.wr(x, y) += 1.f * w * 100.0;
@@ -316,15 +318,14 @@ struct GridFluidSketch {
 		}
 		else if (mouseDown_[2]) {
 			//mm();
-			vec2 scaledm = vec2(mouseX * (float)sx, mouseY * (float)sy);
-			Area a(scaledm, scaledm);
+			Area a(mousePos, mousePos);
 			int r = 15;
 			a.expand(r, r);
 			for (int x = a.x1; x <= a.x2; x++)
 			{
 				for (int y = a.y1; y <= a.y2; y++)
 				{
-					vec2 v = vec2(x, y) - scaledm;
+					vec2 v = vec2(x, y) - mousePos;
 					float w = std::max(0.0f, 1.0f - length(v) / r);
 					w = 3 * w * w - 2 * w * w * w;
 					if (material->density.wr(x, y) != 0.0f)
@@ -370,9 +371,10 @@ struct GridFluidSketch {
 		//auto guidance = convolve<float, WrapModes::GetClamped>(actingMaterial.density, kernel);
 		//auto guidance = gaussianBlur<float, WrapModes::GetClamped>(actingMaterial.density, 3 * 2 + 1);
 		auto guidance = actingMaterial.density;
-		auto intermaterialRepelCoef = cfg1::getOpt("intermaterialRepelCoef", 0.5f,
-			[&]() { return keys['i']; },
-			[&]() { return expRange(mouseY, 0.1f, 5.0f); });
+
+		static float intermaterialRepelCoef = 0.5f;
+		ImGui::DragFloat("intermaterialRepelCoef", &intermaterialRepelCoef, 1.0f, 0.1, 5.0f, "%.3f", ImGuiSliderFlags_Logarithmic);
+
 		forxy(affectedMaterial.density)
 		{
 			auto g = gradient_i<float, WrapModes::Get_WrapZeros>(guidance, p);
@@ -383,19 +385,10 @@ struct GridFluidSketch {
 	}
 
 	void doFluidStep() {
-		surfTensionThres = cfg1::getOpt("[6] surfTensionThres", 1.5f,
-			[&]() { return keys['6']; },
-			[&]() { return expRange(mouseY, 0.1f, 50000.0f); });
-		auto surfTension = cfg1::getOpt("[7] surfTension", 1.0f,
-			[&]() { return keys['7']; },
-			[&]() { return expRange(mouseY, .0001f, 40000.0f); });
-		auto gravity = cfg1::getOpt("[8] gravity", .1f,//0.0f,//.1f,
-			[&]() { return keys['8']; },
-			[&]() { return expRange(mouseY, .0001f, 40000.0f); });
-		auto incompressibilityCoef = cfg1::getOpt("[/] incompressibilityCoef", 1.0f,
-			[&]() { return keys['/']; },
-			[&]() { return expRange(mouseY, .01f, 40.0f); });
-
+		GET_FLOAT_LOGSCALE(surfTensionThres, 1.5f, 0.1, 50000.0f);
+		GET_FLOAT_LOGSCALE(surfTension, 1.0f, 0.0001, 40000.0f);
+		GET_FLOAT_LOGSCALE(gravity, .1f, 0.0001, 40000.0f);
+		GET_FLOAT_LOGSCALE(incompressibilityCoef, 1.0f, 0.01f, 40.0f);
 
 		//repel(::red, ::green);
 		//repel(::green, ::red);
