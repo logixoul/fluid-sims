@@ -12,8 +12,7 @@
 
 #include "util.h"
 
-struct ParticleFluidSketch : ci::app::App {
-	shared_ptr<IntegratedConsole> integratedConsole;
+struct ParticleFluidSketch {
 	typedef Array2D<float> Image;
 	const int scale = 2;
 	ivec2 sz;
@@ -36,33 +35,13 @@ struct ParticleFluidSketch : ci::app::App {
 
 	bool pause = false;
 
-
 	void setup()
 	{
 		setWindowSize(800, 800);
 
 		sz = ivec2(getWindowWidth() / scale, getWindowHeight() / scale);
 
-		cfg2::init();
-		integratedConsole = make_shared<IntegratedConsole>();;
-
-		enableDenormalFlushToZero();
-
-		disableGLReadClamp();
-		stefanfw::eventHandler.subscribeToEvents(*this);
-
 		reset();
-	}
-	void update()
-	{
-		cfg2::begin();
-		stefanfw::beginFrame();
-		stefanUpdate();
-		stefanDraw();
-		stefanfw::endFrame();
-		cfg2::end();
-
-		integratedConsole->update();
 	}
 	void keyDown(ci::app::KeyEvent e)
 	{
@@ -87,16 +66,16 @@ struct ParticleFluidSketch : ci::app::App {
 	vec2 lastm;
 	void mouseDrag(ci::app::MouseEvent e)
 	{
-		mm();
+		mm(e);
 	}
 	void mouseMove(ci::app::MouseEvent e)
 	{
-		mm();
+		mm(e);
 	}
-	void mm()
+	void mm(ci::app::MouseEvent e)
 	{
-		direction = vec2(getMousePos()) - lastm;
-		lastm = getMousePos();
+		direction = vec2(e.getPos()) - lastm;
+		lastm = e.getPos();
 	}
 	float surfaceTensionThreshold = 1.0f;
 	float pushawayCoef = .2f;

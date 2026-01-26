@@ -24,9 +24,6 @@
     <ClCompile Include="easyfft.cpp">
       <Filter>lxlib</Filter>
     </ClCompile>
-    <ClCompile Include="events.cpp">
-      <Filter>lxlib</Filter>
-    </ClCompile>
     <ClCompile Include="gpgpu.cpp">
       <Filter>lxlib</Filter>
     </ClCompile>

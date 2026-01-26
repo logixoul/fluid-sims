@@ -154,7 +154,6 @@
     </ClCompile>
     <ClCompile Include="easyfft.cpp">
     </ClCompile>
-    <ClCompile Include="events.cpp" />
     <ClCompile Include="cfg2.cpp" />
     <ClCompile Include="gpgpu.cpp" />
     <ClCompile Include="colorspaces.cpp" />
