@@ -122,7 +122,7 @@ struct GridFluidSketch {
 
 	void stefanDraw()
 	{
-		gl::clear(Color(0, 0, 0));
+		gl::clear(ci::Color(0, 0, 0));
 
 		gl::setMatricesWindow(ci::app::getWindowSize(), false);
 
@@ -301,7 +301,7 @@ struct GridFluidSketch {
 		{
 			//vec2 scaledm = vec2(getMousePos()-getWindow()->getPos()) / float(::scale); //vec2(mouseX * (float)sx, mouseY * (float)sy);
 			
-			Area a(mousePos, mousePos);
+			ci::Area a(mousePos, mousePos);
 			int r = 80 / pow(2, scale);
 			a.expand(r, r);
 			for (int x = a.x1; x <= a.x2; x++)
@@ -317,7 +317,7 @@ struct GridFluidSketch {
 		}
 		else if (mouseDown_[2]) {
 			//mm();
-			Area a(mousePos, mousePos);
+			ci::Area a(mousePos, mousePos);
 			int r = 15;
 			a.expand(r, r);
 			for (int x = a.x1; x <= a.x2; x++)

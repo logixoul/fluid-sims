@@ -295,11 +295,11 @@ gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string const& fsha
 		glBindImageTexture(0, opts._targetImg->getId(), 0, GL_FALSE, 0, GL_READ_WRITE, opts._targetImg->getInternalFormat());
 	}*/
 	auto srcArea = opts._area;
-	if (srcArea == Area::zero()) {
+	if (srcArea == ci::Area::zero()) {
 		srcArea = tex0->getBounds();
 	}
 	tex0->setTopDown(true);
-	Rectf texRect = tex0->getAreaTexCoords(srcArea);
+	ci::Rectf texRect = tex0->getAreaTexCoords(srcArea);
 	tex0->setTopDown(false);
 	shader->uniform("uTexCoordOffset", texRect.getUpperLeft());
 	shader->uniform("uTexCoordScale", texRect.getSize());

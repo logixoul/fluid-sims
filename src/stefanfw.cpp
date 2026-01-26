@@ -21,7 +21,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "stefanfw.h"
 #include "MyTimer.h"
 
-float mouseX, mouseY;
 bool keys[256];
 bool keys2[256];
 bool mouseDown_[3];
@@ -33,10 +32,6 @@ namespace stefanfw {
 
 	void beginFrame() {
 		ci::app::AppBase* app = ci::app::App::get();
-
-		auto relMousePos = app->getMousePos()-app->getWindowPos();
-		::mouseX = relMousePos.x / (float)app->getWindow()->getWidth();
-		::mouseY = relMousePos.y / (float)app->getWindow()->getHeight();
 	}
 
 	void endFrame() {

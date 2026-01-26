@@ -64,8 +64,8 @@ void TimerManager::update()
 	for (MyTimer* timer : timersCopy) {
 		if (timer->isStopped())
 			continue;
-		bool shouldFireTimeout = timer->getSeconds() > timer->interval && app::getElapsedFrames() != timer->startedOnFrame && timer->interval != 0;
-		shouldFireTimeout |= (app::getElapsedFrames() == timer->startedOnFrame + 2) && timer->interval == 0;
+		bool shouldFireTimeout = timer->getSeconds() > timer->interval && ci::app::getElapsedFrames() != timer->startedOnFrame && timer->interval != 0;
+		shouldFireTimeout |= (ci::app::getElapsedFrames() == timer->startedOnFrame + 2) && timer->interval == 0;
 		if (shouldFireTimeout) {
 			//timer->timeout();
 			delete timer;

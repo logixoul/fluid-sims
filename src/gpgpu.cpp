@@ -120,12 +120,12 @@ static int nextPowerOf2(int v) {
 	}
 }
 
-static void drawBetter(gl::TextureRef& texture, const Area& srcArea, const Rectf& dstRect, gl::GlslProgRef glslArg)
+static void drawBetter(gl::TextureRef& texture, const ci::Area& srcArea, const ci::Rectf& dstRect, gl::GlslProgRef glslArg)
 {
 	texture->setTopDown(true);
 	auto ctx = gl::context();
 
-	Rectf texRect = texture->getAreaTexCoords(srcArea);
+	ci::Rectf texRect = texture->getAreaTexCoords(srcArea);
 
 	gl::ScopedVao vaoScp(ctx->getDrawTextureVao());
 	//ScopedBuffer vboScp(ctx->getDrawTextureVbo());
@@ -147,7 +147,7 @@ static void drawBetter(gl::TextureRef& texture, const Area& srcArea, const Rectf
 	texture->setTopDown(false);
 }
 
-static void drawBetter(gl::TextureRef& texture, const Rectf& dstRect, gl::GlslProgRef glslArg = nullptr) // todo: rm the last arg
+static void drawBetter(gl::TextureRef& texture, const ci::Rectf& dstRect, gl::GlslProgRef glslArg = nullptr) // todo: rm the last arg
 {
 	drawBetter(texture, texture->getBounds(), dstRect, glslArg);
 }
@@ -156,14 +156,14 @@ gl::TextureRef pad(gl::TextureRef in, ivec2 newSize) {
 	auto res = maketex(newSize.x, newSize.y, in->getInternalFormat(), true);
 	//res = shade2(res, "_out = vec4(0);");
 	beginRTT(res);
-	gl::clear(ColorA::black(), false);
+	gl::clear(ci::ColorA::black(), false);
 	{
 		gl::ScopedViewport sv(ivec2(0, 0), in->getSize());
 		gl::pushMatrices();
 		{
 			gl::setMatricesWindow(ivec2(1, 1), false);
 
-			drawBetter(in, Rectf(0, 0, 1, 1));
+			drawBetter(in, ci::Rectf(0, 0, 1, 1));
 			gl::popMatrices();
 		}
 	}

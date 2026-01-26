@@ -158,7 +158,7 @@ void TextureCache::printTextures()
 	cout << "megabytes = " << totalBytes /1'000'000 << endl;
 }
 
-void TextureCache::deleteTexture(Tex texToDel)
+void TextureCache::deleteTexture(gl::TextureRef texToDel)
 {
 	unique_lock<std::mutex> ul(::mut);
 	auto& cache = instance()->cache;

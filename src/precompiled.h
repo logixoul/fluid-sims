@@ -44,13 +44,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 using namespace glm;
 using namespace std;
-using namespace ci;
+//using namespace ci;
+namespace gl = ci::gl;
 //#include <fftw3.h>
-
-//#include <tuple>
-#include <queue>
-#include <opencv2/imgproc.hpp>
-//#include <thread>
-
-
-typedef gl::TextureRef Tex;
