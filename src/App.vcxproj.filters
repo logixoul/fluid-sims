@@ -24,9 +24,6 @@
     <ClCompile Include="stuff.cpp">
       <Filter>lxlib</Filter>
     </ClCompile>
-    <ClCompile Include="sw.cpp">
-      <Filter>lxlib</Filter>
-    </ClCompile>
     <ClCompile Include="TextureCache.cpp">
       <Filter>lxlib</Filter>
     </ClCompile>
@@ -51,9 +48,6 @@
       <Filter>lxlib</Filter>
     </ClInclude>
     <ClInclude Include="stuff.h">
-      <Filter>lxlib</Filter>
-    </ClInclude>
-    <ClInclude Include="sw.h">
       <Filter>lxlib</Filter>
     </ClInclude>
     <ClInclude Include="TextureCache.h">

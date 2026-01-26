@@ -45,8 +45,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 using namespace glm;
 using namespace std;
 using namespace ci;
-using namespace std::experimental;
-#include <glm/gtx/matrix_transform_2d.hpp>
 //#include <fftw3.h>
 
 //#include <tuple>

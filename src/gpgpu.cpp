@@ -40,45 +40,6 @@ gl::TextureRef get_gradients_tex(gl::TextureRef src, GLuint wrap) {
 	);
 }
 
-/*gl::TextureRef gradientForwardTex(gl::TextureRef src, GLuint wrap) {
-	GPU_SCOPE("gradientForwardTex");
-	//src->setWrap(wrap, wrap);
-	glActiveTexture(GL_TEXTURE0);
-	::bindTexture(src);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
-	return shade(list_of(src),
-		"void shade(){"
-		"	float srcHere=fetch1(tex,tc);"
-		"	float srcR=fetch1(tex,tc+tsize*vec2(1.0,0.0));"
-		"	float srcB=fetch1(tex,tc+tsize*vec2(0.0,1.0));"
-		"	float dx=(srcR-srcHere)/2.0;"
-		"	float dy=(srcB-srcHere)/2.0;"
-		"	_out.xy=vec2(dx,dy);"
-		"}"
-		, ShadeOpts().ifmt(GL_RG16F));
-}
-
-gl::TextureRef divBackwardTex(gl::TextureRef src, GLuint wrap) {
-	GPU_SCOPE("divBackwardTex");
-	//src->setWrap(wrap, wrap);
-	glActiveTexture(GL_TEXTURE0);
-	::bindTexture(src);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
-	return shade(list_of(src),
-		"void shade(){"
-		"	vec2 srcHere=fetch2(tex,tc);"
-		"	vec2 srcL=fetch2(tex,tc-tsize*vec2(1.0,0.0));"
-		"	vec2 srcU=fetch2(tex,tc-tsize*vec2(0.0,1.0));"
-		"	float dx=(srcHere.x-srcL.x)/2.0;"
-		"	float dy=(srcHere.y-srcU.y)/2.0;"
-		"	_out.x = dx + dy;"
-		"}",
-		ShadeOpts().ifmt(GL_R16F)
-	);
-}*/
-
 inline gl::TextureRef baseshade2(vector<gl::TextureRef> texv, string const& src, ShadeOpts const & opts, string const& lib)
 {
 	return shade(texv, lib + "void shade() {" + src + "}", opts);
@@ -157,6 +118,38 @@ static int nextPowerOf2(int v) {
 	else {
 		return 1 << int(std::ceil(Lf));
 	}
+}
+
+static void drawBetter(gl::TextureRef& texture, const Area& srcArea, const Rectf& dstRect, gl::GlslProgRef glslArg)
+{
+	texture->setTopDown(true);
+	auto ctx = gl::context();
+
+	Rectf texRect = texture->getAreaTexCoords(srcArea);
+
+	gl::ScopedVao vaoScp(ctx->getDrawTextureVao());
+	//ScopedBuffer vboScp(ctx->getDrawTextureVbo());
+	glBindTexture(texture->getTarget(), texture->getId());
+
+	gl::GlslProgRef glsl;
+	if (glslArg != nullptr) {
+		glsl = glslArg;
+	}
+	else {
+		glsl = gl::getStockShader(gl::ShaderDef().color().texture(texture));
+	}
+	gl::ScopedGlslProg glslScp(glsl);
+	glsl->uniform("uTex0", 0);
+
+	ctx->setDefaultShaderVars();
+	ctx->drawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+	texture->setTopDown(false);
+}
+
+static void drawBetter(gl::TextureRef& texture, const Rectf& dstRect, gl::GlslProgRef glslArg = nullptr) // todo: rm the last arg
+{
+	drawBetter(texture, texture->getBounds(), dstRect, glslArg);
 }
 
 gl::TextureRef pad(gl::TextureRef in, ivec2 newSize) {

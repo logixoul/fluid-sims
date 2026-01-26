@@ -22,8 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gpgpu.h"
 #include "TextureCache.h"
 
-int denormal_check::num;
-
 // tried to have this as a static member (with thread_local) but I got errors. todo.
 /*thread_local*/ static std::map<string,string> FileCache_db;
 
@@ -62,14 +60,6 @@ static void APIENTRY messageCallback(GLenum source,
 void enableGlDebugOutput() {
 	glEnable(GL_DEBUG_OUTPUT);
 	glDebugMessageCallback(messageCallback, 0);
-}
-
-void my_assert_func(bool isTrue, string desc) {
-	if (!isTrue) {
-		cout << "assert failure: " << desc << endl;
-		system("pause");
-		throw std::runtime_error(desc.c_str());
-	}
 }
 
 void bind(gl::TextureRef & tex) {
@@ -220,17 +210,6 @@ void enableDenormalFlushToZero() {
 	_controlfp(_DN_FLUSH, _MCW_DN);
 }
 
-/*void drawAsLuminance(gl::TextureRef const& in, const Rectf &dstRect) {
-	shade2(in,
-		"_out.rgb = vec3(fetch1());"
-		, ShadeOpts()
-		.enableResult(false)
-		.dstPos(dstRect.getUpperLeft())
-		.dstRectSize(dstRect.getSize())
-		.fetchUpsideDown(true)
-	);
-}*/
-
 unsigned int ilog2(unsigned int val) {
 	unsigned int ret = -1;
 	while (val != 0) {
@@ -247,77 +226,6 @@ vec2 compdiv(vec2 const & v1, vec2 const & v2) {
 	return vec2(
 		(a*c + b * d) / cd,
 		(b*c - a * d) / cd);
-}
-
-void draw(gl::TextureRef const& tex, ci::Rectf const& bounds) {
-	throw "this code hasn't been updated";
-	/*gl::TextureRef tex2 = tex;
-	if (tex->getInternalFormat() == GL_R16F) {
-		tex2 = redToLuminance(tex);
-	}
-	tex2->setTopDown(true);
-	gl::draw(tex2, bounds);*/
-}
-
-void drawBetter(gl::TextureRef &texture, const Area &srcArea, const Rectf &dstRect, gl::GlslProgRef glslArg)
-{
-	texture->setTopDown(true);
-	auto ctx = gl::context();
-
-	Rectf texRect = texture->getAreaTexCoords(srcArea);
-
-	gl::ScopedVao vaoScp(ctx->getDrawTextureVao());
-	//ScopedBuffer vboScp(ctx->getDrawTextureVbo());
-	glBindTexture(texture->getTarget(), texture->getId());
-
-	gl::GlslProgRef glsl;
-	if (glslArg != nullptr) {
-		glsl = glslArg;
-	}
-	else {
-		glsl = gl::getStockShader(gl::ShaderDef().color().texture(texture));
-	}
-	gl::ScopedGlslProg glslScp(glsl);
-	glsl->uniform("uTex0", 0);
-
-	ctx->setDefaultShaderVars();
-	ctx->drawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-	texture->setTopDown(false);
-}
-
-void drawBetter(gl::TextureRef &texture, const Rectf &dstRect, gl::GlslProgRef glslArg)
-{
-	drawBetter(texture, texture->getBounds(), dstRect, glslArg);
-}
-
-void myGLFence()
-{
-	auto fence = gl::Sync::create();
-	fence->clientWaitSync(GL_SYNC_FLUSH_COMMANDS_BIT, (GLuint64)(-1)); // timeout: about 200 years
-}
-
-vector<string> toStrings(vector<filesystem::path> paths) {
-	vector<string> res;
-	for (auto& path : paths) {
-		res.push_back(path.string());
-	}
-	return res;
-}
-
-inline void denormal_check::begin_frame() {
-	num = 0;
-}
-
-inline void denormal_check::check(float f) {
-	if (f != 0 && fabsf(f) < numeric_limits<float>::min()) {
-		// it's denormalized
-		num++;
-	}
-}
-
-inline void denormal_check::end_frame() {
-	cout << "denormals detected: " << num << endl;
 }
 
 template<> Array2D<bytevec3> dl<bytevec3>(gl::TextureRef tex) {

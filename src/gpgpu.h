@@ -23,8 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 gl::TextureRef get_gradients_tex(gl::TextureRef src, GLuint wrap = GL_REPEAT);
 
-//gl::TextureRef gradientForwardTex(gl::TextureRef src, GLuint wrap = GL_REPEAT);
-//gl::TextureRef divBackwardTex(gl::TextureRef src, GLuint wrap = GL_REPEAT);
 gl::TextureRef baseshade2(vector<gl::TextureRef> texv, string const& src, ShadeOpts const& opts = ShadeOpts(), string const& lib = "");
 gl::TextureRef shade2(
 	gl::TextureRef tex,

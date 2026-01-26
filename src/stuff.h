@@ -97,14 +97,6 @@ Array2D<T> gettexdata(gl::TextureRef tex, GLenum format, GLenum type, ci::Area a
 
 float sq(float f);
 
-
-struct denormal_check {
-	static int num;
-	static void begin_frame();
-	static void check(float f);
-	static void end_frame();
-};
-
 vector<Array2D<float> > split(Array2D<vec3> arr);
 void setWrapBlack(gl::TextureRef tex);
 
@@ -132,29 +124,8 @@ TVec safeNormalized(TVec const& vec) {
 	return vec / len;
 }
 
-void drawAsLuminance(gl::TextureRef const& in, const Rectf &dstRect);
-
 unsigned int ilog2(unsigned int val);
 
 vec2 compdiv(vec2 const& v1, vec2 const& v2);
-
-mat2 rotate(float angle);
-
-void draw(gl::TextureRef const& tex, ci::Rectf const& bounds);
-
-void drawBetter(gl::TextureRef &texture, const Area &srcArea, const Rectf &dstRect, gl::GlslProgRef glslArg = nullptr); // todo: rm the last arg
-
-void drawBetter(gl::TextureRef &texture, const Rectf &dstRect, gl::GlslProgRef glslArg = nullptr); // todo: rm the last arg
-
-template<typename T>
-void pop_front(std::vector<T>& vec)
-{
-	assert(!vec.empty());
-	vec.erase(vec.begin());
-}
-
-void myGLFence();
-
-vector<string> toStrings(vector<filesystem::path> paths);
 
 void enableGlDebugOutput();
