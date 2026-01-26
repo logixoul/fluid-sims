@@ -136,15 +136,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Array2D_imageProc.cpp" />
-    <ClInclude Include="CinderImGui.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </ExcludedFromBuild>
-    </ClInclude>
+    <ClInclude Include="CinderImGui.h" />
     <ClCompile Include="CinderImGui.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="gpgpu.cpp" />
     <ClCompile Include="IntegratedConsole.cpp" />
@@ -166,15 +161,13 @@
     <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CinderImGuiConfig.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </ExcludedFromBuild>
-    </ClInclude>
+    <ClInclude Include="CinderImGuiConfig.h" />
     <ClInclude Include="gpgpu.h" />
     <ClInclude Include="gpuBlur2_5.h">
     </ClInclude>
     <ClInclude Include="GridFluidSketch.h" />
     <ClInclude Include="IntegratedConsole.h" />
+    <ClInclude Include="lxAreaRectf.h" />
     <ClInclude Include="lxGlslProg.h" />
     <ClInclude Include="lxTextureRef.h" />
     <ClInclude Include="lxVaoVbo.h" />

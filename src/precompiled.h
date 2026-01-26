@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <cmath>
 #include <iostream>
 #include <string>
-#include <complex>
 #undef min
 #undef max
 #include <cinder/app/App.h>
@@ -47,4 +46,3 @@ namespace gl {
 
 using namespace glm;
 using namespace std;
-//namespace gl = ci::gl;

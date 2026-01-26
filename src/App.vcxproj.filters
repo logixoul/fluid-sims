@@ -66,6 +66,7 @@
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="lxVaoVbo.h" />
     <ClInclude Include="lxGlslProg.h" />
+    <ClInclude Include="lxAreaRectf.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="OldCode.txt" />

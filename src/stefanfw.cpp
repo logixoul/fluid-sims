@@ -31,7 +31,6 @@ namespace stefanfw {
 	EventHandler eventHandler;
 
 	void beginFrame() {
-		ci::app::AppBase* app = ci::app::App::get();
 	}
 
 	void endFrame() {

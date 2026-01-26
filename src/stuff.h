@@ -40,34 +40,7 @@ gl::TextureRef gtex(Array2D<uvec4> a);
 int sign(float f);
 float expRange(float x, float min, float max);
 
-float niceExpRangeX(float x, float min, float max);
-
-float niceExpRangeY(float y, float min, float max);
-
-// todo rm
-/*template<class Func>
-class MapHelper {
-private:
-	static Func* func;
-public:
-	typedef typename decltype((*func)(ivec2(0, 0))) result_dtype;
-};
-
-template<class TSrc, class Func>
-auto map(Array2D<TSrc> a, Func func) -> Array2D<typename MapHelper<Func>::result_dtype> {
-	auto result = Array2D<typename MapHelper<Func>::result_dtype>(a.w, a.h);
-	forxy(a) {
-		result(p) = func(p);
-	}
-	return result;
-}*/
-
 gl::TextureRef maketex(int w, int h, GLint ifmt, bool allocateMipmaps = false, bool clear = false);
-
-template<class T>
-Array2D<T> gettexdata(gl::TextureRef tex, GLenum format, GLenum type) {
-	return gettexdata<T>(tex, format, type, ci::Area(0, 0, tex->getWidth(), tex->getHeight()));
-}
 
 template<class T>
 Array2D<T> dl(gl::TextureRef tex) {
@@ -86,8 +59,8 @@ void checkGLError(string place);
 #define CHECK_GL_ERROR() checkGLError(__FILE__ ": " MY_STRINGIZE(__LINE__))
 
 template<class T>
-Array2D<T> gettexdata(gl::TextureRef tex, GLenum format, GLenum type, ci::Area area) {
-	Array2D<T> data(area.getWidth(), area.getHeight());
+Array2D<T> gettexdata(gl::TextureRef tex, GLenum format, GLenum type) {
+	Array2D<T> data(tex->getSize());
 	
 	bind(tex);
 	glGetTexImage(GL_TEXTURE_2D, 0, format, type, data.data);

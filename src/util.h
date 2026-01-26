@@ -86,12 +86,6 @@ struct Array2D;
 
 typedef glm::tvec3<byte> bytevec3;
 
-void copyCvtData(ci::Surface8u const& surface, Array2D<bytevec3> dst);
-void copyCvtData(ci::Surface8u const& surface, Array2D<vec3> dst);
-void copyCvtData(ci::SurfaceT<float> const& surface, Array2D<vec3> dst);
-void copyCvtData(ci::SurfaceT<float> const& surface, Array2D<float> dst);
-void copyCvtData(ci::ChannelT<float> const& surface, Array2D<float> dst);
-
 template<class T>
 struct Array2D
 {
@@ -102,7 +96,7 @@ struct Array2D
 	int NumBytes() const {
 		return area * sizeof(T);
 	}
-	ci::ivec2 Size() const { return ci::ivec2(w, h); }
+	ivec2 Size() const { return ivec2(w, h); }
 	ArrayDeleter<T> deleter;
 
 	Array2D(int w, int h, nofill) : deleter(Init(w, h)) { }

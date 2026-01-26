@@ -94,7 +94,7 @@ namespace gpuBlur2_5 {
 	float gauss(float f, float width) {
 		return exp(-f * f / (width*width));
 	}
-	gl::TextureRef upscale(gl::TextureRef src, ci::ivec2 toSize) {
+	gl::TextureRef upscale(gl::TextureRef src, ivec2 toSize) {
 		return upscale(src, float(toSize.x) / src->getWidth(), float(toSize.y) / src->getHeight());
 	}
 	gl::TextureRef upscale(gl::TextureRef src, float hscale, float vscale) {

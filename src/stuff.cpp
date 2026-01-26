@@ -146,16 +146,6 @@ float expRange(float x, float min, float max) {
 	return exp(lerp(log(min), log(max), x));
 }
 
-float niceExpRangeX(float x, float min, float max) {
-	float x2 = sign(x)*std::max(0.0f, abs(x) - 40.0f / (float)ci::app::App::get()->getWindowWidth());
-	return sign(x2)*expRange(abs(x2), min, max);
-}
-
-float niceExpRangeY(float y, float min, float max) {
-	float y2 = sign(y)*std::max(0.0f, abs(y) - 40.0f / (float)ci::app::App::get()->getWindowHeight());
-	return sign(y2)*expRange(abs(y2), min, max);
-}
-
 void setWrapBlack(gl::TextureRef tex) {
 	// I think the border color is transparent black by default. It doesn't hurt that it is transparent.
 	bind(tex);
