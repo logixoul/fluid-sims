@@ -92,7 +92,7 @@ struct ParticleFluidSketch {
 		ImGui::DragInt("bloomIters", &bloomIters, 1.0f, 1, 16, "%d", ImGuiSliderFlags_None);
 		ImGui::DragFloat("bloomIntensity", &bloomIntensity, 1.0f, 0.0001, 2000, "%.3f", ImGuiSliderFlags_Logarithmic);
 
-		gl::clear(ci::Color(0, 0, 0));
+		lxClear();
 
 		gl::setMatricesWindow(ci::app::getWindowSize(), false);
 		auto img = Array2D<float>(sz);

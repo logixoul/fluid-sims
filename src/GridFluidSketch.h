@@ -122,7 +122,7 @@ struct GridFluidSketch {
 
 	void stefanDraw()
 	{
-		gl::clear(ci::Color(0, 0, 0));
+		lxClear();
 
 		gl::setMatricesWindow(ci::app::getWindowSize(), false);
 

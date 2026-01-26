@@ -158,7 +158,7 @@ gl::TextureRef pad(gl::TextureRef in, ivec2 newSize) {
 	auto res = maketex(newSize.x, newSize.y, in->getInternalFormat(), true);
 	//res = shade2(res, "_out = vec4(0);");
 	beginRTT(res);
-	gl::clear(ci::ColorA::black(), false);
+	lxClear();
 	{
 		gl::ScopedViewport sv(ivec2(0, 0), in->getSize());
 		gl::pushMatrices();

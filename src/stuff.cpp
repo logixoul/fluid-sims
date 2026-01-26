@@ -183,7 +183,7 @@ gl::TextureRef maketex(int w, int h, GLint ifmt, bool allocateMipmaps, bool clea
 	auto tex = TextureCache::instance()->get(key);
 	if(clear) {
 		beginRTT(tex);
-		gl::clear(ci::ColorA::black());
+		lxClear();
 		endRTT();
 	}
 	return tex;

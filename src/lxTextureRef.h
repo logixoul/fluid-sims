@@ -155,3 +155,8 @@ inline void lxDraw(lxTextureRef const& tex) {
 	ctx->setDefaultShaderVars();
 	ctx->drawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
+
+inline void lxClear() {
+	glClearColor(0, 0, 0, 0);
+	glClear(GL_COLOR_BUFFER_BIT);
+}
