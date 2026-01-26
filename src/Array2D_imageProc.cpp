@@ -1,27 +1,6 @@
 #include "precompiled.h"
 #include "Array2D_imageProc.h"
 
-#if 0
-Array2D<vec3> resize(Array2D<vec3> src, ivec2 dstSize, const ci::FilterBase &filter)
-{
-	ci::SurfaceT<float> tmpSurface(
-		(float*)src.data, src.w, src.h, /*rowBytes*/sizeof(vec3) * src.w, ci::SurfaceChannelOrder::RGB);
-	auto resizedSurface = ci::ip::resizeCopy(tmpSurface, tmpSurface.getBounds(), dstSize, filter);
-	Array2D<vec3> resultArray = resizedSurface;
-	return resultArray;
-}
-
-Array2D<float> resize(Array2D<float> src, ivec2 dstSize, const ci::FilterBase &filter)
-{
-	ci::ChannelT<float> tmpSurface(
-		src.w, src.h, /*rowBytes*/sizeof(float) * src.w, 1, src.data);
-	ci::ChannelT<float> resizedSurface(dstSize.x, dstSize.y);
-	ci::ip::resize(tmpSurface, &resizedSurface, filter);
-	Array2D<float> resultArray = resizedSurface;
-	return resultArray;
-}
-#endif
-
 // todo: consolidate the following mm funcs
 void mm(string desc, Array2D<float> arr) {
 	if (desc != "") {

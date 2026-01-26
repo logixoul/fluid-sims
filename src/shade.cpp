@@ -209,7 +209,6 @@ gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string const& fsha
 			<< "layout(location = 1) in vec2 ciTexCoord0;"
 			<< "out highp vec2 tc;"
 			<< "out highp vec2 relOutTc;" // relative out texcoord
-			<< "uniform vec2 uTexCoordOffset, uTexCoordScale;"
 			<< uniformDeclarations
 
 			<< "void main()"
@@ -217,7 +216,6 @@ gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string const& fsha
 			<< "	gl_Position = ciPosition * 2 - 1;"
 			<< "	tc = ciTexCoord0;"
 			<< "	relOutTc = tc;"
-			<< "	tc = uTexCoordOffset + uTexCoordScale * tc;"
 			<< opts._vshaderExtra
 			<< "}";
 			try{
@@ -275,17 +273,7 @@ gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string const& fsha
 		my_assert(opts._targetImg->getInternalFormat() == GL_R32F);
 		glBindImageTexture(0, opts._targetImg->getId(), 0, GL_FALSE, 0, GL_READ_WRITE, opts._targetImg->getInternalFormat());
 	}*/
-	auto srcArea = opts._area;
-	if (srcArea == ci::Area::zero()) {
-		srcArea = ci::Area(0, 0, tex0->getWidth(), tex0->getHeight());
-	}
-	else {
-		throw std::runtime_error("Nondefault srcArea not implemented yet");
-	}
-	ci::Rectf texRect(0.0f, 0.0f, 1.0f, 1.0f);// = tex0->getAreaTexCoords(srcArea);
-	shader->uniform("uTexCoordOffset", texRect.getUpperLeft());
-	shader->uniform("uTexCoordScale", texRect.getSize());
-
+	
 	shader->bind();
 
 	if (opts._enableResult) {

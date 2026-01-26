@@ -87,9 +87,6 @@ struct ShadeOpts
 	ShadeOpts& targetImg(gl::TextureRef val) { _targetImg = val; return *this; }
 	ShadeOpts& dstPos(ivec2 val) { _dstPos = val; return *this; }
 	ShadeOpts& dstRectSize(ivec2 val) { _dstRectSize = val; return *this; }
-	ShadeOpts& srcArea(ci::Area val) {
-		_area = val; return *this;
-	}
 	ShadeOpts& enableResult(bool val) {
 		_enableResult = val; return *this;
 	}
@@ -111,7 +108,6 @@ struct ShadeOpts
 	std::string _scopeName;
 	vector<gl::TextureRef> _targetTexs;
 	gl::TextureRef _targetImg = nullptr;
-	ci::Area _area = ci::Area::zero();
 	ivec2 _dstPos;
 	ivec2 _dstRectSize;
 	bool _enableResult = true;

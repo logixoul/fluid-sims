@@ -80,10 +80,6 @@ public:
 	static string get(string filename);
 };
 
-//Array2D<vec3> resize(Array2D<vec3> src, ivec2 dstSize, const ci::FilterBase &filter);
-//Array2D<float> resize(Array2D<float> src, ivec2 dstSize, const ci::FilterBase &filter);
-
-
 void disableGLReadClamp();
 
 void enableDenormalFlushToZero();

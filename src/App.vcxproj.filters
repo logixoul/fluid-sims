@@ -67,6 +67,7 @@
     <ClInclude Include="lxVaoVbo.h" />
     <ClInclude Include="lxGlslProg.h" />
     <ClInclude Include="lxAreaRectf.h" />
+    <ClInclude Include="lxApp.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="OldCode.txt" />

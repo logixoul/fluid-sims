@@ -25,14 +25,25 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 // tried to have this as a static member (with thread_local) but I got errors. todo.
 /*thread_local*/ static std::map<string,string> FileCache_db;
 
+static std::string readFile(const std::string& path) {
+	std::ifstream file(path, std::ios::binary);
+	if (!file) {
+		throw std::runtime_error("Failed to open file");
+	}
+
+	file.seekg(0, std::ios::end);
+	std::size_t size = file.tellg();
+	file.seekg(0);
+
+	std::string buffer(size, '\0');
+	file.read((char*)buffer.data(), size);
+
+	return buffer;
+}
+
 string FileCache::get(string filename) {
 	if(FileCache_db.find(filename)== FileCache_db.end()) {
-		//std::vector<unsigned char> buffer;
-		auto dataSource = ci::app::loadAsset(filename);
-		auto buffer = dataSource->getBuffer();
-		auto data = (char*)buffer->getData();
-		string bufferStr(data, data + buffer->getSize());
-		FileCache_db[filename]=bufferStr;
+		FileCache_db[filename]=readFile("../assets/"+filename);
 	}
 	return FileCache_db[filename];
 }

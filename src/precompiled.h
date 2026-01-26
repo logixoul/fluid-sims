@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <glm/gtx/io.hpp>
 #include "lxTextureRef.h"
 #include "lxVaoVbo.h"
+#include "lxAreaRectf.h"
 #include <unordered_map>
 
 

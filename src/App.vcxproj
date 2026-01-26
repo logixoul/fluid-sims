@@ -167,6 +167,7 @@
     </ClInclude>
     <ClInclude Include="GridFluidSketch.h" />
     <ClInclude Include="IntegratedConsole.h" />
+    <ClInclude Include="lxApp.h" />
     <ClInclude Include="lxAreaRectf.h" />
     <ClInclude Include="lxGlslProg.h" />
     <ClInclude Include="lxTextureRef.h" />

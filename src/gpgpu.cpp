@@ -122,12 +122,12 @@ static int nextPowerOf2(int v) {
 // haven't reimplemented the following yet
 #if 0
 
-static void drawBetter(gl::TextureRef& texture, const ci::Area& srcArea, const ci::Rectf& dstRect, gl::GlslProgRef glslArg)
+static void drawBetter(gl::TextureRef& texture, const lxArea& srcArea, const lxRectf& dstRect, gl::GlslProgRef glslArg)
 {
 	texture->setTopDown(true);
 	auto ctx = gl::context();
 
-	ci::Rectf texRect = texture->getAreaTexCoords(srcArea);
+	lxRectf texRect = texture->getAreaTexCoords(srcArea);
 
 	gl::ScopedVao vaoScp(ctx->getDrawTextureVao());
 	//ScopedBuffer vboScp(ctx->getDrawTextureVbo());
@@ -149,7 +149,7 @@ static void drawBetter(gl::TextureRef& texture, const ci::Area& srcArea, const c
 	texture->setTopDown(false);
 }
 
-static void drawBetter(gl::TextureRef& texture, const ci::Rectf& dstRect, gl::GlslProgRef glslArg = nullptr) // todo: rm the last arg
+static void drawBetter(gl::TextureRef& texture, const lxRectf& dstRect, gl::GlslProgRef glslArg = nullptr) // todo: rm the last arg
 {
 	drawBetter(texture, texture->getBounds(), dstRect, glslArg);
 }
@@ -165,7 +165,7 @@ gl::TextureRef pad(gl::TextureRef in, ivec2 newSize) {
 		{
 			gl::setMatricesWindow(ivec2(1, 1), false);
 
-			drawBetter(in, ci::Rectf(0, 0, 1, 1));
+			drawBetter(in, lxRectf(0, 0, 1, 1));
 			gl::popMatrices();
 		}
 	}
