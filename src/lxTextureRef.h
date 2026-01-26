@@ -139,8 +139,6 @@ static const std::string genericFragmentShaderSource =
 "}";
 
 inline void lxDraw(lxTextureRef const& tex) {
-	auto ctx = ci::gl::Context::getCurrent();
-
 	glActiveTexture(GL_TEXTURE0);
 	tex->bind();
 
@@ -153,7 +151,6 @@ inline void lxDraw(lxTextureRef const& tex) {
 	glsl->uniform("uTexCoordOffset", glm::vec2(0.0f, 1.0f));
 	glsl->uniform("uTexCoordScale", glm::vec2(1.0f, -1.0f));
 
-	ctx->setDefaultShaderVars();
 	glViewport(0, 0, ci::app::getWindowWidth(), ci::app::getWindowHeight());
 	
 	::drawRect();
