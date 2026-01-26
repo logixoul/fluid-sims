@@ -63,7 +63,7 @@ void endRTT()
 }
 
 void drawRect() {
-	auto ctx = gl::context();
+	auto ctx = gl::Context::getCurrent();
 
 	ctx->getDrawTextureVao()->bind();
 	//ctx->getDrawTextureVbo()->bind(); // this seems to be unnecessary
@@ -232,7 +232,7 @@ gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string const& fsha
 				;
 			shader = gl::GlslProg::create(fmt);
 			shaders[fshader] = shader;
-		} catch(gl::GlslProgCompileExc const& e) {
+		} catch(std::exception const& e) {
 			cout << "gl::GlslProgCompileExc: " << e.what() << endl;
 			cout << "source:" << endl;
 			cout << completeFshader << endl;
@@ -243,14 +243,7 @@ gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string const& fsha
 		shader = shaders[fshader];
 	}
 	auto tex0 = texv[0];
-	auto prevGlslProg = gl::Context::getCurrent()->getGlslProg();
-	//glUseProgram(shader->getHandle());
-	//gl::Context::getCurrent()->bindGlslProg(shader);
-	if (shader->getHandle() == 0) {
-		cout << "hey" << endl;
-	}
 	shader->bind();
-	//glUseProgram(shader->getHandle());
 	ivec2 viewportSize(
 		floor(tex0->getWidth() * opts._scaleX),
 		floor(tex0->getHeight() * opts._scaleY)
@@ -332,10 +325,6 @@ gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string const& fsha
 		endRTT();
 		glColorMask(true, true, true, true);
 	}
-	//glUseProgram(0); // as in gl::Context::pushGlslProg
-	//gl::Context::getCurrent()->bindGlslProg(prevGlslProg);
-	//glUseProgram(prevGlslProg->getHandle());
-	prevGlslProg->bind();
 	return results[0];
 }
 

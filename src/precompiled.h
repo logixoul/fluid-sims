@@ -38,7 +38,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 namespace gl {
 	typedef lxTextureRef TextureRef;
 	typedef lxTexture Texture;
-	using namespace ci::gl;
+	//using namespace ci::gl;
+	using GlslProg = ci::gl::GlslProg;
+	using GlslProgRef = ci::gl::GlslProgRef;
+	using Context = ci::gl::Context;
 }
 #define IMGUI_USER_CONFIG "CinderImGuiConfig.h"
 #define CINDER_IMGUI_EXTERNAL
