@@ -46,5 +46,4 @@ struct SketchScaffold : ci::app::App {
 	}
 };
 
-CrossThreadCallQueue * gMainThreadCallQueue;
 CINDER_APP(SketchScaffold, ci::app::RendererGl())

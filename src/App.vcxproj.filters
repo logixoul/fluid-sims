@@ -9,18 +9,6 @@
     <ClCompile Include="cfg1.cpp">
       <Filter>lxlib</Filter>
     </ClCompile>
-    <ClCompile Include="colorspaces.cpp">
-      <Filter>lxlib</Filter>
-    </ClCompile>
-    <ClCompile Include="ConcurrentQueue.cpp">
-      <Filter>lxlib</Filter>
-    </ClCompile>
-    <ClCompile Include="CrossThreadCallQueue.cpp">
-      <Filter>lxlib</Filter>
-    </ClCompile>
-    <ClCompile Include="cvstuff.cpp">
-      <Filter>lxlib</Filter>
-    </ClCompile>
     <ClCompile Include="easyfft.cpp">
       <Filter>lxlib</Filter>
     </ClCompile>

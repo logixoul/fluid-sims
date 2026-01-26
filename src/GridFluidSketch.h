@@ -7,34 +7,8 @@
 #include "stefanfw.h"
 #include "Array2D_imageProc.h"
 #include "cfg1.h"
-#include "CrossThreadCallQueue.h"
-//#include "MyVideoWriter.h"
 
 #include "util.h"
-
-template<class T, class FetchFunc>
-static Array2D<T> gauss3_forwardMapping(Array2D<T> src) {
-	T zero = ::zero<T>();
-	Array2D<T> dst1(src.w, src.h);
-	Array2D<T> dst2(src.w, src.h);
-	forxy(dst1) {
-		FetchFunc::fetch(dst1, p.x - 1, p.y) += .25f * src(p);
-		FetchFunc::fetch(dst1, p.x, p.y) += .5f * src(p);
-		FetchFunc::fetch(dst1, p.x + 1, p.y) += .25f * src(p);
-	}
-	forxy(dst1) {
-		//vector<float> weights = { .25, .5, .25 };
-		//auto one = T(1);
-		FetchFunc::fetch(dst2, p.x, p.y - 1) += .25f * dst1(p);
-		FetchFunc::fetch(dst2, p.x, p.y) += .5f * dst1(p);
-		FetchFunc::fetch(dst2, p.x, p.y + 1) += .25f * dst1(p);
-
-	}
-	return dst2;
-}
-
-void updateConfig() {
-}
 
 struct GridFluidSketch {
 	int wsx = 1280, wsy = 720;
@@ -539,5 +513,25 @@ struct GridFluidSketch {
 		//cout << "sumOffsetY=" << sumOffsetY/div << endl;
 		density = density3;
 		momentum = momentum3;
+	}
+	template<class T, class FetchFunc>
+	static Array2D<T> gauss3_forwardMapping(Array2D<T> src) {
+		T zero = ::zero<T>();
+		Array2D<T> dst1(src.w, src.h);
+		Array2D<T> dst2(src.w, src.h);
+		forxy(dst1) {
+			FetchFunc::fetch(dst1, p.x - 1, p.y) += .25f * src(p);
+			FetchFunc::fetch(dst1, p.x, p.y) += .5f * src(p);
+			FetchFunc::fetch(dst1, p.x + 1, p.y) += .25f * src(p);
+		}
+		forxy(dst1) {
+			//vector<float> weights = { .25, .5, .25 };
+			//auto one = T(1);
+			FetchFunc::fetch(dst2, p.x, p.y - 1) += .25f * dst1(p);
+			FetchFunc::fetch(dst2, p.x, p.y) += .5f * dst1(p);
+			FetchFunc::fetch(dst2, p.x, p.y + 1) += .25f * dst1(p);
+
+		}
+		return dst2;
 	}
 };

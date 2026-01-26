@@ -6,7 +6,6 @@
 #include "stefanfw.h"
 #include "Array2D_imageProc.h"
 #include "cfg1.h"
-#include "CrossThreadCallQueue.h"
 #include "cfg2.h"
 #include "IntegratedConsole.h"
 
