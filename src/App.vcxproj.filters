@@ -97,6 +97,7 @@
     <ClInclude Include="CinderImGui.h" />
     <ClInclude Include="CinderImGuiConfig.h" />
     <ClInclude Include="IntegratedConsole.h" />
+    <ClInclude Include="ParticleFluidSketch.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="hcl_lib.fs">

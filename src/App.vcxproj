@@ -188,6 +188,7 @@
     <ClInclude Include="gpuBlur2_5.h">
     </ClInclude>
     <ClInclude Include="IntegratedConsole.h" />
+    <ClInclude Include="ParticleFluidSketch.h" />
     <ClInclude Include="precompiled.h" />
     <ClInclude Include="shade.h" />
     <ClInclude Include="simplexnoise.h" />

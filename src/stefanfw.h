@@ -24,7 +24,6 @@ extern float mouseX, mouseY;
 extern bool keys[256];
 extern bool keys2[256];
 extern bool mouseDown_[3];
-extern int wsx, wsy; // define and initialize those in main.cpp
 
 // stefan's framework
 namespace stefanfw {

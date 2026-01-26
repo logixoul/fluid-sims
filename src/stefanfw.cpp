@@ -37,9 +37,6 @@ namespace stefanfw {
 
 		sw::beginFrame();
 
-		wsx = app->getWindowWidth();
-		wsy = app->getWindowHeight();
-
 		auto relMousePos = app->getMousePos()-app->getWindowPos();
 		::mouseX = relMousePos.x / (float)app->getWindow()->getWidth();
 		::mouseY = relMousePos.y / (float)app->getWindow()->getHeight();

@@ -10,49 +10,40 @@
 #include "CrossThreadCallQueue.h"
 #include "cfg2.h"
 #include "IntegratedConsole.h"
-//#include "MyVideoWriter.h"
 
 #include "util.h"
 
-typedef Array2D<float> Image;
-int wsx = 800, wsy = 800;
-int scale = 2;
-int sx = wsx / ::scale;
-int sy = wsy / ::scale;
-ivec2 sz(sx, sy);
-
-// https://lucasschuermann.com/writing/implementing-sph-in-2d
-struct Particle {
-	vec2 pos;
-	vec2 velocity;
-	vec2 force;
-	float densityHere;
-	float pressureHere;
-	vec2 velocityContribs;
-	float velocityContribsSumWeights;
-};
-
-
-
-
-vector<Particle> particles;
-
-void reset() {
-	particles.clear();
-}
-
-bool pause = false;
-
-struct SApp : ci::app::App {
-	//shared_ptr<MyVideoWriter> videoWriter = make_shared<MyVideoWriter>();
+struct ParticleFluidSketch : ci::app::App {
 	shared_ptr<IntegratedConsole> integratedConsole;
+	typedef Array2D<float> Image;
+	const int scale = 2;
+	ivec2 sz;
 
-	void cleanup() {
-		//videoWriter.reset();
+	struct Particle {
+		vec2 pos;
+		vec2 velocity;
+		vec2 force;
+		float densityHere;
+		float pressureHere;
+		vec2 velocityContribs;
+		float velocityContribsSumWeights;
+	};
+
+	vector<Particle> particles;
+
+	void reset() {
+		particles.clear();
 	}
+
+	bool pause = false;
+
 
 	void setup()
 	{
+		setWindowSize(800, 800);
+
+		sz = ivec2(getWindowWidth() / scale, getWindowHeight() / scale);
+
 		cfg2::init();
 		integratedConsole = make_shared<IntegratedConsole>();;
 
@@ -60,8 +51,7 @@ struct SApp : ci::app::App {
 
 		disableGLReadClamp();
 		stefanfw::eventHandler.subscribeToEvents(*this);
-		setWindowSize(wsx, wsy);
-
+		
 		reset();
 	}
 	void update()
@@ -172,7 +162,7 @@ struct SApp : ci::app::App {
 		),
 			ShadeOpts().uniform("bloomIntensity", bloomIntensity)
 			);*/
-		static auto envMap = gl::Texture::create(ci::loadImage(loadAsset("envmap2.png")));
+		static auto envMap = gl::Texture::create(ci::loadImage(loadAsset("milkyway.png")));
 		//static auto envMap = gl::TextureCubeMap::create(loadImage(loadAsset("envmap_cube.jpg")), gl::TextureCubeMap::Format().mipmap());
 		//gl::TextureBaseRef test=envMap;
 		auto grads = get_gradients_tex(limitedTex);
@@ -180,20 +170,28 @@ struct SApp : ci::app::App {
 		auto tex2 = shade2(texB, grads, envMap, redTex, /*greenTex,*/
 			"vec2 grad = fetch2(tex2) * gradScale;"
 			"vec3 N = normalize(vec3(-grad.x, -grad.y, -1.0));"
-			"vec3 I=-normalize(vec3(tc.x-.5, tc.y-.5, 1.0));"
+			"vec3 I=-normalize(vec3(tc.x-.5, tc.y-.5, 0.2));"
 			"float eta=1.0/1.3;"
 			"vec3 R=refract(I, N, eta);"
 			"vec3 c = getEnv(R);"
-			"c*=0.2;"
+			"c*=0.5;//*pow(.9, fetch1(tex) * 50.0);\n"
 			//"vec3 c = N;"
 			"vec3 albedo = 0.0*vec3(0.005, 0.0, 0.0);"
 			//"c = mix(albedo, c, pow(.9, fetch1(tex) * 50.0));" // tmp
 			"R = reflect(I, N);"
-			"if(fetch1(tex) > surfTensionThres)"
-			"	c += getEnv(R)*0.2;"
+			"if(fetch1(tex) > surfTensionThres) {"
+			//"	vec3 refl = reflect(-viewDir, normal);"
+			"	vec3 refl = R;"
+			"	vec3 normal = N;"
+			"	vec3 viewDir = -I;"
+			"	float fresnel = pow(1.0 - max(dot(normal, viewDir), 0.0), 5.0);"
+			"	float fresnelWeight = mix(0.1, 1.0, fresnel);"
+			"	c += getEnv(refl) * fresnelWeight;"
+			"}"
 
 			"float redVal = fetch1(tex4);"
-			//"redVal/=redVal+1.0;" // reinhard
+			"redVal = 1.0-exp(-redVal);"
+			//"redVal = min(3.0, redVal);"
 			//"float greenVal = fetch1(tex5);"
 			// this is taken from https://www.shadertoy.com/view/Mld3Rn
 			"vec3 redColor = vec3(min(redVal * 1.5, 1.), pow(redVal, 2.5), pow(redVal, 12.)); "
@@ -209,7 +207,7 @@ struct SApp : ci::app::App {
 			"}\n"
 			"vec3 getEnv(vec3 v) {\n"
 			"	vec3 c = fetch3(tex3, latlong(v));\n"
-			//"	c = pow(c, vec3(2.2));" // gamma correction
+			"	c = pow(c, vec3(2.2));" // gamma correction
 			"	return c;"
 			"}\n"
 		);
@@ -247,7 +245,7 @@ struct SApp : ci::app::App {
 			doFluidStep();
 
 		} // if ! pause
-		vec2 scaledm = vec2(mouseX * (float)sx, mouseY * (float)sy);
+		vec2 scaledm = vec2(mouseX * (float)sz.x, mouseY * (float)sz.y);
 		if (mouseDown_[0])
 		{
 			float t = getElapsedFrames();
@@ -258,20 +256,25 @@ struct SApp : ci::app::App {
 		else if (mouseDown_[2]) {
 			for (Particle& part : particles) {
 				if (distance(part.pos, scaledm) < 40) {
-					const float velocityScaleFactor = 0.6f / (float)::scale;
+					const float velocityScaleFactor = 0.6f / (float)scale;
 					part.velocity += velocityScaleFactor * direction;
 					float speed = glm::length(part.velocity);
-					float newSpeed = std::min(speed, velocityScaleFactor * 10);
+					float newSpeed = std::min(speed, velocityScaleFactor * 30);
 					part.velocity = part.velocity * newSpeed / speed;
 				}
 			}
 		}
 	}
 
-	float steepKernel(float dist) {
-		if (dist >= MAX_DIST) return 0.0f;
-		float x = 1.0f - dist / MAX_DIST;
+	float steepKernel(float dist, float radius) {
+		if (dist >= radius) return 0.0f;
+		float x = 1.0f - dist / radius;
 		return x * x;
+	}
+
+	float smoothKernel(float dist, float radius) {
+		if (dist >= radius) return 0.0f;
+		return glm::smoothstep(1.0f, 0.0f, dist / radius);
 	}
 
 	const float MAX_DIST = 20;
@@ -297,7 +300,7 @@ struct SApp : ci::app::App {
 		
 		forEachNeighbourPair([&](auto& p1, auto& p2, vec2 const& vec, float dist) {
 			auto vecNorm = vec / dist; // normalized
-			float f = steepKernel(dist);
+			float f = steepKernel(dist, MAX_DIST);
 			
 			float densityToAdd = f;
 			p1.densityHere += densityToAdd;
@@ -310,7 +313,7 @@ struct SApp : ci::app::App {
 
 		forEachNeighbourPair([&](auto& p1, auto& p2, vec2 const& vec, float dist) {
 			auto vecNorm = vec / (dist + 0.0001f); // normalized
-			float f = steepKernel(dist);
+			float f = steepKernel(dist, MAX_DIST);
 			vec2 pushawayVec = vecNorm * f;
 			const float pressureSum = p1.pressureHere + p2.pressureHere;
 			p1.force += pushawayVec * surfaceTensionCoef * pressureSum;
@@ -322,12 +325,12 @@ struct SApp : ci::app::App {
 
 	void smoothenVelocities() {
 		for (auto& p : particles) {
-			float f = steepKernel(0.0f);
+			float f = smoothKernel(0.0f, MAX_DIST);
 			p.velocityContribs = p.velocity * f;
 			p.velocityContribsSumWeights = f;
 		}
 		forEachNeighbourPair([&](Particle& p1, Particle& p2, vec2 const& vec, float dist) {
-			float f = steepKernel(dist);
+			float f = smoothKernel(dist, MAX_DIST);
 			p1.velocityContribs += p2.velocity * f;
 			p2.velocityContribs += p1.velocity * f;
 			p1.velocityContribsSumWeights += f;
@@ -340,10 +343,10 @@ struct SApp : ci::app::App {
 
 
 	void doFluidStep() {
-		const auto maxX = sx;
-		const auto maxY = sy;
+		const auto maxX = sz.x;
+		const auto maxY = sz.y;
 		lxComputeForces();
-		const float dampening = 0.6;
+		const float dampening = 0.75;
 		for (auto& p : particles) {
 			if (p.pos.x < 0 || p.pos.x > maxX) {
 				p.velocity.x *= -1;
@@ -375,4 +378,4 @@ struct SApp : ci::app::App {
 };
 
 CrossThreadCallQueue * gMainThreadCallQueue;
-CINDER_APP(SApp, ci::app::RendererGl())
+CINDER_APP(ParticleFluidSketch, ci::app::RendererGl())
