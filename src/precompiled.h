@@ -19,8 +19,6 @@
 #include "lxGlslProg.h"
 #include <glm/gtx/io.hpp>
 #include "lxTextureRef.h"
-#include "lxVaoVbo.h"
-#include "lxAreaRectf.h"
 #include <unordered_map>
 #include "imgui.h"
 

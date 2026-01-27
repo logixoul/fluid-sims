@@ -7,6 +7,8 @@
 #include "Array2D_imageProc.h"
 #include "util.h"
 #include "SketchScaffold.h"
+#include "lxAreaRectf.h"
+
 
 #define GET_FLOAT_LOGSCALE(name, defaultValue, min, max) \
 	static float name = defaultValue; \
