@@ -13,7 +13,6 @@
 	ImGui::DragFloat(#name, &name, 0.5f, min, max, "%.3f", ImGuiSliderFlags_Logarithmic);
 
 struct GridFluidSketch {
-	int wsx = 1280, wsy = 720;
 	const int scale = 6;
 	int sx;
 	int sy;
@@ -34,8 +33,8 @@ struct GridFluidSketch {
 
 	void setup()
 	{
-		sx = wsx / scale;
-		sy = wsy / scale;
+		sx = ::windowSize.x / scale;
+		sy = ::windowSize.y / scale;
 		sz = ivec2(sx, sy);
 
 		for (auto& material : materials) {
@@ -76,13 +75,10 @@ struct GridFluidSketch {
 	}
 	vec2 direction;
 	vec2 lastm;
-	void mouseDrag(ivec2 pos)
-	{
-		mm(pos);
-	}
 	void mouseMove(ivec2 pos)
 	{
 		mm(pos);
+		cout << "move " << pos << endl;
 	}
 	void mm(ivec2 pos)
 	{
@@ -295,6 +291,7 @@ struct GridFluidSketch {
 		mousePos /= scale;
 		if (mouseDown_[0])
 		{
+			
 			lxArea a = lxArea(ivec2(mousePos), ivec2(mousePos));
 			int r = 80 / pow(2, scale);
 			a.expand(r, r);

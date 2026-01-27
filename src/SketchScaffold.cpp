@@ -17,17 +17,27 @@ static void glfw_error_callback(int error, const char* description)
 {
 	fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
+class SketchScaffold;
+
+SketchScaffold* instance;
+
+static void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos);
+static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+
 struct SketchScaffold {
 	//ParticleFluidSketch sketch;
 	GridFluidSketch sketch;
 	GLFWwindow* window;
 
 	shared_ptr<IntegratedConsole> integratedConsole;
+
 	void setup()
 	{
 		::windowSize = ivec2(1280, 720);
+		::instance = this;
 
 		glfwSetErrorCallback(glfw_error_callback);
+
 		if (!glfwInit())
 			throw std::runtime_error("can't initialize glfw");
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -39,6 +49,9 @@ struct SketchScaffold {
 		glfwMakeContextCurrent(window);
 		glfwSwapInterval(1); // Enable vsync
 
+		glfwSetCursorPosCallback(window, cursorPositionCallback);
+		glfwSetMouseButtonCallback(window, mouseButtonCallback);
+		
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 			throw std::runtime_error("could not load glad");
 		}
@@ -76,6 +89,7 @@ struct SketchScaffold {
 			
 			ImGui::Render();
 			glfwGetFramebufferSize(window, &::windowSize.x, &windowSize.y);
+			std::clog << windowSize << std::endl;
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 			glfwSwapBuffers(window);
@@ -110,30 +124,26 @@ struct SketchScaffold {
 		}
 		
 		sketch.keyDown();
-	}
+	}*/
 
-	void mouseDrag(ci::app::MouseEvent e)
+	void mouseMove(ivec2 pos)
 	{
-		sketch.mouseDrag(e.getPos());
+		sketch.mouseMove(pos);
 	}
-	void mouseMove(ci::app::MouseEvent e)
-	{
-		sketch.mouseMove(e.getPos());
-	}
-
+	/*
 	void keyUp(ci::app::KeyEvent e) {
 		keys[e.getChar()] = false;
-	}
-
-	void mouseDown(ci::app::MouseEvent e)
-	{
-		mouseDown_[e.isLeft() ? 0 : e.isMiddle() ? 1 : 2] = true;
-	}
-	void mouseUp(ci::app::MouseEvent e)
-	{
-		mouseDown_[e.isLeft() ? 0 : e.isMiddle() ? 1 : 2] = false;
 	}*/
 };
+
+static void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos) {
+	instance->mouseMove(ivec2(xpos, ypos));
+}
+
+static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+{
+	mouseDown_[button] = action == GLFW_PRESS;
+}
 
 int WINAPI WinMain(
 	HINSTANCE hInstance,

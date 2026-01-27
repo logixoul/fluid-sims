@@ -109,12 +109,12 @@ private:
 		glGenTextures(1, &mId);
 		bind();
 		int levels;
-		/*if (format.mMipmapping)
+		if (format.mMipmapping)
 			levels = std::floor(std::log2(std::max(width, height))) + 1;
 		else
 			levels = 1;
-		glTexStorage2D(GL_TEXTURE_2D, levels, format.mInternalFormat, width, height);*/
-		glTexImage2D(GL_TEXTURE_2D, 0, format.mInternalFormat, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
+		glTexStorage2D(GL_TEXTURE_2D, levels, format.mInternalFormat, width, height);
+		//glTexImage2D(GL_TEXTURE_2D, 0, format.mInternalFormat, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
 	}
 };
 
