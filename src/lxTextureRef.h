@@ -2,6 +2,8 @@
 #include "precompiled.h"
 #include <cinder/gl/Context.h>
 #include "stb_image.h"
+#include "SketchScaffold.h"
+
 //#include "shade.h" // for drawRect
 extern void drawRect();
 
@@ -150,7 +152,7 @@ inline void lxDraw(lxTextureRef const& tex) {
 	glsl->uniform("uTexCoordOffset", glm::vec2(0.0f, 1.0f));
 	glsl->uniform("uTexCoordScale", glm::vec2(1.0f, -1.0f));
 
-	glViewport(0, 0, ci::app::getWindowWidth(), ci::app::getWindowHeight());
+	glViewport(0, 0, ::windowSize.x, ::windowSize.y);
 	
 	::drawRect();
 }

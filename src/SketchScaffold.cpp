@@ -8,6 +8,7 @@
 bool keys[256];
 bool keys2[256];
 bool mouseDown_[3];
+ivec2 windowSize;
 
 struct SketchScaffold : ci::app::App {
 	//ParticleFluidSketch sketch;
@@ -16,7 +17,8 @@ struct SketchScaffold : ci::app::App {
 	shared_ptr<IntegratedConsole> integratedConsole;
 	void setup()
 	{
-		ci::app::setWindowSize(1280, 720);
+		::windowSize = ivec2(1280, 720);
+		ci::app::setWindowSize(::windowSize);
 
 		::enableGlDebugOutput();
 
