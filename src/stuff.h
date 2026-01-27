@@ -86,7 +86,7 @@ void enableDenormalFlushToZero();
 
 template<class TVec>
 TVec safeNormalized(TVec const& vec) {
-	TVec::value_type len = length(vec);
+	typename TVec::value_type len = length(vec);
 	if (len == 0.0f) {
 		return vec;
 	}
