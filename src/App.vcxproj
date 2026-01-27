@@ -21,7 +21,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>false</WholeProgramOptimization>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -203,7 +203,6 @@
     </ClInclude>
     <ClInclude Include="GridFluidSketch.h" />
     <ClInclude Include="IntegratedConsole.h" />
-    <ClInclude Include="lxApp.h" />
     <ClInclude Include="lxAreaRectf.h" />
     <ClInclude Include="lxGlslProg.h" />
     <ClInclude Include="lxTextureRef.h" />
@@ -218,7 +217,6 @@
     <ClInclude Include="util.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\vcpkg-notes.txt" />
     <Text Include="OldCode.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

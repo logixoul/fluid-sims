@@ -59,25 +59,6 @@ float ksizeFromSigma(float sigma) {
 	return ksize;
 }
 
-Array2D<vec2> gradientForward(Array2D<float> a) {
-	throw 0;
-	/*return ::map(a, [&](ivec2 p) -> vec2 {
-		return vec2(
-			(a.wr(p.x + 1, p.y) - a.wr(p.x, p.y)) / 1.0f,
-			(a.wr(p.x, p.y + 1) - a.wr(p.x, p.y)) / 1.0f
-		);
-	});*/
-}
-
-Array2D<float> divBackward(Array2D<vec2> a) {
-	throw 0;
-	/*return ::map(a, [&](ivec2 p) -> float {
-		auto dGx_dx = (a.wr(p.x, p.y).x - a.wr(p.x - 1, p.y).x);
-		auto dGy_dy = (a.wr(p.x, p.y).y - a.wr(p.x, p.y - 1).y);
-		return dGx_dx + dGy_dy;
-	})*/;
-}
-
 vector<Array2D<float> > split(Array2D<vec3> arr) {
 	Array2D<float> r(arr.w, arr.h);
 	Array2D<float> g(arr.w, arr.h);

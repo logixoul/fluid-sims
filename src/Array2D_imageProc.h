@@ -347,8 +347,3 @@ Array2D<T> gaussianBlur(Array2D<T> src, int ksize) {
 Array2D<vec3> merge(vector<Array2D<float> > channels);
 
 Array2D<float> div(Array2D<vec2> a);
-
-
-Array2D<vec2> gradientForward(Array2D<float> a);
-
-Array2D<float> divBackward(Array2D<vec2> a);

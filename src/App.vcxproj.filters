@@ -82,7 +82,6 @@
     <ClInclude Include="lxVaoVbo.h" />
     <ClInclude Include="lxGlslProg.h" />
     <ClInclude Include="lxAreaRectf.h" />
-    <ClInclude Include="lxApp.h" />
     <ClInclude Include="SketchScaffold.h" />
     <ClInclude Include="..\lib\imgui\imconfig.h">
       <Filter>lib</Filter>
@@ -111,7 +110,6 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="OldCode.txt" />
-    <Text Include="..\vcpkg-notes.txt" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="lxlib">
