@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "precompiled.h"
 #include "MyTimer.h"
-
+#if 0
 vector<MyTimer*> TimerManager::timers;
 vector<MyTimer*> TimerManager::newTimers;
 int TimerManager::elapsedFrames = 0;
@@ -85,3 +85,4 @@ void TimerManager::registerTimer(MyTimer* timer)
 {
 	newTimers.push_back(timer);
 }
+#endif

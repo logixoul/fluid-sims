@@ -1,6 +1,6 @@
 #pragma once
 #include "precompiled.h"
-#include <cinder/gl/Context.h>
+
 #include "stb_image.h"
 #include "SketchScaffold.h"
 
@@ -50,6 +50,8 @@ public:
 		bind();
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, mWidth, mHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
 		stbi_image_free(data);
+		if (format.mMipmapping)
+			glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	~lxTexture() {
 		glDeleteTextures(1, &mId);
@@ -107,11 +109,12 @@ private:
 		glGenTextures(1, &mId);
 		bind();
 		int levels;
-		if (format.mMipmapping)
+		/*if (format.mMipmapping)
 			levels = std::floor(std::log2(std::max(width, height))) + 1;
 		else
 			levels = 1;
-		glTexStorage2D(GL_TEXTURE_2D, levels, format.mInternalFormat, width, height);
+		glTexStorage2D(GL_TEXTURE_2D, levels, format.mInternalFormat, width, height);*/
+		glTexImage2D(GL_TEXTURE_2D, 0, format.mInternalFormat, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
 	}
 };
 

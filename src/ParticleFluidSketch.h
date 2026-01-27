@@ -7,7 +7,7 @@
 #include "IntegratedConsole.h"
 
 #include "util.h"
-#include "CinderImGui.h"
+
 #include "SketchScaffold.h"
 
 struct ParticleFluidSketch {

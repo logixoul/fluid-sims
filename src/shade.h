@@ -109,7 +109,7 @@ struct ShadeOpts
 	vector<gl::TextureRef> _targetTexs;
 	gl::TextureRef _targetImg = nullptr;
 	ivec2 _dstPos;
-	ivec2 _dstRectSize;
+	ivec2 _dstRectSize = ivec2(0, 0);
 	bool _enableResult = true;
 	vector<Uniform> _uniforms;
 	string _vshaderExtra;

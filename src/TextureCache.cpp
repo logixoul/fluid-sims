@@ -70,7 +70,7 @@ static std::mutex mut;
 
 gl::TextureRef TextureCache::get(TextureCacheKey const & key)
 {
-	unique_lock<std::mutex> ul(::mut);
+	std::unique_lock<std::mutex> ul(::mut);
 	/*auto t = allocTex(key);
 	setDefaults(t);
 	return t;*/
@@ -109,7 +109,7 @@ gl::TextureRef TextureCache::get(TextureCacheKey const & key)
 // todo: rename this func
 void TextureCache::clearCaches()
 {
-	unique_lock<std::mutex> ul(::mut);
+	std::unique_lock<std::mutex> ul(::mut);
 	auto& cache = instance()->cache;
 	
 	for (auto& pair : cache) {
@@ -163,7 +163,7 @@ void TextureCache::printTextures()
 
 void TextureCache::deleteTexture(gl::TextureRef texToDel)
 {
-	unique_lock<std::mutex> ul(::mut);
+	std::unique_lock<std::mutex> ul(::mut);
 	auto& cache = instance()->cache;
 
 	for (auto& pair : cache) {

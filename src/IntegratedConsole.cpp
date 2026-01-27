@@ -2,7 +2,6 @@
 #include "IntegratedConsole.h"
 #include <deque>
 #include <sstream>
-#include "CinderImGui.h"
 
 IntegratedConsole::IntegratedConsole() {
 	std::cout.rdbuf(redirectStream.rdbuf());

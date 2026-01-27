@@ -154,7 +154,7 @@ int sign(float f)
 }
 
 float expRange(float x, float min, float max) {
-	return exp(lerp(log(min), log(max), x));
+	return exp(mix(std::log(min), std::log(max), x));
 }
 
 void setWrapBlack(gl::TextureRef tex) {

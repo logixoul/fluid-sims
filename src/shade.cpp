@@ -29,11 +29,11 @@ void beginRTT(gl::TextureRef fbotex)
 
 	if(fboid == 0)
 	{
-		glGenFramebuffersEXT(1, &fboid);
+		glGenFramebuffers(1, &fboid);
 	}
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fboid);
+	glBindFramebuffer(GL_FRAMEBUFFER, fboid);
 	if (fbotex != nullptr)
-		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, fbotex->getId(), 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fbotex->getId(), 0);
 	fboBound = true;
 }
 void beginRTT(vector<gl::TextureRef> fbotexs)
@@ -45,19 +45,19 @@ void beginRTT(vector<gl::TextureRef> fbotexs)
 
 	if (fboid == 0)
 	{
-		glGenFramebuffersEXT(1, &fboid);
+		glGenFramebuffers(1, &fboid);
 	}
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fboid);
+	glBindFramebuffer(GL_FRAMEBUFFER, fboid);
 	int i = 0;
 	for (auto& fbotex : fbotexs) {
-		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT + i, GL_TEXTURE_2D, fbotex->getId(), 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, fbotex->getId(), 0);
 		i++;
 	}
 	fboBound = true;
 }
 void endRTT()
 {
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	fboBound = false;
 }
 
@@ -237,7 +237,7 @@ gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string const& fsha
 		floor(tex0->getHeight() * opts._scaleY)
 	);
 
-	if (opts._dstRectSize != ivec2()) {
+	if (opts._dstRectSize != ivec2(0, 0)) {
 		viewportSize = opts._dstRectSize;
 	}
 	vector<gl::TextureRef> results;

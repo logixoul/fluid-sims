@@ -27,9 +27,32 @@
     <ClCompile Include="util.cpp">
       <Filter>lxlib</Filter>
     </ClCompile>
-    <ClCompile Include="CinderImGui.cpp" />
     <ClCompile Include="IntegratedConsole.cpp" />
     <ClCompile Include="stb_image.cpp" />
+    <ClCompile Include="..\lib\src\glad.c">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\imgui\imgui.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\imgui\imgui_demo.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\imgui\imgui_draw.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\imgui\imgui_tables.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\imgui\imgui_widgets.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\imgui\backends\imgui_impl_glfw.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\imgui\backends\imgui_impl_opengl3.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -51,8 +74,6 @@
     <ClInclude Include="util.h">
       <Filter>lxlib</Filter>
     </ClInclude>
-    <ClInclude Include="CinderImGui.h" />
-    <ClInclude Include="CinderImGuiConfig.h" />
     <ClInclude Include="IntegratedConsole.h" />
     <ClInclude Include="ParticleFluidSketch.h" />
     <ClInclude Include="GridFluidSketch.h" />
@@ -63,6 +84,30 @@
     <ClInclude Include="lxAreaRectf.h" />
     <ClInclude Include="lxApp.h" />
     <ClInclude Include="SketchScaffold.h" />
+    <ClInclude Include="..\lib\imgui\imconfig.h">
+      <Filter>lib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\imgui\imgui.h">
+      <Filter>lib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\imgui\imgui_internal.h">
+      <Filter>lib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\imgui\imstb_rectpack.h">
+      <Filter>lib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\imgui\imstb_textedit.h">
+      <Filter>lib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\imgui\imstb_truetype.h">
+      <Filter>lib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\imgui\backends\imgui_impl_glfw.h">
+      <Filter>lib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\imgui\backends\imgui_impl_opengl3.h">
+      <Filter>lib</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="OldCode.txt" />
@@ -71,6 +116,9 @@
   <ItemGroup>
     <Filter Include="lxlib">
       <UniqueIdentifier>{84946c29-52d8-4217-be6f-d040dd19abdb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib">
+      <UniqueIdentifier>{a45f40ee-0e50-4644-9d34-51d9f00885ee}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

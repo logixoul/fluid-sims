@@ -158,7 +158,7 @@ namespace gpuBlur2_5 {
 		w2 /= sum;
 		w1 /= sum;
 		w0 /= sum;
-		stringstream weights;
+		std::stringstream weights;
 		weights << fixed << "float w0=" << w0 << ", w1=" << w1 << ", w2=" << w2 << ";" << endl;
 		//cout << "weights=" << weights.str() << endl;
 		string shader =

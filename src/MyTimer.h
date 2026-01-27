@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 #pragma once
-
+#if 0
 class MyTimer
 {
 public:
@@ -37,7 +37,7 @@ public:
 	// TODO
 	//signal<void()> timeout;
 
-	static void singleShot(double intervalSec, function<void()> callback);
+	static void singleShot(double intervalSec, std::function<void()> callback);
 	
 private:
 	ci::Timer timerImpl;
@@ -57,3 +57,4 @@ private:
 	static int elapsedFrames;
 	friend class MyTimer;
 };
+#endif
