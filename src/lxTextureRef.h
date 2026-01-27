@@ -40,7 +40,6 @@ public:
 		init(width, height, format);
 	}
 	lxTexture(std::string filePath, Format const& format) {
-		/*ci::Surface8u surf = ci::loadImage(ci::app::loadAsset(filePath));*/
 		int width, height, n;
 		filePath = "../assets/" + filePath;
 		unsigned char *data = stbi_load(filePath.c_str(), &width, &height, &n, 4);

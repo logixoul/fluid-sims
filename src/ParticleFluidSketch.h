@@ -35,7 +35,7 @@ struct ParticleFluidSketch {
 
 	void setup()
 	{
-		sz = ivec2(ci::app::getWindowWidth() / scale, ci::app::getWindowHeight() / scale);
+		sz = ivec2(::windowSize.x / scale, ::windowSize.y / scale);
 
 		reset();
 	}
@@ -204,6 +204,7 @@ struct ParticleFluidSketch {
 			gl::drawSolidCircle(p.pos * float(::scale), 4);
 		}*/
 	}
+	int elapsedFrames = 0;
 	void stefanUpdate()
 	{
 		if (!pause)
@@ -215,7 +216,7 @@ struct ParticleFluidSketch {
 		mousePos /= scale;
 		if (mouseDown_[0])
 		{
-			float t = ci::app::getElapsedFrames();
+			float t = elapsedFrames;
 
 			Particle part; part.pos = mousePos + vec2(sin(t), cos(t)) * 30.0f;
 			particles.push_back(part);
@@ -231,6 +232,7 @@ struct ParticleFluidSketch {
 				}
 			}
 		}
+		elapsedFrames++;
 	}
 
 	float steepKernel(float dist, float radius) {
