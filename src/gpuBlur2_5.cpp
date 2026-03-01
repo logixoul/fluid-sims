@@ -173,8 +173,8 @@ namespace gpuBlur2_5 {
 			"_out.rgb = w2 * (aM2 + aP2) + w1 * (aM1 + aP1) + w0 * a0;";
 
 		//setWrapBlack(src);
-		//setWrap(src, wrap);
-		setWrapBlack(src);
+		setWrap(src, wrap);
+		//setWrapBlack(src);
 		auto hscaled = shade2(src, shader,
 			ShadeOpts()
 				.scale(hscale, 1.0f)
@@ -182,8 +182,8 @@ namespace gpuBlur2_5 {
 				.uniform("GB2_offsetY", 0.0f)
 			);
 		//setWrapBlack(hscaled);
-		//setWrap(hscaled, wrap);
-		setWrapBlack(hscaled);
+		setWrap(hscaled, wrap);
+		//setWrapBlack(hscaled);
 		auto vscaled = shade2(hscaled, shader,
 			ShadeOpts()
 			.uniform("GB2_offsetX", 0.0f)
@@ -192,4 +192,28 @@ namespace gpuBlur2_5 {
 		return vscaled;
 	}
 
-}
+	std::vector<gl::TextureRef> buildGaussianPyramid(gl::TextureRef src, int levels) {
+		std::vector<gl::TextureRef> pyr;
+		if (!src || levels <= 0) return pyr;
+
+		pyr.push_back(src);
+		auto cur = src;
+
+		for (int i = 1; i < levels; ++i) {
+			// Stop if already at minimal size
+			if (cur->getWidth() <= 1 || cur->getHeight() <= 1) break;
+
+			// singleblur with hscale=vscale=0.5 will blur and downsample by ~2
+			auto next = singleblur(cur, 0.5f, 0.5f, GL_REPEAT);
+			// Guard: if next is same size (driver/implementation corner-case), break to avoid infinite loop
+			if (!next) break;
+			if (next->getWidth() == cur->getWidth() && next->getHeight() == cur->getHeight()) break;
+
+			pyr.push_back(next);
+			cur = next;
+		}
+
+		return pyr;
+	}
+
+} // namespace gpuBlur2_5

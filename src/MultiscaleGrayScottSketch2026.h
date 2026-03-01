@@ -90,16 +90,55 @@ struct MultiscaleGrayScottSketch {
 		auto tex = gtex(grayScottState);
 		lxDraw(tex);
 	}
+	static gl::TextureRef zerosLike(gl::TextureRef in) {
+		//return gl::TextureRef(new lxTexture(in->getWidth(), in->getHeight(), lxTexture::Format().internalFormat(in->getInternalFormat()).wrap(in->getWrap)));
+		return shade2(in, "_out = vec4(0.0);");
+	}
 	void stefanUpdate()
 	{
-		doGrayScott();
+		auto stateTex = gtex(grayScottState);
+
+		auto pyr = gpuBlur2_5::buildGaussianPyramid(stateTex, 3);
+		auto accumulatedChange = zerosLike(pyr[0]);
+		for (auto& lvl : pyr) {
+			auto transformed = doGrayScott(lvl);
+			auto diff = shade2(lvl, transformed, MULTILINE(
+				vec2 state = texture(tex, tc).xy;
+				vec2 newState = texture(tex2, tc).xy;
+				_out.rg = newState - state;
+			), ShadeOpts().dstRectSize(stateTex->getSize()));
+			// upsample and accumulate changes from this level
+			accumulatedChange = shade2(accumulatedChange, diff, MULTILINE(
+				vec2 change = texture(tex, tc).xy;
+				_out.rg = texture(tex2, tc).xy + change; // add up changes from this level
+					), ShadeOpts().targetTex(accumulatedChange));
+		}
+		stateTex = shade2(stateTex, accumulatedChange, MULTILINE(
+			vec2 state = texture(tex, tc).xy;
+			vec2 change = texture(tex2, tc).xy;
+			_out.rg = state + change; // add up changes
+				));
+		grayScottState = dl<vec2>(stateTex);
+		float minA = FLT_MAX, maxA = FLT_MIN, minB = FLT_MAX, maxB = FLT_MIN;
+		for (auto& v : grayScottState) {
+			minA = std::min(minA, v.x);
+			maxA = std::max(maxA, v.x);
+			minB = std::min(minB, v.y);
+			maxB = std::max(maxB, v.y);
+		}
+		for (auto& v : grayScottState) {
+			//v.x = (v.x - minA) / (maxA - minA);
+			//v.y = (v.y - minB) / (maxB - minB);
+			//v = glm::atan(v);
+			//v = (v + vec2(::pi)) / (2.0f * ::pi);
+		}
 
 		handleMouseInput();
 	}
 
-	void doGrayScott() {
+	gl::TextureRef doGrayScott(gl::TextureRef in) {
 		// do several sub-steps per frame with smaller dt to stabilize numerics
-		auto stateTex = gtex(grayScottState);
+		auto stateTex = in;
 		for (int s = 0; s < subSteps; ++s) {
 			auto stateTexLaplace = get_laplace_tex(stateTex, GL_REPEAT);
 
@@ -123,8 +162,8 @@ struct MultiscaleGrayScottSketch {
 
 			stateTex = shade2(stateTex, stateTexLaplace, src.c_str(), ShadeOpts().ifmt(GL_RG16F));
 		}
+		return stateTex;
 		// read back to CPU structure for mouse interaction / draw
-		grayScottState = dl<vec2>(stateTex);
 	}
 
 	void handleMouseInput() {
