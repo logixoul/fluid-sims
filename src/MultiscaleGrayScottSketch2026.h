@@ -93,34 +93,7 @@ struct MultiscaleGrayScottSketch {
 		direction = vec2(pos) - lastm;
 		lastm = pos;
 	}
-	gl::TextureRef gtexF32(Array2D<float> a)
-	{
-		gl::TextureRef tex = maketex(a.w, a.h, GL_R32F);
-		bind(tex);
-		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RED, GL_FLOAT, a.data);
-		return tex;
-	}
-
-	gl::TextureRef gauss3texScaled(gl::TextureRef src, float scale) {
-		auto state = shade2(src,
-			"vec3 sum = vec3(0.0);"
-			"sum += fetch3(tex, tc + tsize * vec2(-1.0, -1.0)) / 16.0;"
-			"sum += fetch3(tex, tc + tsize * vec2(-1.0, 0.0)) / 8.0;"
-			"sum += fetch3(tex, tc + tsize * vec2(-1.0, +1.0)) / 16.0;"
-
-			"sum += fetch3(tex, tc + tsize * vec2(0.0, -1.0)) / 8.0;"
-			"sum += fetch3(tex, tc + tsize * vec2(0.0, 0.0)) / 4.0;"
-			"sum += fetch3(tex, tc + tsize * vec2(0.0, +1.0)) / 8.0;"
-
-			"sum += fetch3(tex, tc + tsize * vec2(+1.0, -1.0)) / 16.0;"
-			"sum += fetch3(tex, tc + tsize * vec2(+1.0, 0.0)) / 8.0;"
-			"sum += fetch3(tex, tc + tsize * vec2(+1.0, +1.0)) / 16.0;"
-			"_out.rgb = sum;",
-			ShadeOpts().scale(scale)
-		);
-		return state;
-	}
-
+	
 	void stefanDraw()
 	{
 		lxClear();
@@ -195,21 +168,5 @@ struct MultiscaleGrayScottSketch {
 				here.x = std::max(0.0f, here.x - subU);
 			}
 		}
-	}
-
-	template<class T, class FetchFunc>
-	static Array2D<T> convolve(Array2D<T> in, Array2D<float> kernel) {
-		int r = kernel.w / 2;
-		auto out = ::empty_like(in);
-		forxy(out) {
-			float sum = 0.0f;
-			for (int kx = -r; kx < r; kx++) {
-				for (int ky = -r; ky < r; ky++) {
-					sum += kernel(kx + r, ky + r) * FetchFunc::template fetch<T>(in, p.x + kx, p.y + ky);
-				}
-			}
-			out(p) = sum;
-		}
-		return out;
 	}
 };
