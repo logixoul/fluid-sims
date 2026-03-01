@@ -196,6 +196,7 @@ namespace gpuBlur2_5 {
 		std::vector<gl::TextureRef> pyr;
 		if (!src || levels <= 0) return pyr;
 
+		src = shade2(src, "_out = texture(tex, tc);"); // clone
 		pyr.push_back(src);
 		auto cur = src;
 

@@ -25,9 +25,9 @@ struct MultiscaleGrayScottSketch {
 	// tunable Gray-Scott params (exposed in the UI)
 	float Du = 0.2f;
 	float Dv = 0.1f;
-	float feed = 0.025f;
-	float kill = 0.056f;
-	int subSteps = 1; // smaller time-steps per frame stabilizes the sim
+	float feed = 0.03f;
+	float kill = 0.062f;
+	int subSteps = 8; // smaller time-steps per frame stabilizes the sim
 	float dt = 1.0f;  // per-substep time scale
 
 	void setup()
@@ -98,9 +98,11 @@ struct MultiscaleGrayScottSketch {
 	{
 		auto stateTex = gtex(grayScottState);
 
-		auto pyr = gpuBlur2_5::buildGaussianPyramid(stateTex, 3);
+		auto pyr = gpuBlur2_5::buildGaussianPyramid(stateTex, 2);
 		auto accumulatedChange = zerosLike(pyr[0]);
+		int idx = 0;
 		for (auto& lvl : pyr) {
+			idx++;
 			auto transformed = doGrayScott(lvl);
 			auto diff = shade2(lvl, transformed, MULTILINE(
 				vec2 state = texture(tex, tc).xy;
@@ -108,16 +110,21 @@ struct MultiscaleGrayScottSketch {
 				_out.rg = newState - state;
 			), ShadeOpts().dstRectSize(stateTex->getSize()));
 			// upsample and accumulate changes from this level
+			diff->setWrap(GL_REPEAT); // avoid edge artifacts when upsampling
 			accumulatedChange = shade2(accumulatedChange, diff, MULTILINE(
 				vec2 change = texture(tex, tc).xy;
 				_out.rg = texture(tex2, tc).xy + change; // add up changes from this level
-					));
+					),
+				ShadeOpts().uniform("weight", pow(.5f, (float)idx)));
 		}
 		stateTex = shade2(stateTex, accumulatedChange, MULTILINE(
 			vec2 state = texture(tex, tc).xy;
 			vec2 change = texture(tex2, tc).xy;
-			_out.rg = state + change; // add up changes
-				));
+			_out.rg = state + change / numLevels; // add up changes
+			_out.rg = clamp(_out.rg, vec2(0.0), vec2(1.0)); // prevent runaway values
+			),
+			ShadeOpts().uniform("numLevels", float(pyr.size()))
+			);
 		grayScottState = dl<vec2>(stateTex);
 		float minA = FLT_MAX, maxA = FLT_MIN, minB = FLT_MAX, maxB = FLT_MIN;
 		/*for (auto& v : grayScottState) {
