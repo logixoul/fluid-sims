@@ -111,7 +111,7 @@ struct MultiscaleGrayScottSketch {
 			accumulatedChange = shade2(accumulatedChange, diff, MULTILINE(
 				vec2 change = texture(tex, tc).xy;
 				_out.rg = texture(tex2, tc).xy + change; // add up changes from this level
-					), ShadeOpts().targetTex(accumulatedChange));
+					));
 		}
 		stateTex = shade2(stateTex, accumulatedChange, MULTILINE(
 			vec2 state = texture(tex, tc).xy;
@@ -120,7 +120,7 @@ struct MultiscaleGrayScottSketch {
 				));
 		grayScottState = dl<vec2>(stateTex);
 		float minA = FLT_MAX, maxA = FLT_MIN, minB = FLT_MAX, maxB = FLT_MIN;
-		for (auto& v : grayScottState) {
+		/*for (auto& v : grayScottState) {
 			minA = std::min(minA, v.x);
 			maxA = std::max(maxA, v.x);
 			minB = std::min(minB, v.y);
@@ -131,7 +131,7 @@ struct MultiscaleGrayScottSketch {
 			//v.y = (v.y - minB) / (maxB - minB);
 			//v = glm::atan(v);
 			//v = (v + vec2(::pi)) / (2.0f * ::pi);
-		}
+		}*/
 
 		handleMouseInput();
 	}
