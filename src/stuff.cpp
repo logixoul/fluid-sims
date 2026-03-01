@@ -175,8 +175,6 @@ void setWrap(gl::TextureRef tex, GLenum wrap) {
 }
 
 gl::TextureRef maketex(int w, int h, GLint ifmt, bool allocateMipmaps, bool clear) {
-	std::cout << "maketex with ifmt=" << ifmt << endl;
-
 	TextureCacheKey key;
 	key.ifmt = ifmt;
 	key.size = ivec2(w, h);

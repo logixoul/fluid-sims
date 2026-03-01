@@ -118,7 +118,7 @@
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>opencv_core400.lib;opencv_highgui400.lib;opencv_videoio400.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\logix\Desktop\code_\libs\lib64;C:\Users\logix\Desktop\code_\libs\lib64\Release;$(TargetDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\libs\lib64;D:\libs\lib64\Release;$(TargetDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
       <SubSystem>Windows</SubSystem>
