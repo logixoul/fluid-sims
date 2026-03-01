@@ -106,7 +106,7 @@ gl::TextureRef get_laplace_tex(gl::TextureRef src, GLuint wrap) {
 		"sum += fetch3(tex, tc + tsize * vec2(0.0, +1.0)) * -1.0;"
 		"sum += fetch3(tex, tc + tsize * vec2(+1.0, 0.0)) * -1.0;"
 		"sum += fetch3(tex, tc + tsize * vec2(0.0, 0.0)) * 4.0;"
-		"_out.rgb = -sum / 4.0f;"
+		"_out.rgb = -sum;"
 		);
 	return state;
 }
