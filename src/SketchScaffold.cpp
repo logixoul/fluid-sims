@@ -36,7 +36,7 @@ struct SketchScaffold {
 
 	void setup()
 	{
-		::windowSize = ivec2(1280, 720);
+		::windowSize = ivec2(1024, 1024);
 		::instance = this;
 
 		glfwSetErrorCallback(glfw_error_callback);

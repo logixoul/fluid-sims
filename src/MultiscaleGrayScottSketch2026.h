@@ -96,6 +96,12 @@ struct MultiscaleGrayScottSketch {
 	}
 	void stefanUpdate()
 	{
+		multiscaleApply();
+
+		handleMouseInput();
+	}
+	
+	void multiscaleApply() {
 		auto stateTex = gtex(grayScottState);
 
 		auto pyr = gpuBlur2_5::buildGaussianPyramid(stateTex, 3);
@@ -105,28 +111,28 @@ struct MultiscaleGrayScottSketch {
 			auto transformed = doGrayScott(lvl);
 			auto diff = shade2(lvl, transformed, MULTILINE(
 				vec2 state = texture(tex, tc).xy;
-				vec2 newState = texture(tex2, tc).xy;
-				_out.rg = newState - state;
-			));
+			vec2 newState = texture(tex2, tc).xy;
+			_out.rg = newState - state;
+				));
 			// upsample and accumulate changes from this level
 			diff->setWrap(GL_REPEAT);
 			float const weight = pow(.5f, (float)idx);
 			accumulatedChange = shade2(accumulatedChange, diff, MULTILINE(
 				vec2 change = texture(tex, tc).xy;
-				_out.rg = texture(tex2, tc).xy + change * weight; // add up changes from this level
-					),
+			_out.rg = texture(tex2, tc).xy + change * weight; // add up changes from this level
+				),
 				ShadeOpts().uniform("weight", weight)
 			);
 			idx++;
 		}
 		stateTex = shade2(stateTex, accumulatedChange, MULTILINE(
 			vec2 state = texture(tex, tc).xy;
-			vec2 change = texture(tex2, tc).xy;
-			_out.rg = state + change; // add up changes
-			_out.rg = clamp(_out.rg, vec2(0.0), vec2(1.0)); // prevent runaway values
+		vec2 change = texture(tex2, tc).xy;
+		_out.rg = state + change; // add up changes
+		_out.rg = clamp(_out.rg, vec2(0.0), vec2(1.0)); // prevent runaway values
 			),
 			ShadeOpts().uniform("numLevels", float(pyr.size()))
-			);
+		);
 		grayScottState = dl<vec2>(stateTex);
 		float minA = FLT_MAX, maxA = FLT_MIN, minB = FLT_MAX, maxB = FLT_MIN;
 		/*for (auto& v : grayScottState) {
@@ -141,8 +147,6 @@ struct MultiscaleGrayScottSketch {
 			//v = glm::atan(v);
 			//v = (v + vec2(::pi)) / (2.0f * ::pi);
 		}*/
-
-		handleMouseInput();
 	}
 
 	gl::TextureRef doGrayScott(gl::TextureRef in) {

@@ -144,7 +144,7 @@ namespace gpuBlur2_5 {
 	gl::TextureRef singleblur(gl::TextureRef src, float hscale, float vscale, GLenum wrap) {
 		GPU_SCOPE("singleblur");
 		//float gaussW = mouseY * 4 + .1;
-		float gaussW = 4;
+		float gaussW = getGaussW();
 		//cout << "2020gauss=" << gaussW<<endl;
 		
 		/*float w0 = (mouseY - .5) * .01 + .9958f;
