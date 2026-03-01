@@ -218,10 +218,10 @@ gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string const& fsha
 			<< "	relOutTc = tc;"
 			<< opts._vshaderExtra
 			<< "}";
-			try{
+		try{
 			shader = std::make_shared<lxGlslProg>(completeFshader, completeVshader);
 			shaders[fshader] = shader;
-		} catch(std::exception const& e) {
+		} catch(std::runtime_error const& e) {
 			cout << "lxGlslProgCompileExc: " << e.what() << endl;
 			cout << "source:" << endl;
 			cout << completeFshader << endl;

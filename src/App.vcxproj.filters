@@ -107,6 +107,7 @@
     <ClInclude Include="..\lib\imgui\backends\imgui_impl_opengl3.h">
       <Filter>lib</Filter>
     </ClInclude>
+    <ClInclude Include="MultiscaleGrayScottSketch2026.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="OldCode.txt" />

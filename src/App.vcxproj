@@ -79,7 +79,7 @@
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>opencv_core400d.lib;opencv_highgui400d.lib;opencv_videoio400d.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\logix\Desktop\code_\libs\lib64;C:\Users\logix\Desktop\code_\libs\lib64\Debug;$(TargetDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>d:\libs\lib64;d:\libs\lib64\Debug;$(TargetDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -207,6 +207,7 @@
     <ClInclude Include="lxGlslProg.h" />
     <ClInclude Include="lxTextureRef.h" />
     <ClInclude Include="lxVaoVbo.h" />
+    <ClInclude Include="MultiscaleGrayScottSketch2026.h" />
     <ClInclude Include="ParticleFluidSketch.h" />
     <ClInclude Include="precompiled.h" />
     <ClInclude Include="shade.h" />

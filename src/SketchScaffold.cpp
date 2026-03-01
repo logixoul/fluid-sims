@@ -1,6 +1,7 @@
 #include "precompiled.h"
 #include "ParticleFluidSketch.h"
 #include "GridFluidSketch.h"
+#include "MultiscaleGrayScottSketch2026.h"
 #include "MyTimer.h"
 #include "SketchScaffold.h"
 #include "backends/imgui_impl_glfw.h"
@@ -26,7 +27,8 @@ static void mouseButtonCallback(GLFWwindow* window, int button, int action, int 
 
 struct SketchScaffold {
 	//ParticleFluidSketch sketch;
-	GridFluidSketch sketch;
+	//GridFluidSketch sketch;
+	MultiscaleGrayScottSketch sketch;
 	GLFWwindow* window;
 
 	shared_ptr<IntegratedConsole> integratedConsole;
