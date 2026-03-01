@@ -24,6 +24,7 @@ SketchScaffold* instance;
 
 static void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos);
 static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 struct SketchScaffold {
 	//ParticleFluidSketch sketch;
@@ -53,6 +54,7 @@ struct SketchScaffold {
 
 		glfwSetCursorPosCallback(window, cursorPositionCallback);
 		glfwSetMouseButtonCallback(window, mouseButtonCallback);
+		glfwSetKeyCallback(window, keyCallback);
 		
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 			throw std::runtime_error("could not load glad");
@@ -91,7 +93,7 @@ struct SketchScaffold {
 			
 			ImGui::Render();
 			glfwGetFramebufferSize(window, &::windowSize.x, &windowSize.y);
-			std::clog << windowSize << std::endl;
+			//std::clog << windowSize << std::endl;
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 			glfwSwapBuffers(window);
@@ -113,29 +115,14 @@ struct SketchScaffold {
 		
 		sketch.stefanUpdate();
 		sketch.stefanDraw();
-		ImGui::End();
-
 		integratedConsole->update();
+		ImGui::End();
 	}
-
-	/*void keyDown(ci::app::KeyEvent e) {
-		keys[e.getChar()] = true;
-		if (e.isControlDown() && e.getCode() != ci::app::KeyEvent::KEY_LCTRL)
-		{
-			keys2[e.getChar()] = !keys2[e.getChar()];
-		}
-		
-		sketch.keyDown();
-	}*/
 
 	void mouseMove(ivec2 pos)
 	{
 		sketch.mouseMove(pos);
 	}
-	/*
-	void keyUp(ci::app::KeyEvent e) {
-		keys[e.getChar()] = false;
-	}*/
 };
 
 static void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos) {
@@ -145,6 +132,24 @@ static void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos)
 static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
 	mouseDown_[button] = action == GLFW_PRESS;
+}
+
+static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	cout << "key: " << key << " scancode: " << scancode << " action: " << action << " mods: " << mods << endl;
+	if (key >= 0 && key < 256)
+	{
+		key = tolower(key);
+		keys[key] = action != GLFW_RELEASE;
+		if (action == GLFW_PRESS && (mods & GLFW_MOD_CONTROL) != 0)
+		{
+			keys2[key] = !keys2[key];
+		}
+		if(action == GLFW_PRESS)
+			instance->sketch.keyDown(key);
+		else if (action == GLFW_RELEASE)
+			instance->sketch.keyUp(key);
+
+	}
 }
 
 int WINAPI WinMain(

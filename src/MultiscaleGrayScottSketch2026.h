@@ -21,7 +21,15 @@ struct MultiscaleGrayScottSketch {
 	int sy;
 	ivec2 sz;
 	Array2D<vec2> grayScottState;
-	
+
+	// tunable Gray-Scott params (exposed in the UI)
+	float Du = 0.16f;
+	float Dv = 0.08f;
+	float feed = 0.035f;
+	float kill = 0.06f;
+	int subSteps = 1; // smaller time-steps per frame stabilizes the sim
+	float dt = 1.0f;  // per-substep time scale
+
 	void setup()
 	{
 		sx = ::windowSize.x / scale;
@@ -34,12 +42,16 @@ struct MultiscaleGrayScottSketch {
 
 		reset();
 	}
-	void keyDown()
+	void keyDown(char c)
 	{
-		if (keys['r'])
+		if (c == 'r')
 		{
 			reset();
 		}
+	}
+	void keyUp(char c)
+	{
+
 	}
 	void reset() {
 		// Base state: U ~ 1, V ~ 0 (standard Gray-Scott baseline)
@@ -93,40 +105,67 @@ struct MultiscaleGrayScottSketch {
 		direction = vec2(pos) - lastm;
 		lastm = pos;
 	}
-	
+
 	void stefanDraw()
 	{
 		lxClear();
 
+		// Expose the parameters so you can tune them live and avoid the "fades to red" behavior.
+		ImGui::Text("Gray-Scott params");
+		ImGui::DragFloat("Du", &Du, 0.001f, 0.0f, 2.0f, "%.5f");
+		ImGui::DragFloat("Dv", &Dv, 0.001f, 0.0f, 2.0f, "%.5f");
+		ImGui::DragFloat("feed (F)", &feed, 0.0005f, 0.0f, 1.0f, "%.5f");
+		ImGui::DragFloat("kill (k)", &kill, 0.0005f, 0.0f, 1.0f, "%.5f");
+		ImGui::DragInt("subSteps", &subSteps, 1, 1, 16);
+		ImGui::DragFloat("dt (per step)", &dt, 0.001f, 0.001f, 1.0f, "%.4f");
+		// clamp sanity
+		if (subSteps < 1) subSteps = 1;
+		if (dt <= 0.0f) dt = 1e-3f;
+
 		static float colorAmount = 0.06f;
 		ImGui::DragFloat("colorAmount", &colorAmount, 1.0f, 0.01, 8.0, "%.3f", ImGuiSliderFlags_Logarithmic);
-		
+
 		auto tex = gtex(grayScottState);
 		lxDraw(tex);
 	}
 	void stefanUpdate()
 	{
 		doGrayScott();
-		
+
 		handleMouseInput();
 	}
 
 	void doGrayScott() {
-		auto stateTex = gtex(grayScottState);
-		auto stateTexLaplace = get_laplace_tex(stateTex, GL_REPEAT);
-		stateTex = shade2(stateTex, stateTexLaplace, MULTILINE(
-			vec2 state = texture(tex, tc).xy;
-			vec2 stateLaplace = texture(tex2, tc).xy;
-			float u = state.x;
-			float v = state.y;
-			float du = 0.16 * (stateLaplace.x - u) - u * v * v + 0.035 * (1.0 - u);
-			float dv = 0.08 * (stateLaplace.y - v) + u * v * v - (0.06 + 0.035) * v;
-			state.x += du;
-			state.y += dv;
-			_out.rg = state;
-			), ShadeOpts().ifmt(GL_RG16F));
-		//stateTex.read(grayScottState);
-		grayScottState = dl<vec2>(stateTex);
+		// do several sub-steps per frame with smaller dt to stabilize numerics
+		for (int s = 0; s < subSteps; ++s) {
+			auto stateTex = gtex(grayScottState);
+			auto stateTexLaplace = get_laplace_tex(stateTex, GL_REPEAT);
+
+			// build shader source with the current numerical parameters embedded.
+			// using to_string is fine since the shader source is compiled immediately.
+			std::string src;
+			src += "vec2 state = texture(tex, tc).xy;\n";
+			src += "vec2 stateLaplace = texture(tex2, tc).xy;\n";
+			src += "float u = state.x;\n";
+			src += "float v = state.y;\n";
+			src += "float Du = " + std::to_string(Du) + ";\n";
+			src += "float Dv = " + std::to_string(Dv) + ";\n";
+			src += "float F = " + std::to_string(feed) + ";\n";
+			src += "float k = " + std::to_string(kill) + ";\n";
+			src += "float dt = " + std::to_string(dt) + ";\n";
+			src += "float du = Du * (stateLaplace.x - u) - u * v * v + F * (1.0 - u);\n";
+			src += "float dv = Dv * (stateLaplace.y - v) + u * v * v - (k + F) * v;\n";
+			src += "state.x += dt * du;\n";
+			src += "state.y += dt * dv;\n";
+			// clamp to [0,1] to avoid runaway values that cause visual blowups
+			src += "state.x = clamp(state.x, 0.0, 1.0);\n";
+			src += "state.y = clamp(state.y, 0.0, 1.0);\n";
+			src += "_out.rg = state;\n";
+
+			stateTex = shade2(stateTex, stateTexLaplace, src.c_str(), ShadeOpts().ifmt(GL_RG16F));
+			// read back to CPU structure for mouse interaction / draw
+			grayScottState = dl<vec2>(stateTex);
+		}
 	}
 
 	void handleMouseInput() {
@@ -168,5 +207,21 @@ struct MultiscaleGrayScottSketch {
 				here.x = std::max(0.0f, here.x - subU);
 			}
 		}
+	}
+
+	template<class T, class FetchFunc>
+	static Array2D<T> convolve(Array2D<T> in, Array2D<float> kernel) {
+		int r = kernel.w / 2;
+		auto out = ::empty_like(in);
+		forxy(out) {
+			float sum = 0.0f;
+			for (int kx = -r; kx < r; kx++) {
+				for (int ky = -r; ky < r; ky++) {
+					sum += kernel(kx + r, ky + r) * FetchFunc::template fetch<T>(in, p.x + kx, p.y + ky);
+				}
+			}
+			out(p) = sum;
+		}
+		return out;
 	}
 };
