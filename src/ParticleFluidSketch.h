@@ -39,7 +39,7 @@ struct ParticleFluidSketch {
 
 		reset();
 	}
-	void keyDown()
+	void keyDown(int key)
 	{
 		if (keys['r'])
 		{
@@ -49,6 +49,8 @@ struct ParticleFluidSketch {
 		{
 			pause = !pause;
 		}
+	}
+	void keyUp(int key) {
 	}
 	vec2 direction;
 	vec2 lastm;
@@ -196,7 +198,8 @@ struct ParticleFluidSketch {
 
 			//videoWriter->write(tex2);
 
-		lxDraw(tex2);
+		//lxDraw(tex2);
+		lxDraw(tex);
 
 		/*gl::setMatricesWindow(getWindowSize(), true);
 		for (auto& p : particles) {
@@ -216,16 +219,20 @@ struct ParticleFluidSketch {
 		mousePos /= scale;
 		if (mouseDown_[0])
 		{
-			float t = elapsedFrames;
+			static float t = 0.0f;
 
-			Particle part; part.pos = mousePos + vec2(sin(t), cos(t)) * 30.0f;
-			particles.push_back(part);
+			for (int i = 0; i < 5; i++) {
+				Particle part; part.pos = mousePos + vec2(sin(t), cos(t)) * 30.0f;
+				particles.push_back(part);
+				t++;
+			}
 		}
-		else if (mouseDown_[2]) {
+		else if (mouseDown_[1]) {
 			for (Particle& part : particles) {
 				if (distance(part.pos, mousePos) < 40) {
 					const float velocityScaleFactor = 0.6f / (float)scale;
 					part.velocity += velocityScaleFactor * direction;
+					cout << velocityScaleFactor * direction << endl;
 					float speed = glm::length(part.velocity);
 					float newSpeed = std::min(speed, velocityScaleFactor * 30);
 					part.velocity = part.velocity * newSpeed / speed;

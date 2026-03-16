@@ -1,8 +1,6 @@
 #include "precompiled.h"
 #include "ParticleFluidSketch.h"
 #include "GridFluidSketch.h"
-#include "MultiscaleGrayScottSketch2026.h"
-#include "MyTimer.h"
 #include "SketchScaffold.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
@@ -27,16 +25,15 @@ static void mouseButtonCallback(GLFWwindow* window, int button, int action, int 
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 struct SketchScaffold {
-	//ParticleFluidSketch sketch;
+	ParticleFluidSketch sketch;
 	//GridFluidSketch sketch;
-	MultiscaleGrayScottSketch sketch;
 	GLFWwindow* window;
 
 	shared_ptr<IntegratedConsole> integratedConsole;
 
 	void setup()
 	{
-		::windowSize = ivec2(1024, 1024);
+		::windowSize = ivec2(768, 768);
 		::instance = this;
 
 		glfwSetErrorCallback(glfw_error_callback);

@@ -48,7 +48,7 @@ struct GridFluidSketch {
 
 		reset();
 	}
-	void keyDown()
+	void keyDown(int key)
 	{
 		if (keys[' ']) {
 			doFluidStep();
@@ -61,6 +61,9 @@ struct GridFluidSketch {
 		{
 			pause = !pause;
 		}
+	}
+	void keyUp(int key)
+	{
 	}
 	void reset() {
 		std::fill(red.density.begin(), red.density.end(), 0.0f);

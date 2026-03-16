@@ -207,7 +207,6 @@
     <ClInclude Include="lxGlslProg.h" />
     <ClInclude Include="lxTextureRef.h" />
     <ClInclude Include="lxVaoVbo.h" />
-    <ClInclude Include="MultiscaleGrayScottSketch2026.h" />
     <ClInclude Include="ParticleFluidSketch.h" />
     <ClInclude Include="precompiled.h" />
     <ClInclude Include="shade.h" />
