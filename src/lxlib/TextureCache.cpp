@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 using namespace std;
 #include "TextureCache.h"
 #include "stuff.h"
-#include <lxlib/lxTextureRef.h>
+#include <lxlib/TextureRef.h>
 
 int count1;
 int count2;

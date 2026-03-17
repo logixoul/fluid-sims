@@ -4,14 +4,14 @@
 #include <cstddef>   // offsetof
 #include <cstdint>
 #include <stdexcept>
-class lxVBO {
+class VBO {
 public:
-    lxVBO() {
+    VBO() {
         glGenBuffers(1, &m_id);
         if (!m_id) throw std::runtime_error("glGenBuffers failed");
     }
 
-    ~lxVBO() {
+    ~VBO() {
         if (m_id) glDeleteBuffers(1, &m_id);
     }
 
@@ -36,15 +36,15 @@ private:
     mutable GLenum m_target = GL_ARRAY_BUFFER;
 };
 
-// ----------------------------- lxVAO -----------------------------
-class lxVAO {
+// ----------------------------- VAO -----------------------------
+class VAO {
 public:
-    lxVAO() {
+    VAO() {
         glGenVertexArrays(1, &m_id);
         if (!m_id) throw std::runtime_error("glGenVertexArrays failed");
     }
 
-    ~lxVAO() {
+    ~VAO() {
         if (m_id) glDeleteVertexArrays(1, &m_id);
     }
 
@@ -76,9 +76,9 @@ private:
 //   layout(location=0) in vec4 aPos;
 //   layout(location=1) in vec2 aUV;
 struct QuadGpu {
-    lxVAO vao;
-    lxVBO vboPos; // vec4 positions, non-interleaved
-    lxVBO vboUV;  // vec2 texcoords, non-interleaved
+    VAO vao;
+    VBO vboPos; // vec4 positions, non-interleaved
+    VBO vboUV;  // vec2 texcoords, non-interleaved
 };
 
 inline std::shared_ptr<QuadGpu> createQuadVAO_VBOs()
@@ -132,8 +132,8 @@ inline std::shared_ptr<QuadGpu> createQuadVAO_VBOs()
     );
 
     // Clean-ish state
-    lxVBO::unbind(GL_ARRAY_BUFFER);
-    lxVAO::unbind();
+    VBO::unbind(GL_ARRAY_BUFFER);
+    VAO::unbind();
 
     return q;
 }

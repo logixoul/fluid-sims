@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "precompiled.h"
 #include "shade.h"
 #include "stuff.h"
-#include "lxVaoVbo.h"
+#include "VaoVbo.h"
 
 /*thread_local*/ bool fboBound = false;
 
@@ -66,7 +66,7 @@ void drawRect() {
 	static std::shared_ptr<QuadGpu> quad = createQuadVAO_VBOs();
 	quad->vao.bind();
 	glDrawArrays(GL_TRIANGLES, 0, 6);
-	lxVAO::unbind();
+	VAO::unbind();
 }
 
 auto samplerSuffix = [&](int i) -> string {
@@ -195,8 +195,8 @@ gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string const& fsha
 	//const string fshader = "void shade() { }";
 	//static std::mutex mapMutex;
 	//unique_lock<std::mutex> ul(mapMutex);
-	static std::map<string, lxGlslProgRef> shaders;
-	lxGlslProgRef shader;
+	static std::map<string, GlslProgRef> shaders;
+	GlslProgRef shader;
 	if(shaders.find(fshader) == shaders.end())
 	{
 		string uniformDeclarations;
@@ -219,10 +219,10 @@ gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string const& fsha
 			<< opts._vshaderExtra
 			<< "}";
 		try{
-			shader = std::make_shared<lxGlslProg>(completeFshader, completeVshader);
+			shader = std::make_shared<GlslProg>(completeFshader, completeVshader);
 			shaders[fshader] = shader;
 		} catch(std::runtime_error const& e) {
-			cout << "lxGlslProgCompileExc: " << e.what() << endl;
+			cout << "GlslProgCompileExc: " << e.what() << endl;
 			cout << "source:" << endl;
 			cout << completeFshader << endl;
 			string s; cin >> s;

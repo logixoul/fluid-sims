@@ -16,9 +16,9 @@
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
-#include <lxlib/lxGlslProg.h>
+#include <lxlib/GlslProg.h>
 #include <glm/gtx/io.hpp>
-#include <lxlib/lxTextureRef.h>
+#include <lxlib/TextureRef.h>
 #include <unordered_map>
 #include "imgui.h"
 

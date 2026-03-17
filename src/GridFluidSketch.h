@@ -7,7 +7,7 @@
 #include <lxlib/Array2D_imageProc.h>
 #include <lxlib/util.h>
 #include "SketchScaffold.h"
-#include <lxlib/lxAreaRectf.h>
+#include <lxlib/AreaRectf.h>
 
 
 #define GET_FLOAT_LOGSCALE(name, defaultValue, min, max) \
@@ -297,7 +297,7 @@ struct GridFluidSketch {
 		if (mouseDown_[0])
 		{
 			
-			lxArea a = lxArea(ivec2(mousePos), ivec2(mousePos));
+			Area a = Area(ivec2(mousePos), ivec2(mousePos));
 			int r = 80 / pow(2, scale);
 			a.expand(r, r);
 			for (int x = a.x1; x <= a.x2; x++)
@@ -313,7 +313,7 @@ struct GridFluidSketch {
 		}
 		else if (mouseDown_[2]) {
 			//mm();
-			lxArea a(mousePos, mousePos);
+			Area a(mousePos, mousePos);
 			int r = 15;
 			a.expand(r, r);
 			for (int x = a.x1; x <= a.x2; x++)

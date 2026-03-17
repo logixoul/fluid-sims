@@ -1,5 +1,5 @@
 #pragma once
-#include <lxlib/lxTextureRef.h>
+#include <lxlib/TextureRef.h>
 #include <glm/vec2.hpp>
 #include <lxlib/util.h>
 using glm::ivec2;

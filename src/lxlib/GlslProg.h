@@ -1,9 +1,9 @@
 #pragma once
 #include "precompiled.h"
 
-class lxGlslProg {
+class GlslProg {
 public:
-    lxGlslProg(const std::string& fragmentSrc, const std::string& vertexSrc)
+    GlslProg(const std::string& fragmentSrc, const std::string& vertexSrc)
     {
         GLuint vs = compile(GL_VERTEX_SHADER, vertexSrc);
         GLuint fs = compile(GL_FRAGMENT_SHADER, fragmentSrc);
@@ -39,7 +39,7 @@ public:
         glDeleteShader(fs);
     }
 
-    ~lxGlslProg() {
+    ~GlslProg() {
         if (m_program)
             glDeleteProgram(m_program);
     }
@@ -103,4 +103,4 @@ private:
     }
 };
 
-typedef std::shared_ptr<lxGlslProg> lxGlslProgRef;
+typedef std::shared_ptr<GlslProg> GlslProgRef;

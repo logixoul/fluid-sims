@@ -4,62 +4,26 @@
     <ClCompile Include="SketchScaffold.cpp" />
     <ClCompile Include="precompiled.cpp" />
     <ClCompile Include="MultiscaleCurvatureGrowthSketch\gpuBlurClaude.cpp" />
-    <ClCompile Include="MultiscaleCurvatureGrowthSketch\Sketch.cpp" />
     <ClCompile Include="MultiscaleCurvatureGrowthSketch\ThisSketch_ImageProcessingHelpers.cpp" />
-    <ClCompile Include="..\lxlib\Array2D_imageProc.cpp">
-      <Filter>lxlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\lxlib\ConfigManager3.cpp">
-      <Filter>lxlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\lxlib\gpgpu.cpp">
-      <Filter>lxlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\lxlib\gpuBlur2_5.cpp">
-      <Filter>lxlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\lxlib\IntegratedConsole.cpp">
-      <Filter>lxlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\lxlib\MyTimer.cpp">
-      <Filter>lxlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\lxlib\shade.cpp">
-      <Filter>lxlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\lxlib\stuff.cpp">
-      <Filter>lxlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\lxlib\TextureCache.cpp">
-      <Filter>lxlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\lxlib\util.cpp">
-      <Filter>lxlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\third-party\src\glad.c">
-      <Filter>third-party</Filter>
-    </ClCompile>
-    <ClCompile Include="..\third-party\src\stb_image.cpp">
-      <Filter>third-party</Filter>
-    </ClCompile>
-    <ClCompile Include="..\third-party\imgui\imgui.cpp">
-      <Filter>third-party</Filter>
-    </ClCompile>
-    <ClCompile Include="..\third-party\imgui\imgui_demo.cpp">
-      <Filter>third-party</Filter>
-    </ClCompile>
-    <ClCompile Include="..\third-party\imgui\imgui_draw.cpp">
-      <Filter>third-party</Filter>
-    </ClCompile>
-    <ClCompile Include="..\third-party\imgui\imgui_tables.cpp">
-      <Filter>third-party</Filter>
-    </ClCompile>
-    <ClCompile Include="..\third-party\imgui\imgui_widgets.cpp">
-      <Filter>third-party</Filter>
-    </ClCompile>
-    <ClCompile Include="..\third-party\imgui\backends\imgui_impl_opengl3.cpp">
-      <Filter>third-party</Filter>
-    </ClCompile>
+    <ClCompile Include="lxlib\Array2D_imageProc.cpp" />
+    <ClCompile Include="lxlib\ConfigManager3.cpp" />
+    <ClCompile Include="lxlib\gpgpu.cpp" />
+    <ClCompile Include="lxlib\gpuBlur2_5.cpp" />
+    <ClCompile Include="lxlib\IntegratedConsole.cpp" />
+    <ClCompile Include="lxlib\MyTimer.cpp" />
+    <ClCompile Include="lxlib\shade.cpp" />
+    <ClCompile Include="lxlib\stuff.cpp" />
+    <ClCompile Include="lxlib\TextureCache.cpp" />
+    <ClCompile Include="lxlib\util.cpp" />
+    <ClCompile Include="third-party\imgui\backends\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="third-party\imgui\backends\imgui_impl_glfw.cpp" />
+    <ClCompile Include="third-party\imgui\imgui.cpp" />
+    <ClCompile Include="third-party\imgui\imgui_demo.cpp" />
+    <ClCompile Include="third-party\imgui\imgui_draw.cpp" />
+    <ClCompile Include="third-party\imgui\imgui_tables.cpp" />
+    <ClCompile Include="third-party\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="third-party\src\glad.c" />
+    <ClCompile Include="third-party\src\stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -69,51 +33,28 @@
     <ClInclude Include="MultiscaleCurvatureGrowthSketch\gpuBlurClaude.h" />
     <ClInclude Include="MultiscaleCurvatureGrowthSketch\ThisSketch_ImageProcessingHelpers.h" />
     <ClInclude Include="MultiscaleCurvatureGrowthSketch\toml.hpp" />
-    <ClInclude Include="..\lxlib\Array2D_imageProc.h">
-      <Filter>lxlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\lxlib\ConfigManager3.h">
-      <Filter>lxlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\lxlib\gpgpu.h">
-      <Filter>lxlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\lxlib\gpuBlur2_5.h">
-      <Filter>lxlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\lxlib\IntegratedConsole.h">
-      <Filter>lxlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\lxlib\lxAreaRectf.h">
-      <Filter>lxlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\lxlib\lxGlslProg.h">
-      <Filter>lxlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\lxlib\lxTextureRef.h">
-      <Filter>lxlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\lxlib\lxVaoVbo.h">
-      <Filter>lxlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\lxlib\MyTimer.h">
-      <Filter>lxlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\lxlib\shade.h">
-      <Filter>lxlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\lxlib\stuff.h">
-      <Filter>lxlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\lxlib\TextureCache.h">
-      <Filter>lxlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\lxlib\util.h">
-      <Filter>lxlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\third-party\imgui\backends\imgui_impl_opengl3.h">
-      <Filter>third-party</Filter>
-    </ClInclude>
+    <ClInclude Include="lxlib\SketchBase.h" />
+    <ClInclude Include="MultiscaleCurvatureGrowthSketch\Sketch.h" />
+    <ClInclude Include="lxlib\Array2D_imageProc.h" />
+    <ClInclude Include="lxlib\ConfigManager3.h" />
+    <ClInclude Include="lxlib\gpgpu.h" />
+    <ClInclude Include="lxlib\gpuBlur2_5.h" />
+    <ClInclude Include="lxlib\IntegratedConsole.h" />
+    <ClInclude Include="lxlib\lxAreaRectf.h" />
+    <ClInclude Include="lxlib\lxGlslProg.h" />
+    <ClInclude Include="lxlib\lxTextureRef.h" />
+    <ClInclude Include="lxlib\lxVaoVbo.h" />
+    <ClInclude Include="lxlib\MyTimer.h" />
+    <ClInclude Include="lxlib\shade.h" />
+    <ClInclude Include="lxlib\stuff.h" />
+    <ClInclude Include="lxlib\TextureCache.h" />
+    <ClInclude Include="lxlib\util.h" />
+    <ClInclude Include="third-party\imgui\backends\imgui_impl_opengl3.h" />
+    <ClInclude Include="lxlib\GlslProg.h" />
+    <ClInclude Include="lxlib\AreaRectf.h" />
+    <ClInclude Include="lxlib\TextureRef.h" />
+    <ClInclude Include="lxlib\VaoVbo.h" />
+    <ClInclude Include="lxlib\precompiled.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="OldCode.txt" />
@@ -125,5 +66,8 @@
     <Filter Include="third-party">
       <UniqueIdentifier>{a45f40ee-0e50-4644-9d34-51d9f00885ee}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="config.toml" />
   </ItemGroup>
 </Project>

@@ -7,7 +7,7 @@
 //#include "shade.h" // for drawRect
 extern void drawRect();
 
-class lxTexture
+class Texture
 {
 public:
 	class Format {
@@ -36,10 +36,10 @@ private:
 	int mWidth, mHeight;
 	bool mTopDown = false;
 public:
-	lxTexture(int width, int height, Format const& format) {
+	Texture(int width, int height, Format const& format) {
 		init(width, height, format);
 	}
-	lxTexture(std::string filePath, Format const& format) {
+	Texture(std::string filePath, Format const& format) {
 		int width, height, n;
 		filePath = "../assets/" + filePath;
 		unsigned char *data = stbi_load(filePath.c_str(), &width, &height, &n, 4);
@@ -53,7 +53,7 @@ public:
 		if (format.mMipmapping)
 			glGenerateMipmap(GL_TEXTURE_2D);
 	}
-	~lxTexture() {
+	~Texture() {
 		glDeleteTextures(1, &mId);
 	}
 	void bind() {
@@ -93,11 +93,11 @@ public:
 	GLenum getTarget() const {
 		return GL_TEXTURE_2D;
 	}
-	static std::shared_ptr<lxTexture> create(int width, int height, Format const& format) {
-		return std::make_shared<lxTexture>(width, height, format);
+	static std::shared_ptr<Texture> create(int width, int height, Format const& format) {
+		return std::make_shared<Texture>(width, height, format);
 	}
-	static std::shared_ptr<lxTexture> create(std::string filepath, Format const& format) {
-		return std::make_shared<lxTexture>(filepath, format);
+	static std::shared_ptr<Texture> create(std::string filepath, Format const& format) {
+		return std::make_shared<Texture>(filepath, format);
 	}
 
 private:
@@ -118,7 +118,7 @@ private:
 	}
 };
 
-typedef std::shared_ptr<lxTexture> lxTextureRef;
+typedef std::shared_ptr<Texture> TextureRef;
 
 static const std::string genericVertexShaderSource =
 "#version 150\n"
@@ -142,11 +142,11 @@ static const std::string genericFragmentShaderSource =
 "	gl_FragColor = texture2D(uTex, tc);"
 "}";
 
-inline void lxDraw(lxTextureRef const& tex) {
+inline void lxDraw(TextureRef const& tex) {
 	glActiveTexture(GL_TEXTURE0);
 	tex->bind();
 
-	static const auto glsl = std::make_shared<lxGlslProg>(genericFragmentShaderSource, genericVertexShaderSource);
+	static const auto glsl = std::make_shared<GlslProg>(genericFragmentShaderSource, genericVertexShaderSource);
 	glsl->bind();
 	glsl->uniform("uTex", 0);
 	glsl->uniform("uPositionOffset", glm::vec2(0, 0));
@@ -165,6 +165,6 @@ inline void lxClear() {
 }
 
 namespace gl {
-	typedef lxTextureRef TextureRef;
-	typedef lxTexture Texture;
+	typedef ::TextureRef TextureRef;
+	typedef ::Texture Texture;
 }

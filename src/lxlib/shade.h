@@ -54,7 +54,7 @@ struct Str {
 };
 
 struct Uniform {
-	function<void(lxGlslProgRef)> setter;
+	function<void(GlslProgRef)> setter;
 	string shortDecl;
 };
 
@@ -97,7 +97,7 @@ struct ShadeOpts
 	template<class T>
 	ShadeOpts& uniform(string name, T val) {
 		_uniforms.push_back(Uniform{
-			[val, name](lxGlslProgRef prog) { prog->uniform(name, val); },
+			[val, name](GlslProgRef prog) { prog->uniform(name, val); },
 			typeToString<T>() + " " + name
 			});
 		return *this;

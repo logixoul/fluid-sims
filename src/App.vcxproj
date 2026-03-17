@@ -212,7 +212,12 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="MultiscaleCurvatureGrowthSketch\gpuBlurClaude.cpp" />
+    <ClInclude Include="lxlib\AreaRectf.h" />
+    <ClInclude Include="lxlib\GlslProg.h" />
+    <ClInclude Include="lxlib\precompiled.h" />
     <ClInclude Include="lxlib\SketchBase.h" />
+    <ClInclude Include="lxlib\TextureRef.h" />
+    <ClInclude Include="lxlib\VaoVbo.h" />
     <ClInclude Include="MultiscaleCurvatureGrowthSketch\Sketch.h" />
     <ClCompile Include="MultiscaleCurvatureGrowthSketch\ThisSketch_ImageProcessingHelpers.cpp" />
     <ClCompile Include="SketchScaffold.cpp" />
