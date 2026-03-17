@@ -63,7 +63,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)third-party\imgui\;$(SolutionDir)third-party\include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)third-party\imgui\;$(ProjectDir)third-party\include\</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -93,7 +93,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)third-party\imgui\;$(SolutionDir)third-party\include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)third-party\imgui\;$(ProjectDir)third-party\include\</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -135,84 +135,84 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\lxlib\Array2D_imageProc.cpp">
+    <ClCompile Include="lxlib\Array2D_imageProc.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\lxlib\ConfigManager3.cpp">
+    <ClCompile Include="lxlib\ConfigManager3.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\lxlib\gpgpu.cpp">
+    <ClCompile Include="lxlib\gpgpu.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\lxlib\gpuBlur2_5.cpp">
+    <ClCompile Include="lxlib\gpuBlur2_5.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\lxlib\IntegratedConsole.cpp">
+    <ClCompile Include="lxlib\IntegratedConsole.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\lxlib\MyTimer.cpp">
+    <ClCompile Include="lxlib\MyTimer.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\lxlib\shade.cpp">
+    <ClCompile Include="lxlib\shade.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\lxlib\stuff.cpp">
+    <ClCompile Include="lxlib\stuff.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\lxlib\TextureCache.cpp">
+    <ClCompile Include="lxlib\TextureCache.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\lxlib\util.cpp">
+    <ClCompile Include="lxlib\util.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\third-party\imgui\backends\imgui_impl_opengl3.cpp">
+    <ClCompile Include="third-party\imgui\backends\imgui_impl_opengl3.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\third-party\imgui\backends\imgui_impl_glfw.cpp">
+    <ClCompile Include="third-party\imgui\backends\imgui_impl_glfw.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\third-party\imgui\imgui.cpp">
+    <ClCompile Include="third-party\imgui\imgui.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\third-party\imgui\imgui_demo.cpp">
+    <ClCompile Include="third-party\imgui\imgui_demo.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\third-party\imgui\imgui_draw.cpp">
+    <ClCompile Include="third-party\imgui\imgui_draw.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\third-party\imgui\imgui_tables.cpp">
+    <ClCompile Include="third-party\imgui\imgui_tables.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\third-party\imgui\imgui_widgets.cpp">
+    <ClCompile Include="third-party\imgui\imgui_widgets.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\third-party\src\glad.c">
+    <ClCompile Include="third-party\src\glad.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\third-party\src\stb_image.cpp">
+    <ClCompile Include="third-party\src\stb_image.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="MultiscaleCurvatureGrowthSketch\gpuBlurClaude.cpp" />
-    <ClInclude Include="..\lxlib\SketchBase.h" />
+    <ClInclude Include="lxlib\SketchBase.h" />
     <ClInclude Include="MultiscaleCurvatureGrowthSketch\Sketch.h" />
     <ClCompile Include="MultiscaleCurvatureGrowthSketch\ThisSketch_ImageProcessingHelpers.cpp" />
     <ClCompile Include="SketchScaffold.cpp" />
@@ -224,21 +224,21 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\lxlib\Array2D_imageProc.h" />
-    <ClInclude Include="..\lxlib\ConfigManager3.h" />
-    <ClInclude Include="..\lxlib\gpgpu.h" />
-    <ClInclude Include="..\lxlib\gpuBlur2_5.h" />
-    <ClInclude Include="..\lxlib\IntegratedConsole.h" />
-    <ClInclude Include="..\lxlib\lxAreaRectf.h" />
-    <ClInclude Include="..\lxlib\lxGlslProg.h" />
-    <ClInclude Include="..\lxlib\lxTextureRef.h" />
-    <ClInclude Include="..\lxlib\lxVaoVbo.h" />
-    <ClInclude Include="..\lxlib\MyTimer.h" />
-    <ClInclude Include="..\lxlib\shade.h" />
-    <ClInclude Include="..\lxlib\stuff.h" />
-    <ClInclude Include="..\lxlib\TextureCache.h" />
-    <ClInclude Include="..\lxlib\util.h" />
-    <ClInclude Include="..\third-party\imgui\backends\imgui_impl_opengl3.h" />
+    <ClInclude Include="lxlib\Array2D_imageProc.h" />
+    <ClInclude Include="lxlib\ConfigManager3.h" />
+    <ClInclude Include="lxlib\gpgpu.h" />
+    <ClInclude Include="lxlib\gpuBlur2_5.h" />
+    <ClInclude Include="lxlib\IntegratedConsole.h" />
+    <ClInclude Include="lxlib\lxAreaRectf.h" />
+    <ClInclude Include="lxlib\lxGlslProg.h" />
+    <ClInclude Include="lxlib\lxTextureRef.h" />
+    <ClInclude Include="lxlib\lxVaoVbo.h" />
+    <ClInclude Include="lxlib\MyTimer.h" />
+    <ClInclude Include="lxlib\shade.h" />
+    <ClInclude Include="lxlib\stuff.h" />
+    <ClInclude Include="lxlib\TextureCache.h" />
+    <ClInclude Include="lxlib\util.h" />
+    <ClInclude Include="third-party\imgui\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="GridFluidSketch.h" />
     <ClInclude Include="MultiscaleCurvatureGrowthSketch\gpuBlurClaude.h" />
     <ClInclude Include="MultiscaleCurvatureGrowthSketch\ThisSketch_ImageProcessingHelpers.h" />
