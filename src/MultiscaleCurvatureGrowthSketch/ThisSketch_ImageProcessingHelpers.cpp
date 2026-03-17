@@ -1,6 +1,6 @@
 #include "precompiled.h"
 #include "ThisSketch_ImageProcessingHelpers.h"
-#include "stuff.h"
+#include <lxlib/stuff.h>
 #include "gpuBlurClaude.h"
 
 namespace ThisSketch {
@@ -42,7 +42,7 @@ namespace ThisSketch {
 	}
 
 	float mulContrastize(float i, float contrastizeStrength) {
-		i = ci::constrain(i, 0.0f, 1.0f);
+		i = glm::clamp(i, 0.0f, 1.0f);
 		const bool invert = i > .5f;
 		if (invert) {
 			i = 1.0f - i;
@@ -54,16 +54,6 @@ namespace ThisSketch {
 			i = 1.0f - i;
 		}
 		return i;
-	}
-
-	Array2D<float> resize(Array2D<float> src, ivec2 dstSize, const ci::FilterBase& filter)
-	{
-		ci::ChannelT<float> tmpSurface(
-			src.w, src.h, /*rowBytes*/sizeof(float) * src.w, 1, src.data);
-		ci::ChannelT<float> resizedSurface(dstSize.x, dstSize.y);
-		ci::ip::resize(tmpSurface, &resizedSurface, filter);
-		Array2D<float> resultArray = resizedSurface;
-		return resultArray;
 	}
 
 	/*std::vector<Img> buildGaussianPyramid(Img src, float scalePerLevel) {
@@ -79,7 +69,6 @@ namespace ThisSketch {
 	std::vector<Img> buildGaussianPyramid(Img src, float scalePerLevel) {
 		std::vector<Img> scales;
 		auto state = src.clone();
-		static const auto filter = ci::FilterGaussian();
 		while (true)
 		{
 			const int size = std::min(state.w, state.h);

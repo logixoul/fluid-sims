@@ -18,10 +18,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 #pragma once
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#include <algorithm>
+#include <functional>
+#include <vector>
 
-#include "precompiled.h"
+using glm::ivec2;
+using glm::vec2;
+using glm::vec3;
+
 
 #define MULTILINE(...) #__VA_ARGS__
+
 
 template<class T>
 class ArrayDeleter
@@ -82,7 +91,7 @@ enum nofill {};
 template<class T>
 struct Array2D;
 
-typedef glm::tvec3<byte> bytevec3;
+typedef glm::tvec3<unsigned char> bytevec3;
 
 template<class T>
 struct Array2D
@@ -187,21 +196,6 @@ const float pi = 3.14159265f;
 
 //void createConsole();
 
-template<class T>
-Array2D<T> empty_like(Array2D<T> a) {
-	return Array2D<T>(a.Size(), nofill());
-}
-
-template<class T>
-Array2D<T> ones_like(Array2D<T> a) {
-	return Array2D<T>(a.Size(), 1.0f);
-}
-
-template<class T>
-Array2D<T> zeros_like(Array2D<T> a) {
-	return Array2D<T>(a.Size(), ::zero<T>());
-}
-
 template<class InputIt, class T>
 T accumulate(InputIt begin, InputIt end, T base) {
 	T sum = base;
@@ -218,7 +212,7 @@ T accumulate(InputIt begin, InputIt end, T base) {
 extern float randFloat();
 
 template<class T>
-void myRemoveIf(vector<T>& vec, function<bool(T const&)> const& pred) {
+void myRemoveIf(std::vector<T>& vec, std::function<bool(T const&)> const& pred) {
 	vec.erase(std::remove_if(vec.begin(), vec.end(), pred), vec.end());
 }
 

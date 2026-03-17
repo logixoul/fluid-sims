@@ -1,12 +1,12 @@
 #include "precompiled.h"
-#include "stuff.h"
-#include "shade.h"
-#include "gpgpu.h"
-#include "gpuBlur2_5.h"
-#include "Array2D_imageProc.h"
-#include "IntegratedConsole.h"
+#include <lxlib/stuff.h>
+#include <lxlib/shade.h>
+#include <lxlib/gpgpu.h>
+#include <lxlib/gpuBlur2_5.h>
+#include <lxlib/Array2D_imageProc.h>
+#include <lxlib/IntegratedConsole.h>
 
-#include "util.h"
+#include <lxlib/util.h>
 
 #include "SketchScaffold.h"
 

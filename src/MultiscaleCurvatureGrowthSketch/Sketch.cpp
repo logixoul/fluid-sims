@@ -6,6 +6,7 @@
 #include <lxlib/ConfigManager3.h>
 #include "ThisSketch_ImageProcessingHelpers.h"
 #include "gpuBlurClaude.h"
+#include <numeric>
 
 int wsx = 700, wsy = 700;
 
@@ -44,21 +45,16 @@ namespace ThisSketch {
 		{
 			reset();
 			enableDenormalFlushToZero();
-			setWindowSize(wsx, wsy);
-
 			disableGLReadClamp();
-			stefanfw::eventHandler.subscribeToEvents(*this);
 		}
 
 		void update()
 		{
 			options.update();
-			stefanfw::beginFrame();
 			stefanUpdate();
 			stefanDraw();
-			stefanfw::endFrame();
 		}
-		void keyDown(KeyEvent e)
+		void keyDown(int key)
 		{
 			if (keys['p']) {
 				isPaused = !isPaused;
@@ -66,10 +62,6 @@ namespace ThisSketch {
 			if (keys['r'])
 			{
 				reset();
-			}
-			if (e.getChar() == 'd')
-			{
-				//ConfigManager3::params->isVisible() ? ConfigManager3::params->hide() : ConfigManager3::params->show();
 			}
 		}
 		void reset() {
@@ -158,11 +150,11 @@ namespace ThisSketch {
 				arr(p) = ::randFloat();
 			}
 
-			vector<int> testSizes{ 50, 200, 67, 107, 3 };
+			std::vector<int> testSizes{ 50, 200, 67, 107, 3 };
 			for (int testSize : testSizes) {
 				//auto newImpl = ThisSketch::resize_referenceImplementation(arr, ivec2(testSize, testSize)); // works
 				auto newImpl = gpuBlurClaude::singleblurLikeCinder(arr, ivec2(testSize, testSize));
-				auto oldImpl = ThisSketch::resize(arr, ivec2(testSize, testSize), ci::FilterGaussian());
+				auto oldImpl = ThisSketch::resize_referenceImplementation(arr, ivec2(testSize, testSize));
 				//mm("new", newImpl);
 				//mm("old", oldImpl);
 				
@@ -187,7 +179,7 @@ namespace ThisSketch {
 		}
 		gl::TextureRef postprocess() {
 			auto imgClamped = img.clone();
-			forxy(imgClamped) imgClamped(p) = ci::constrain(imgClamped(p), 0.0f, 1.0f);
+			forxy(imgClamped) imgClamped(p) = glm::clamp(imgClamped(p), 0.0f, 1.0f);
 
 			auto imgTex = gtex(imgClamped);
 			auto imgTexCentered = shade2(imgTex,
@@ -223,10 +215,6 @@ namespace ThisSketch {
 		}
 		void stefanDraw()
 		{
-			gl::setMatricesWindow(vec2(wsx, wsy), false);
-			gl::clear(ColorA::black(), true);
-			gl::disableDepthRead();
-
 			gl::TextureRef tex = gtex(img);
 			if (options.binarizePostprocessing) {
 				tex = postprocess();
@@ -234,7 +222,7 @@ namespace ThisSketch {
 			else {
 				tex = redToLuminance(tex);
 			}
-			gl::draw(tex, getWindowBounds());
+			lxDraw(tex);
 		}
 	};
 

@@ -1,7 +1,6 @@
 #pragma once
-#include "precompiled.h"
-#include "CinderImGui.h"
 #include "toml.hpp"
+using std::string;
 
 struct ConfigManager3
 {

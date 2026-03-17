@@ -2,7 +2,7 @@
 #include "precompiled.h"
 
 #include "stb_image.h"
-#include "SketchScaffold.h"
+#include "../src/SketchScaffold.h"
 
 //#include "shade.h" // for drawRect
 extern void drawRect();
@@ -162,4 +162,9 @@ inline void lxDraw(lxTextureRef const& tex) {
 inline void lxClear() {
 	glClearColor(0, 0, 0, 0);
 	glClear(GL_COLOR_BUFFER_BIT);
+}
+
+namespace gl {
+	typedef lxTextureRef TextureRef;
+	typedef lxTexture Texture;
 }

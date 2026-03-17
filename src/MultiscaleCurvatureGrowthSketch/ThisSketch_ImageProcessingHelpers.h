@@ -1,8 +1,8 @@
 #pragma once
 
-#include "precompiled.h"
-#include "Array2D_imageProc.h"
-#include "gpgpu.h"
+#include "../precompiled.h"
+#include <lxlib/Array2D_imageProc.h>
+#include <lxlib/gpgpu.h>
 
 namespace ThisSketch {
 
@@ -41,7 +41,7 @@ namespace ThisSketch {
 		return d.x * d.x * fxx + 2.0f * d.x * d.y * fxy + d.y * d.y * fyy;
 	}
 
-	Array2D<float> resize(Array2D<float> src, ivec2 dstSize, const ci::FilterBase& filter);
+	//Array2D<float> resize(Array2D<float> src, ivec2 dstSize, const ci::FilterBase& filter);
 	std::vector<Img> buildGaussianPyramid(Img src, float scalePerLevel = 0.5f);
 	
 	gl::TextureRef redToLuminance(gl::TextureRef const& in);

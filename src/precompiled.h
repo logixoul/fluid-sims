@@ -22,11 +22,5 @@
 #include <unordered_map>
 #include "imgui.h"
 
-
-namespace gl {
-	typedef lxTextureRef TextureRef;
-	typedef lxTexture Texture;
-}
-
 using namespace glm;
 using namespace std;

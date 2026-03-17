@@ -1,11 +1,11 @@
-#include "precompiled.h"
 #include "ConfigManager3.h"
-#include "CinderImGui.h"
+#include "imgui.h"
+#include "toml.hpp"
+#include <map>
 
 
 ConfigManager3::ConfigManager3()
 {
-	ImGui::Initialize();
 	ImGuiIO& io = ImGui::GetIO();
 	io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\segoeui.ttf", 18.0f);
 
@@ -23,7 +23,7 @@ void ConfigManager3::end()
 }
 
 template<class T> T& getOpt_Base(string const& name, T defaultValue) {
-	static map<string, T> m;
+	static std::map<string, T> m;
 	if (!m.count(name)) {
 		m[name] = defaultValue;
 	}

@@ -18,7 +18,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 #pragma once
-#include "precompiled.h"
+#include <vector>
+#include <lxlib/lxTextureRef.h>
 #include "TextureCache.h"
 
 namespace gpuBlur2_5 {

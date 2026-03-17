@@ -1,13 +1,13 @@
 #include "precompiled.h"
 //#include "using_namespace.h"
-#include "stuff.h"
-#include "shade.h"
-#include "gpgpu.h"
-#include "gpuBlur2_5.h"
-#include "Array2D_imageProc.h"
-#include "util.h"
+#include <lxlib/stuff.h>
+#include <lxlib/shade.h>
+#include <lxlib/gpgpu.h>
+#include <lxlib/gpuBlur2_5.h>
+#include <lxlib/Array2D_imageProc.h>
+#include <lxlib/util.h>
 #include "SketchScaffold.h"
-#include "lxAreaRectf.h"
+#include <lxlib/lxAreaRectf.h>
 
 
 #define GET_FLOAT_LOGSCALE(name, defaultValue, min, max) \

@@ -18,10 +18,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 #pragma once
-#include "precompiled.h"
+#include <glm/vec2.hpp>
+#include <glad/glad.h>
+#include <unordered_map>
+#include <vector>
+
+#include "lxTextureRef.h"
 
 struct TextureCacheKey {
-	ivec2 size;
+	glm::ivec2 size;
 	GLenum ifmt;
 	bool allocateMipmaps = false;
 	
@@ -61,5 +66,5 @@ public:
 private:
 	TextureCache();
 
-	std::unordered_map<TextureCacheKey, vector<gl::TextureRef>> cache;
+	std::unordered_map<TextureCacheKey, std::vector<gl::TextureRef>> cache;
 };

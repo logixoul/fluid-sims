@@ -17,9 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#include "precompiled.h"
+#include <map>
+#include <string>
+using namespace std;
 #include "TextureCache.h"
 #include "stuff.h"
+#include <lxlib/lxTextureRef.h>
 
 int count1;
 int count2;
@@ -66,11 +69,11 @@ void setDefaults(gl::TextureRef tex) {
 	tex->setWrap(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
 }
 
-static std::mutex mut;
+//static std::mutex mut;
 
 gl::TextureRef TextureCache::get(TextureCacheKey const & key)
 {
-	std::unique_lock<std::mutex> ul(::mut);
+	//std::unique_lock<std::mutex> ul(::mut);
 	/*auto t = allocTex(key);
 	setDefaults(t);
 	return t;*/
@@ -109,7 +112,7 @@ gl::TextureRef TextureCache::get(TextureCacheKey const & key)
 // todo: rename this func
 void TextureCache::clearCaches()
 {
-	std::unique_lock<std::mutex> ul(::mut);
+	//std::unique_lock<std::mutex> ul(::mut);
 	auto& cache = instance()->cache;
 	
 	for (auto& pair : cache) {
@@ -163,7 +166,7 @@ void TextureCache::printTextures()
 
 void TextureCache::deleteTexture(gl::TextureRef texToDel)
 {
-	std::unique_lock<std::mutex> ul(::mut);
+	//std::unique_lock<std::mutex> ul(::mut);
 	auto& cache = instance()->cache;
 
 	for (auto& pair : cache) {

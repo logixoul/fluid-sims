@@ -1,6 +1,6 @@
 // Basic OpenGL (C++): VAO + two non-interleaved VBOs (position + texcoord), non-indexed quad.
 #pragma once
-#include "precompiled.h"
+#include <glad/glad.h>
 #include <cstddef>   // offsetof
 #include <cstdint>
 #include <stdexcept>

@@ -1,6 +1,8 @@
 #pragma once
-#include "precompiled.h"
+#include <lxlib/lxTextureRef.h>
+#include <glm/vec2.hpp>
 #include <lxlib/util.h>
+using glm::ivec2;
 
 namespace gpuBlurClaude {
 	Array2D<float> singleblurLikeCinder(Array2D<float> src, ivec2 dstSize);

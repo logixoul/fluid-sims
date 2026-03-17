@@ -193,8 +193,8 @@ gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string const& fsha
 		gpuScope = make_shared<GpuScope>(opts._scopeName);
 	}
 	//const string fshader = "void shade() { }";
-	static std::mutex mapMutex;
-	unique_lock<std::mutex> ul(mapMutex);
+	//static std::mutex mapMutex;
+	//unique_lock<std::mutex> ul(mapMutex);
 	static std::map<string, lxGlslProgRef> shaders;
 	lxGlslProgRef shader;
 	if(shaders.find(fshader) == shaders.end())

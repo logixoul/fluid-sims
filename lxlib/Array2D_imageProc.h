@@ -153,6 +153,21 @@ T& zero() {
 	return val;
 }
 
+template<class T>
+Array2D<T> empty_like(Array2D<T> a) {
+	return Array2D<T>(a.Size(), nofill());
+}
+
+template<class T>
+Array2D<T> ones_like(Array2D<T> a) {
+	return Array2D<T>(a.Size(), 1.0f);
+}
+
+template<class T>
+Array2D<T> zeros_like(Array2D<T> a) {
+	return Array2D<T>(a.Size(), ::zero<T>());
+}
+
 ivec2 clampPoint(ivec2 p, int w, int h);
 template<class T>
 T& get_clamped(Array2D<T>& src, int x, int y)
