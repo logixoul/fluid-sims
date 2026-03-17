@@ -4,6 +4,7 @@
 #include "SketchScaffold.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
+#include "imgui.h"
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
@@ -123,30 +124,43 @@ struct SketchScaffold {
 };
 
 static void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos) {
-	instance->mouseMove(ivec2(xpos, ypos));
+    ImGuiIO& io = ImGui::GetIO();
+    if (io.WantCaptureMouse)
+        return; // ImGui wants to capture the mouse, don't forward to app
+
+    instance->mouseMove(ivec2(xpos, ypos));
 }
 
 static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
-	mouseDown_[button] = action == GLFW_PRESS;
+    ImGuiIO& io = ImGui::GetIO();
+    if (io.WantCaptureMouse)
+        return; // ImGui handled this click, don't let app consume it
+
+    mouseDown_[button] = action == GLFW_PRESS;
 }
 
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-	cout << "key: " << key << " scancode: " << scancode << " action: " << action << " mods: " << mods << endl;
-	if (key >= 0 && key < 256)
-	{
-		key = tolower(key);
-		keys[key] = action != GLFW_RELEASE;
-		if (action == GLFW_PRESS && (mods & GLFW_MOD_CONTROL) != 0)
-		{
-			keys2[key] = !keys2[key];
-		}
-		if(action == GLFW_PRESS)
-			instance->sketch.keyDown(key);
-		else if (action == GLFW_RELEASE)
-			instance->sketch.keyUp(key);
+    ImGuiIO& io = ImGui::GetIO();
+    // If ImGui wants to capture keyboard input, don't forward to the app
+    if (io.WantCaptureKeyboard)
+        return;
 
-	}
+    cout << "key: " << key << " scancode: " << scancode << " action: " << action << " mods: " << mods << endl;
+    if (key >= 0 && key < 256)
+    {
+        key = tolower(key);
+        keys[key] = action != GLFW_RELEASE;
+        if (action == GLFW_PRESS && (mods & GLFW_MOD_CONTROL) != 0)
+        {
+            keys2[key] = !keys2[key];
+        }
+        if(action == GLFW_PRESS)
+            instance->sketch.keyDown(key);
+        else if (action == GLFW_RELEASE)
+            instance->sketch.keyUp(key);
+
+    }
 }
 
 int WINAPI WinMain(

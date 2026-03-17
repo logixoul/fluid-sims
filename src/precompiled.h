@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
-#include <mutex>
+//#include <mutex>
 #include <functional>
 #include <fstream>
 #include <map>
@@ -16,9 +16,9 @@
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
-#include "lxGlslProg.h"
+#include <lxlib/lxGlslProg.h>
 #include <glm/gtx/io.hpp>
-#include "lxTextureRef.h"
+#include <lxlib/lxTextureRef.h>
 #include <unordered_map>
 #include "imgui.h"
 
