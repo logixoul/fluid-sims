@@ -1,5 +1,6 @@
 #pragma once
-#include <lxlib/TextureRef.h>
+#include <lxlib/precompiled.h>
+import lxlib.TextureRef;
 #include <glm/vec2.hpp>
 #include <lxlib/util.h>
 using glm::ivec2;

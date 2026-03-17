@@ -1,8 +1,10 @@
-#pragma once
-
+module;
+#include "precompiled.h"
 #include <glm/vec2.hpp>
 
-struct SketchBase {
+export module lxlib.SketchBase;
+
+export struct SketchBase {
 	void keyDown(int key) {
 	}
 	void keyUp(int key) {

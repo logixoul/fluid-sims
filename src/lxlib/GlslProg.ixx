@@ -1,7 +1,11 @@
-#pragma once
+module;
+#define LX_SKIP_LXLIB_GLSLPROG_INCLUDE
+#define LX_SKIP_LXLIB_TEXTUREREF_INCLUDE
 #include "precompiled.h"
 
-class GlslProg {
+export module lxlib.GlslProg;
+
+export class GlslProg {
 public:
     GlslProg(const std::string& fragmentSrc, const std::string& vertexSrc)
     {
@@ -32,7 +36,6 @@ public:
             throw std::runtime_error("Program link error:\n" + std::string(log.data()));
         }
 
-        // shaders can be deleted after linking
         glDetachShader(m_program, vs);
         glDetachShader(m_program, fs);
         glDeleteShader(vs);
@@ -53,8 +56,6 @@ public:
     }
 
     GLuint id() const { return m_program; }
-
-    // ---- Basic uniform helpers ----
 
     GLint getUniformLocation(const std::string& name) const {
         return glGetUniformLocation(m_program, name.c_str());
@@ -103,4 +104,4 @@ private:
     }
 };
 
-typedef std::shared_ptr<GlslProg> GlslProgRef;
+export typedef std::shared_ptr<GlslProg> GlslProgRef;

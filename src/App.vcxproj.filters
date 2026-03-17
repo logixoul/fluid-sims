@@ -24,6 +24,11 @@
     <ClCompile Include="third-party\imgui\imgui_widgets.cpp" />
     <ClCompile Include="third-party\src\glad.c" />
     <ClCompile Include="third-party\src\stb_image.cpp" />
+    <ClCompile Include="lxlib\SketchBase.ixx" />
+    <ClCompile Include="lxlib\AreaRectf.ixx" />
+    <ClCompile Include="lxlib\VaoVbo.ixx" />
+    <ClCompile Include="lxlib\GlslProg.ixx" />
+    <ClCompile Include="lxlib\TextureRef.ixx" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -33,7 +38,6 @@
     <ClInclude Include="MultiscaleCurvatureGrowthSketch\gpuBlurClaude.h" />
     <ClInclude Include="MultiscaleCurvatureGrowthSketch\ThisSketch_ImageProcessingHelpers.h" />
     <ClInclude Include="MultiscaleCurvatureGrowthSketch\toml.hpp" />
-    <ClInclude Include="lxlib\SketchBase.h" />
     <ClInclude Include="MultiscaleCurvatureGrowthSketch\Sketch.h" />
     <ClInclude Include="lxlib\Array2D_imageProc.h" />
     <ClInclude Include="lxlib\ConfigManager3.h" />
@@ -50,10 +54,6 @@
     <ClInclude Include="lxlib\TextureCache.h" />
     <ClInclude Include="lxlib\util.h" />
     <ClInclude Include="third-party\imgui\backends\imgui_impl_opengl3.h" />
-    <ClInclude Include="lxlib\GlslProg.h" />
-    <ClInclude Include="lxlib\AreaRectf.h" />
-    <ClInclude Include="lxlib\TextureRef.h" />
-    <ClInclude Include="lxlib\VaoVbo.h" />
     <ClInclude Include="lxlib\precompiled.h" />
   </ItemGroup>
   <ItemGroup>

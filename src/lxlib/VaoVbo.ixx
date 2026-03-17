@@ -1,10 +1,13 @@
-// Basic OpenGL (C++): VAO + two non-interleaved VBOs (position + texcoord), non-indexed quad.
-#pragma once
-#include <glad/glad.h>
-#include <cstddef>   // offsetof
+module;
+#include "precompiled.h"
+#include <cstddef>
 #include <cstdint>
+#include <memory>
 #include <stdexcept>
-class VBO {
+
+export module lxlib.VaoVbo;
+
+export class VBO {
 public:
     VBO() {
         glGenBuffers(1, &m_id);
@@ -36,8 +39,7 @@ private:
     mutable GLenum m_target = GL_ARRAY_BUFFER;
 };
 
-// ----------------------------- VAO -----------------------------
-class VAO {
+export class VAO {
 public:
     VAO() {
         glGenVertexArrays(1, &m_id);
@@ -51,8 +53,6 @@ public:
     void bind() const { glBindVertexArray(m_id); }
     static void unbind() { glBindVertexArray(0); }
 
-    // Helper: define an attribute pulling from currently-bound GL_ARRAY_BUFFER
-    // NOTE: Requires this VAO to be bound.
     void defineAttrib(
         GLuint index,
         GLint  components,
@@ -71,67 +71,44 @@ private:
     GLuint m_id = 0;
 };
 
-// ----------------------------- quad setup -----------------------------
-// Layout assumption for your shader:
-//   layout(location=0) in vec4 aPos;
-//   layout(location=1) in vec2 aUV;
-struct QuadGpu {
+export struct QuadGpu {
     VAO vao;
-    VBO vboPos; // vec4 positions, non-interleaved
-    VBO vboUV;  // vec2 texcoords, non-interleaved
+    VBO vboPos;
+    VBO vboUV;
 };
 
-inline std::shared_ptr<QuadGpu> createQuadVAO_VBOs()
+export inline std::shared_ptr<QuadGpu> createQuadVAO_VBOs()
 {
-    // Four hardcoded vertices, non-indexed. We'll draw as GL_TRIANGLE_FAN or GL_TRIANGLE_STRIP.
-    // Order: (0,0)->(0,1)->(1,1)->(1,0)
     static const float positions[6][4] = {
-        {0.f, 0.f, 0.f, 1.f}, // #1
-        {0.f, 1.f, 0.f, 1.f}, // #2
-        {1.f, 1.f, 0.f, 1.f}, // #3
-        {0.f, 0.f, 0.f, 1.f}, // #1
-        {1.f, 1.f, 0.f, 1.f}, // #3
-        {1.f, 0.f, 0.f, 1.f}, // #2
+        {0.f, 0.f, 0.f, 1.f},
+        {0.f, 1.f, 0.f, 1.f},
+        {1.f, 1.f, 0.f, 1.f},
+        {0.f, 0.f, 0.f, 1.f},
+        {1.f, 1.f, 0.f, 1.f},
+        {1.f, 0.f, 0.f, 1.f},
     };
 
     static const float texcoords[6][2] = {
-        {0.f, 0.f}, // #1
-        {0.f, 1.f}, // #2
-        {1.f, 1.f}, // #3
-        {0.f, 0.f}, // #1
-        {1.f, 1.f}, // #3
-        {1.f, 0.f}, // #2
+        {0.f, 0.f},
+        {0.f, 1.f},
+        {1.f, 1.f},
+        {0.f, 0.f},
+        {1.f, 1.f},
+        {1.f, 0.f},
     };
 
     auto q = std::make_shared<QuadGpu>();
 
     q->vao.bind();
 
-    // Attribute 0: positions (vec4) from its own VBO
     q->vboPos.setData(positions, sizeof(positions), GL_STATIC_DRAW, GL_ARRAY_BUFFER);
     q->vboPos.bind(GL_ARRAY_BUFFER);
-    q->vao.defineAttrib(
-        /*index*/ 0,
-        /*components*/ 4,
-        /*type*/ GL_FLOAT,
-        /*normalized*/ GL_FALSE,
-        /*stride*/ 4 * (GLsizei)sizeof(float),
-        /*offset*/ (const void*)0
-    );
+    q->vao.defineAttrib(0, 4, GL_FLOAT, GL_FALSE, 4 * (GLsizei)sizeof(float), (const void*)0);
 
-    // Attribute 1: texcoords (vec2) from its own VBO
     q->vboUV.setData(texcoords, sizeof(texcoords), GL_STATIC_DRAW, GL_ARRAY_BUFFER);
     q->vboUV.bind(GL_ARRAY_BUFFER);
-    q->vao.defineAttrib(
-        /*index*/ 1,
-        /*components*/ 2,
-        /*type*/ GL_FLOAT,
-        /*normalized*/ GL_FALSE,
-        /*stride*/ 2 * (GLsizei)sizeof(float),
-        /*offset*/ (const void*)0
-    );
+    q->vao.defineAttrib(1, 2, GL_FLOAT, GL_FALSE, 2 * (GLsizei)sizeof(float), (const void*)0);
 
-    // Clean-ish state
     VBO::unbind(GL_ARRAY_BUFFER);
     VAO::unbind();
 

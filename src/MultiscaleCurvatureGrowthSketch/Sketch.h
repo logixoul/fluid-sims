@@ -5,7 +5,7 @@
 #include <lxlib/Array2D_imageProc.h>
 #include <lxlib/gpgpu.h>
 #include <lxlib/ConfigManager3.h>
-#include <lxlib/SketchBase.h>
+import lxlib.SketchBase;
 #include "ThisSketch_ImageProcessingHelpers.h"
 #include "gpuBlurClaude.h"
 #include <numeric>

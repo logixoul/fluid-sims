@@ -7,7 +7,7 @@
 #include <lxlib/Array2D_imageProc.h>
 #include <lxlib/util.h>
 #include "SketchScaffold.h"
-#include <lxlib/AreaRectf.h>
+import lxlib.AreaRectf;
 
 
 #define GET_FLOAT_LOGSCALE(name, defaultValue, min, max) \

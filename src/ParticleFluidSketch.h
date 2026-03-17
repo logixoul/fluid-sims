@@ -3,7 +3,7 @@
 #include <lxlib/shade.h>
 #include <lxlib/gpgpu.h>
 #include <lxlib/Array2D_imageProc.h>
-#include <lxlib/SketchBase.h>
+import lxlib.SketchBase;
 
 #include <lxlib/util.h>
 

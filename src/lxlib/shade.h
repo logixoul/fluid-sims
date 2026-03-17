@@ -19,9 +19,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #pragma once
 
+#include "precompiled.h"
+
 #include <string>
 #include <vector>
 #include <glm/vec2.hpp>
+import lxlib.GlslProg;
+import lxlib.TextureRef;
 
 using std::string;
 #include "util.h"

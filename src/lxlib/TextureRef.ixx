@@ -1,20 +1,24 @@
-#pragma once
+module;
+#define LX_SKIP_LXLIB_GLSLPROG_INCLUDE
+#define LX_SKIP_LXLIB_TEXTUREREF_INCLUDE
 #include "precompiled.h"
-
 #include "stb_image.h"
-#include "../src/SketchScaffold.h"
 
-//#include "shade.h" // for drawRect
+export module lxlib.TextureRef;
+
+import lxlib.GlslProg;
+import lxlib.VaoVbo;
+
 extern void drawRect();
+extern glm::ivec2 windowSize;
 
-class Texture
+export class Texture
 {
 public:
 	class Format {
 	public:
-	//private:
 		GLint mInternalFormat = -1;
-		bool mImmutableStorage = false; // todo rm
+		bool mImmutableStorage = false;
 		bool mMipmapping = false;
 		bool mLoadTopDown = false;
 		GLenum mMinFilter, mMagFilter;
@@ -114,13 +118,12 @@ private:
 		else
 			levels = 1;
 		glTexStorage2D(GL_TEXTURE_2D, levels, format.mInternalFormat, width, height);
-		//glTexImage2D(GL_TEXTURE_2D, 0, format.mInternalFormat, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
 	}
 };
 
-typedef std::shared_ptr<Texture> TextureRef;
+export typedef std::shared_ptr<Texture> TextureRef;
 
-static const std::string genericVertexShaderSource =
+export inline const std::string genericVertexShaderSource =
 "#version 150\n"
 "in vec4 ciPosition;"
 "in vec2 ciTexCoord0;"
@@ -128,21 +131,21 @@ static const std::string genericVertexShaderSource =
 "uniform vec2 uTexCoordOffset, uTexCoordScale;"
 "void main()"
 "{"
-"	gl_Position = ciPosition * 2 - 1;"
-"	tc = ciTexCoord0;"
-"	tc = uTexCoordOffset + uTexCoordScale * tc;"
+"\tgl_Position = ciPosition * 2 - 1;"
+"\ttc = ciTexCoord0;"
+"\ttc = uTexCoordOffset + uTexCoordScale * tc;"
 "}";
 
-static const std::string genericFragmentShaderSource =
+export inline const std::string genericFragmentShaderSource =
 "#version 150\n"
 "in highp vec2 tc;"
 "uniform sampler2D uTex;"
 "void main()"
 "{"
-"	gl_FragColor = texture2D(uTex, tc);"
+"\tgl_FragColor = texture2D(uTex, tc);"
 "}";
 
-inline void lxDraw(TextureRef const& tex) {
+export inline void lxDraw(TextureRef const& tex) {
 	glActiveTexture(GL_TEXTURE0);
 	tex->bind();
 
@@ -154,17 +157,18 @@ inline void lxDraw(TextureRef const& tex) {
 	glsl->uniform("uTexCoordOffset", glm::vec2(0.0f, 1.0f));
 	glsl->uniform("uTexCoordScale", glm::vec2(1.0f, -1.0f));
 
-	glViewport(0, 0, ::windowSize.x, ::windowSize.y);
-	
-	::drawRect();
+	static std::shared_ptr<QuadGpu> quad = createQuadVAO_VBOs();
+	quad->vao.bind();
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	VAO::unbind();
 }
 
-inline void lxClear() {
+export inline void lxClear() {
 	glClearColor(0, 0, 0, 0);
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
-namespace gl {
+export namespace gl {
 	typedef ::TextureRef TextureRef;
 	typedef ::Texture Texture;
 }

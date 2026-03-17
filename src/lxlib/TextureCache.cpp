@@ -20,9 +20,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <map>
 #include <string>
 using namespace std;
+#include "precompiled.h"
 #include "TextureCache.h"
 #include "stuff.h"
-#include <lxlib/TextureRef.h>
 
 int count1;
 int count2;

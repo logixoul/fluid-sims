@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <unordered_map>
 #include <vector>
 
-#include "TextureRef.h"
+import lxlib.TextureRef;
 
 struct TextureCacheKey {
 	glm::ivec2 size;

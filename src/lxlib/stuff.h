@@ -18,8 +18,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 #pragma once
+#include "precompiled.h"
 #include "util.h"
-#include "TextureRef.h"
+import lxlib.TextureRef;
 
 class TextureCache;
 

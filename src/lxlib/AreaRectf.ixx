@@ -1,8 +1,9 @@
-#pragma once
-
+module;
 #include "precompiled.h"
 
-class Area {
+export module lxlib.AreaRectf;
+
+export class Area {
 public:
 	int x1;
 	int y1;
