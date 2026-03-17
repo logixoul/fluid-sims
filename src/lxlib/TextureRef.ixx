@@ -1,6 +1,4 @@
 module;
-#define LX_SKIP_LXLIB_GLSLPROG_INCLUDE
-#define LX_SKIP_LXLIB_TEXTUREREF_INCLUDE
 #include "precompiled.h"
 #include "stb_image.h"
 
