@@ -2,6 +2,8 @@
 #include "ParticleFluidSketch.h"
 #include "GridFluidSketch.h"
 #include "SketchScaffold.h"
+#include "MultiscaleCurvatureGrowthSketch/Sketch.h"
+#include <lxlib/IntegratedConsole.h>
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 #include "imgui.h"
@@ -26,7 +28,8 @@ static void mouseButtonCallback(GLFWwindow* window, int button, int action, int 
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 struct SketchScaffold {
-	ParticleFluidSketch sketch;
+	MultiscaleCurvatureGrowthSketch sketch;
+	//ParticleFluidSketch sketch;
 	//GridFluidSketch sketch;
 	GLFWwindow* window;
 

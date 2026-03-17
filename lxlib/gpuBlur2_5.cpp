@@ -192,29 +192,19 @@ namespace gpuBlur2_5 {
 		return vscaled;
 	}
 
-	std::vector<gl::TextureRef> buildGaussianPyramid(gl::TextureRef src, int levels) {
-		std::vector<gl::TextureRef> pyr;
-		if (!src || levels <= 0) return pyr;
-
-		src = shade2(src, "_out = texture(tex, tc);"); // clone
-		pyr.push_back(src);
-		auto cur = src;
-
-		for (int i = 1; i < levels; ++i) {
-			// Stop if already at minimal size
-			if (cur->getWidth() <= 1 || cur->getHeight() <= 1) break;
-
-			// singleblur with hscale=vscale=0.5 will blur and downsample by ~2
-			auto next = singleblur(cur, 0.5f, 0.5f, GL_REPEAT);
-			// Guard: if next is same size (driver/implementation corner-case), break to avoid infinite loop
-			if (!next) break;
-			if (next->getWidth() == cur->getWidth() && next->getHeight() == cur->getHeight()) break;
-
-			pyr.push_back(next);
-			cur = next;
+	std::vector<gl::TextureRef> buildGaussianPyramid(gl::TextureRef const& src, float scalePerLevel) {
+		std::vector<gl::TextureRef> result;
+		result.push_back(src);
+		auto state = src;
+		while (true) {
+			int minDim = std::min(state->getWidth(), state->getHeight());
+			if (minDim <= 2)
+				break;
+			ivec2 dstSize = ivec2(state->getWidth() * scalePerLevel, state->getHeight() * scalePerLevel);
+			state = singleblur(state, scalePerLevel, scalePerLevel, GL_CLAMP_TO_BORDER);
+			result.push_back(state);
 		}
-
-		return pyr;
+		return result;
 	}
 
 } // namespace gpuBlur2_5

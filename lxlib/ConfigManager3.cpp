@@ -6,10 +6,13 @@
 
 ConfigManager3::ConfigManager3()
 {
+	tbl = toml::parse_file("config.toml");
+}
+
+void ConfigManager3::init()
+{
 	ImGuiIO& io = ImGui::GetIO();
 	io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\segoeui.ttf", 18.0f);
-
-	tbl = toml::parse_file("config.toml");
 }
 
 void ConfigManager3::begin()

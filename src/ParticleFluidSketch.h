@@ -2,15 +2,14 @@
 #include <lxlib/stuff.h>
 #include <lxlib/shade.h>
 #include <lxlib/gpgpu.h>
-#include <lxlib/gpuBlur2_5.h>
 #include <lxlib/Array2D_imageProc.h>
-#include <lxlib/IntegratedConsole.h>
+#include <lxlib/SketchBase.h>
 
 #include <lxlib/util.h>
 
 #include "SketchScaffold.h"
 
-struct ParticleFluidSketch {
+struct ParticleFluidSketch : public SketchBase {
 	typedef Array2D<float> Image;
 	const int scale = 4;
 	ivec2 sz;
@@ -49,8 +48,6 @@ struct ParticleFluidSketch {
 		{
 			pause = !pause;
 		}
-	}
-	void keyUp(int key) {
 	}
 	vec2 direction;
 	vec2 lastm;
