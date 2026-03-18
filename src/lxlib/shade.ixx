@@ -27,7 +27,10 @@ import lxlib.TextureRef;
 import lxlib.util;
 import lxlib.VaoVbo;
 
-// Forward declarations of functions defined in lxlib.stuff (avoids circular module dependency)
+// Forward declarations of functions defined in lxlib.stuff.
+// We avoid importing lxlib.stuff here because lxlib.stuff imports lxlib.shade,
+// which would create a circular module dependency. These symbols are resolved by
+// the linker from the lxlib.stuff translation unit.
 gl::TextureRef maketex(int w, int h, GLint ifmt, bool allocateMipmaps = false, bool clear = false);
 void bindTexture(gl::TextureRef& tex);
 void bindTexture(gl::TextureRef tex, GLenum textureUnit);
