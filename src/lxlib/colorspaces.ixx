@@ -1,7 +1,45 @@
 #include "precompiled.h"
-#include "colorspaces.h"
+export module lxlib.colorspaces;
 
-vec3 FromHSL(HslF const& hsl)
+export struct HslF
+{
+    float h, s, l;
+    HslF(float h, float s, float l)
+    {
+        this->h = h;
+        this->s = s;
+        this->l = l;
+    }
+
+    HslF(glm::vec3 const& rgb)
+    {
+        float r = rgb.x, g = rgb.y, b = rgb.z;
+        float max = std::max(r, std::max(g, b)), min = std::min(r, std::min(g, b));
+        l = (max + min) / 2;
+
+        if (max == min)
+        {
+            h = s = 0; // achromatic
+        }
+        else
+        {
+            float d = max - min;
+            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+            if (max == r)
+                h = (g - b) / d + (g < b ? 6 : 0);
+            else if (max == g)
+                h = (b - r) / d + 2;
+            else if (max == b)
+                h = (r - g) / d + 4;
+            else
+                throw new std::runtime_error("NaN");
+            h /= 6;
+        }
+    }
+
+};
+
+export vec3 FromHSL(HslF const& hsl)
 {
     float v;
     float r, g, b;
@@ -62,37 +100,4 @@ vec3 FromHSL(HslF const& hsl)
         }
     }
     return vec3(r, g, b);
-}
-
-HslF::HslF(float h, float s, float l)
-{
-	this->h = h;
-	this->s = s;
-	this->l = l;
-}
-
-HslF::HslF(glm::vec3 const& rgb)
-{
-	float r = rgb.x, g = rgb.y, b = rgb.z;
-	float max = std::max(r, std::max(g, b)), min = std::min(r, std::min(g, b));
-	l = (max + min) / 2;
-
-    if(max == min)
-	{
-		h = s = 0; // achromatic
-	}
-	else
-	{
-		float d = max - min;
-		s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-		if(max == r)
-			h = (g - b) / d + (g < b ? 6 : 0);
-		else if(max == g)
-			h = (b - r) / d + 2;
-		else if(max == b)
-			h = (r - g) / d + 4;
-        else
-            throw new std::runtime_error("NaN");
-		h /= 6;
-	}
 }

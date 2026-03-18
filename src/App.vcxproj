@@ -137,7 +137,7 @@
   <ItemGroup>
     <ClCompile Include="lxlib\AreaRectf.ixx" />
     <ClCompile Include="lxlib\Array2D_imageProc.ixx" />
-    <ClCompile Include="lxlib\colorspaces.cpp" />
+    <ClCompile Include="lxlib\colorspaces.ixx" />
     <ClCompile Include="lxlib\ConfigManager3.ixx" />
     <ClCompile Include="lxlib\GlslProg.ixx" />
     <ClCompile Include="lxlib\gpgpu.ixx" />
@@ -195,7 +195,6 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="ParticleFluidSketch.ixx" />
-    <ClInclude Include="lxlib\colorspaces.h" />
     <ClInclude Include="lxlib\simplexnoise.h" />
     <ClCompile Include="SketchScaffold.ixx" />
     <ClCompile Include="precompiled.cpp">
