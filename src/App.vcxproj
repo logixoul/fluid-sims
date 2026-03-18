@@ -218,6 +218,7 @@
     </ClCompile>
     <ClCompile Include="MultiscaleGrowthSketch\gpuBlurClaude.cpp" />
     <ClInclude Include="GridFluidSketch\GridFluidSketch.h" />
+    <ClInclude Include="lxlib\macros.h" />
     <ClInclude Include="lxlib\precompiled.h" />
     <ClInclude Include="MultiscaleGrowthSketch\MultiscaleGrowthSketch.h" />
     <ClCompile Include="MultiscaleGrowthSketch\ThisSketch_ImageProcessingHelpers.cpp" />

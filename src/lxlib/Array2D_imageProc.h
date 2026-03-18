@@ -1,6 +1,7 @@
 #pragma once
 
 #include "util.h"
+#include <lxlib/macros.h>
 
 template<class T>
 ivec2 wrapPoint(Array2D<T> const& src, ivec2 p)

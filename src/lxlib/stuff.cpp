@@ -188,19 +188,6 @@ gl::TextureRef maketex(int w, int h, GLint ifmt, bool allocateMipmaps, bool clea
 	return tex;
 }
 
-void checkGLError(string place)
-{
-	GLenum errCode;
-	if ((errCode = glGetError()) != GL_NO_ERROR)
-	{
-		cout << "GL error 0x" << hex << errCode << dec << " at " << place << endl;
-	}
-	else {
-		cout << "NO error at " << place << endl;
-	}
-}
-
-
 void disableGLReadClamp() {
 	glClampColor(GL_CLAMP_READ_COLOR, GL_FALSE);
 }

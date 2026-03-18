@@ -25,9 +25,6 @@ import lxlib.TextureRef;
 class TextureCache;
 
 
-void my_assert_func(bool isTrue, string desc);
-#define my_assert(isTrue) my_assert_func(isTrue, #isTrue);
-
 void bind(gl::TextureRef& tex);
 void bindTexture(gl::TextureRef& tex);
 void bindTexture(gl::TextureRef tex, GLenum textureUnit);
@@ -53,11 +50,6 @@ template<> Array2D<float> dl<float>(gl::TextureRef tex);
 template<> Array2D<vec2> dl<vec2>(gl::TextureRef tex);
 template<> Array2D<vec3> dl<vec3>(gl::TextureRef tex);
 template<> Array2D<vec4> dl<vec4>(gl::TextureRef tex);
-
-void checkGLError(string place);
-#define MY_STRINGIZE_DETAIL(x) #x
-#define MY_STRINGIZE(x) MY_STRINGIZE_DETAIL(x)
-#define CHECK_GL_ERROR() checkGLError(__FILE__ ": " MY_STRINGIZE(__LINE__))
 
 template<class T>
 Array2D<T> gettexdata(gl::TextureRef tex, GLenum format, GLenum type) {

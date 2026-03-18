@@ -6,7 +6,7 @@
 import lxlib.SketchBase;
 
 #include <lxlib/util.h>
-
+#include <lxlib/macros.h>
 #include "SketchScaffold.h"
 
 struct ParticleFluidSketch : public SketchBase {

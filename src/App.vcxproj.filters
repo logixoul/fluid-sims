@@ -55,6 +55,7 @@
     <ClInclude Include="third-party\imgui\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="lxlib\precompiled.h" />
     <ClInclude Include="GridFluidSketch\GridFluidSketch.h" />
+    <ClInclude Include="lxlib\macros.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="OldCode.txt" />

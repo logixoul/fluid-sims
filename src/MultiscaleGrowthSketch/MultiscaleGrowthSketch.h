@@ -9,6 +9,7 @@ import lxlib.SketchBase;
 #include "ThisSketch_ImageProcessingHelpers.h"
 #include "gpuBlurClaude.h"
 #include <numeric>
+#include <lxlib/macros.h>
 
 int wsx = 700, wsy = 700;
 

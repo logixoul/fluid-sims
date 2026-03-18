@@ -35,8 +35,6 @@ struct GpuScope {
 	~GpuScope();
 };
 
-#define GPU_SCOPE(name) GpuScope gpuScope_ ## __LINE__  (name);
-
 void beginRTT(gl::TextureRef fbotex);
 void endRTT();
 

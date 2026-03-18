@@ -268,11 +268,6 @@ gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string const& fsha
 	{
 		uniform.setter(shader);
 	}
-	/*shader->uniform("image", 0); // todo: rm this?
-	if (opts._targetImg != nullptr) {
-		my_assert(opts._targetImg->getInternalFormat() == GL_R32F);
-		glBindImageTexture(0, opts._targetImg->getId(), 0, GL_FALSE, 0, GL_READ_WRITE, opts._targetImg->getInternalFormat());
-	}*/
 	
 	shader->bind();
 

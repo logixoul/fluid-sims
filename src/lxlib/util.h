@@ -28,10 +28,6 @@ using glm::ivec2;
 using glm::vec2;
 using glm::vec3;
 
-
-#define MULTILINE(...) #__VA_ARGS__
-
-
 template<class T>
 class ArrayDeleter
 {
@@ -204,10 +200,6 @@ T accumulate(InputIt begin, InputIt end, T base) {
 	}
 	return sum;
 }
-
-#define forxy(image) \
-	for(ivec2 p(0, 0); p.y < image.h; p.y++) \
-		for(p.x = 0; p.x < image.w; p.x++)
 
 extern float randFloat();
 

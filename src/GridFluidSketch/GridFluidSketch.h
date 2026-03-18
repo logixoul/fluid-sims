@@ -7,6 +7,7 @@
 #include <lxlib/Array2D_imageProc.h>
 #include <lxlib/util.h>
 #include <lxlib/ConfigManager3.h>
+#include <lxlib/macros.h>
 #include "SketchScaffold.h"
 import lxlib.AreaRectf;
 import lxlib.SketchBase;

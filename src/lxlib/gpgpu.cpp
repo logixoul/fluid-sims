@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "precompiled.h"
 #include "gpgpu.h"
 #include "stuff.h"
+#include "macros.h"
 
 gl::TextureRef get_gradients_tex(gl::TextureRef src, GLuint wrap) {
 	GPU_SCOPE("get_gradients_tex");

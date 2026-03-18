@@ -4,6 +4,7 @@
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
+#include <lxlib/macros.h>
 using namespace std;
 using namespace glm;
 #include "Array2D_imageProc.h"

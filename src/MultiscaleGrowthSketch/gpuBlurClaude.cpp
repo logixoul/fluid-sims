@@ -3,6 +3,7 @@
 #include <lxlib/gpuBlur2_5.h>
 #include <lxlib/gpgpu.h>
 #include <lxlib/stuff.h>
+#include <lxlib/macros.h>
 
 namespace gpuBlurClaude {
 	// todo: move this to stuff.cpp/h. Copy-pasted in gpuBlur2_5.cpp as well.
