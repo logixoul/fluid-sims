@@ -1,19 +1,28 @@
+module;
 #include "precompiled.h"
+// Provide extern declarations for the sketch headers that reference these globals
+// (replaces the role of SketchScaffold.h being included by sketch headers)
+extern bool keys[256];
+extern bool keys2[256];
+extern bool mouseDown_[3];
+extern glm::ivec2 windowSize;
 #include "ParticleFluidSketch.h"
 #include "GridFluidSketch/GridFluidSketch.h"
-#include "SketchScaffold.h"
 #include "MultiscaleGrowthSketch/MultiscaleGrowthSketch.h"
-import lxlib.IntegratedConsole;
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 #include "imgui.h"
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
-bool keys[256];
-bool keys2[256];
-bool mouseDown_[3];
-ivec2 windowSize;
+export module SketchScaffold;
+
+import lxlib.IntegratedConsole;
+
+export bool keys[256];
+export bool keys2[256];
+export bool mouseDown_[3];
+export glm::ivec2 windowSize;
 
 static void glfw_error_callback(int error, const char* description)
 {
@@ -94,7 +103,6 @@ struct SketchScaffold {
 			
 			ImGui::Render();
 			glfwGetFramebufferSize(window, &::windowSize.x, &windowSize.y);
-			//std::clog << windowSize << std::endl;
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 			glfwSwapBuffers(window);
@@ -129,7 +137,7 @@ struct SketchScaffold {
 static void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos) {
     ImGuiIO& io = ImGui::GetIO();
     if (io.WantCaptureMouse)
-        return; // ImGui wants to capture the mouse, don't forward to app
+        return;
 
     instance->mouseMove(ivec2(xpos, ypos));
 }
@@ -138,14 +146,13 @@ static void mouseButtonCallback(GLFWwindow* window, int button, int action, int 
 {
     ImGuiIO& io = ImGui::GetIO();
     if (io.WantCaptureMouse)
-        return; // ImGui handled this click, don't let app consume it
+        return;
 
     mouseDown_[button] = action == GLFW_PRESS;
 }
 
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     ImGuiIO& io = ImGui::GetIO();
-    // If ImGui wants to capture keyboard input, don't forward to the app
     if (io.WantCaptureKeyboard)
         return;
 

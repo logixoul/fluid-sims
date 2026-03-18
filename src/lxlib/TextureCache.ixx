@@ -17,22 +17,68 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#include <map>
-#include <string>
-using namespace std;
+module;
 #include "precompiled.h"
-#include "TextureCache.h"
-import lxlib.stuff;
+
+export module lxlib.TextureCache;
+
+import lxlib.TextureRef;
+
+export struct TextureCacheKey {
+	glm::ivec2 size;
+	GLenum ifmt;
+	bool allocateMipmaps = false;
+	
+	bool operator==(const TextureCacheKey &other) const
+	{
+		return size == other.size
+			&& ifmt == other.ifmt
+			&& allocateMipmaps == other.allocateMipmaps
+			;
+	}
+};
+
+export namespace std {
+
+	template <>
+	struct hash<TextureCacheKey>
+	{
+		std::size_t operator()(const TextureCacheKey& k) const
+		{
+			return k.size.x ^ k.size.y ^ k.ifmt ^ k.allocateMipmaps;
+		}
+	};
+
+}
+
+export class TextureCache
+{
+public:
+	static TextureCache* instance();
+	gl::TextureRef get(TextureCacheKey const& key);
+	static void clearCaches();
+
+	static void printTextures();
+
+	static void deleteTexture(gl::TextureRef tex);
+
+private:
+	TextureCache();
+
+	std::unordered_map<TextureCacheKey, std::vector<gl::TextureRef>> cache;
+};
+
+// --- Implementations from TextureCache.cpp ---
 
 int count1;
 int count2;
 
 TextureCache* TextureCache::instance() {
-	static /*thread_local*/ TextureCache obj;
+	static TextureCache obj;
 	return &obj;
 }
 
-std::map<int, string> fmtMap = {
+std::map<int, std::string> fmtMap = {
 	{ GL_R16F, "GL_R16F" },
 	{ GL_RGB16F, "GL_RGB16F" },
 	{ GL_RG32F, "GL_RG32F" },
@@ -54,7 +100,6 @@ TextureCache::TextureCache() {
 }
 
 static gl::TextureRef allocTex(TextureCacheKey const& key) {
-	//cout << "allocTex\t" << key.size << "\t" << fmtMap[key.ifmt] << endl;
 	gl::Texture::Format fmt;
 	fmt.setInternalFormat(key.ifmt);
 	fmt.setImmutableStorage(true);
@@ -69,19 +114,12 @@ void setDefaults(gl::TextureRef tex) {
 	tex->setWrap(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
 }
 
-//static std::mutex mut;
-
 gl::TextureRef TextureCache::get(TextureCacheKey const & key)
 {
-	//std::unique_lock<std::mutex> ul(::mut);
-	/*auto t = allocTex(key);
-	setDefaults(t);
-	return t;*/
-
 	auto it = cache.find(key);
 	if (it == cache.end()) {
 		auto tex = allocTex(key);
-		vector<gl::TextureRef> vec{ tex };
+		std::vector<gl::TextureRef> vec{ tex };
 		cache.insert(std::make_pair(key, vec));
 		setDefaults(tex);
 		return tex;
@@ -91,15 +129,13 @@ gl::TextureRef TextureCache::get(TextureCacheKey const & key)
 		for (auto& texRef : vec) {
 			if (texRef.use_count() == 1) {
 				count2++;
-				//cout << "returning existing texture" << endl;
 				setDefaults(texRef);
 				return texRef;
 			}
 		}
-		//cout << "requesting utilized texture; returning new texture." << endl;
 		count1++;
 		if (key.ifmt == GL_R32F && key.size.x == 5312) {
-			cout << "hey" << endl;
+			std::cout << "hey" << std::endl;
 		}
 
 		auto tex = allocTex(key);
@@ -109,24 +145,17 @@ gl::TextureRef TextureCache::get(TextureCacheKey const & key)
 	}
 }
 
-// todo: rename this func
 void TextureCache::clearCaches()
 {
-	//std::unique_lock<std::mutex> ul(::mut);
 	auto& cache = instance()->cache;
 	
 	for (auto& pair : cache) {
-		vector<gl::TextureRef> remaining;
+		std::vector<gl::TextureRef> remaining;
 		for (auto& tex : pair.second) {
 			if (tex.use_count() > 1) {
 				remaining.push_back(tex);
-				//cout << "retaining " << tex->getSize() << endl;
-			}
-			else {
-				//cout << "deleting " << tex->getSize() << endl;
 			}
 		}
-		//pair.second = remaining;
 		cache[pair.first] = remaining;
 	}
 }
@@ -134,53 +163,19 @@ void TextureCache::clearCaches()
 void TextureCache::printTextures()
 {
 	throw std::runtime_error("TextureCache::printTextures(): Not implemented");
-#if 0
-	unique_lock<std::mutex> ul(::mut);
-	cout << "==============" << endl;
-	int totalBytes = 0;
-	std::map<gl::TextureRef, bool> hasMips;
-	auto vec = vector<gl::TextureRef>();
-	for (auto& pair : instance()->cache) {
-		for (auto& tex : pair.second) {
-			vec.push_back(tex);
-			hasMips[tex] = pair.first.allocateMipmaps;
-		}
-	}
-	sort(vec.begin(), vec.end(), [&](gl::TextureRef a, gl::TextureRef b) {
-		auto aBytes = a->getBounds().calcArea() * fmtMapBpp[a->getInternalFormat()];
-		auto bBytes = b->getBounds().calcArea() * fmtMapBpp[b->getInternalFormat()];
-		return aBytes > bBytes;
-	});
-	for (auto& tex : vec) {
-		auto ifmt = tex->getInternalFormat();
-		int bytes = tex->getBounds().calcArea() * fmtMapBpp[ifmt];
-		cout << tex->getSize() << " " << fmtMap[ifmt] << "\t" << bytes / 1'000'000 << "MB";
-		if(hasMips[tex])
-			cout << "\t[has mips]";
-		cout << endl;
-		totalBytes += bytes;
-	}
-	cout << "megabytes = " << totalBytes /1'000'000 << endl;
-#endif
 }
 
 void TextureCache::deleteTexture(gl::TextureRef texToDel)
 {
-	//std::unique_lock<std::mutex> ul(::mut);
 	auto& cache = instance()->cache;
 
 	for (auto& pair : cache) {
-		vector<gl::TextureRef> remaining;
+		std::vector<gl::TextureRef> remaining;
 		for (auto& tex : pair.second) {
 			if (tex != texToDel) {
 				remaining.push_back(tex);
-				//cout << "retaining " << tex->getSize() << endl;
-			}
-			else {
-				//cout << "deleting " << tex->getSize() << endl;
 			}
 		}
-		//pair.second = remaining;
 		cache[pair.first] = remaining;
 	}
 }

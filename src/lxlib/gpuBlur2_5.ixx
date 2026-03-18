@@ -21,12 +21,12 @@ module;
 #include "precompiled.h"
 #include "macros.h"
 #include "shade.h"
-#include "gpgpu.h"
 
 export module lxlib.gpuBlur2_5;
 
 import lxlib.TextureRef;
 import lxlib.stuff;
+import lxlib.gpgpu;
 
 // Forward declarations (exported interface)
 export namespace gpuBlur2_5 {

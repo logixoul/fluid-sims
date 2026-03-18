@@ -1,7 +1,8 @@
 #include "precompiled.h"
 #include "gpuBlurClaude.h"
+#include <lxlib/shade.h>
 import lxlib.gpuBlur2_5;
-#include <lxlib/gpgpu.h>
+import lxlib.gpgpu;
 import lxlib.stuff;
 #include <lxlib/macros.h>
 

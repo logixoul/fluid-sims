@@ -28,7 +28,7 @@ import lxlib.GlslProg;
 import lxlib.TextureRef;
 
 using std::string;
-#include "util.h"
+import lxlib.util;
 
 struct GpuScope {
 	GpuScope(string name);

@@ -1,9 +1,13 @@
-#pragma once
+module;
+#include "precompiled.h"
+#include "macros.h"
 
-#include "util.h"
-#include <lxlib/macros.h>
+export module lxlib.Array2D_imageProc;
 
-template<class T>
+import lxlib.util;
+import lxlib.stuff;
+
+export template<class T>
 ivec2 wrapPoint(Array2D<T> const& src, ivec2 p)
 {
 	ivec2 wp = p;
@@ -11,27 +15,27 @@ ivec2 wrapPoint(Array2D<T> const& src, ivec2 p)
 	wp.y %= src.h; if (wp.y < 0) wp.y += src.h;
 	return wp;
 }
-template<class T>
+export template<class T>
 T const& getWrapped(Array2D<T> const& src, ivec2 p)
 {
 	return src(wrapPoint(src, p));
 }
-template<class T>
+export template<class T>
 T const& getWrapped(Array2D<T> const& src, int x, int y)
 {
 	return getWrapped(src, ivec2(x, y));
 }
-template<class T>
+export template<class T>
 T& getWrapped(Array2D<T>& src, ivec2 p)
 {
 	return src(wrapPoint(src, p));
 }
-template<class T>
+export template<class T>
 T& getWrapped(Array2D<T>& src, int x, int y)
 {
 	return getWrapped(src, ivec2(x, y));
 }
-struct WrapModes {
+export struct WrapModes {
 	struct GetMirrorWrapped {
 		template<class T>
 		static T& fetch(Array2D<T>& src, int x, int y)
@@ -73,23 +77,23 @@ struct WrapModes {
 	};
 	typedef GetWrapped DefaultImpl;
 };
-template<class T>
+export template<class T>
 void aaPoint_i(Array2D<T>& dst, ivec2 p, T value)
 {
 	dst.wr(p) += value;
 }
-template<class T>
+export template<class T>
 void aaPoint_i(Array2D<T>& dst, int x, int y, T value)
 {
 	dst.wr(x, y) += value;
 }
 
-template<class T, class FetchFunc>
+export template<class T, class FetchFunc>
 void aaPoint(Array2D<T>& dst, vec2 p, T value)
 {
 	aaPoint<T, FetchFunc>(dst, p.x, p.y, value);
 }
-template<class T, class FetchFunc>
+export template<class T, class FetchFunc>
 void aaPoint(Array2D<T>& dst, float x, float y, T value)
 {
 	int ix = x, iy = y;
@@ -105,22 +109,22 @@ void aaPoint(Array2D<T>& dst, float x, float y, T value)
 	FetchFunc::fetch(dst, ix + 1, iy) += (fractx * fracty1) * value;
 	FetchFunc::fetch(dst, ix + 1, iy + 1) += (fractx * fracty) * value;
 }
-template<class T>
+export template<class T>
 void aaPoint(Array2D<T>& dst, float x, float y, T value)
 {
 	aaPoint<T, WrapModes::DefaultImpl>(dst, x, y, value);
 }
-template<class T>
+export template<class T>
 void aaPoint(Array2D<T>& dst, vec2 p, T value)
 {
 	aaPoint<T, WrapModes::DefaultImpl>(dst, p, value);
 }
-template<class T, class FetchFunc>
+export template<class T, class FetchFunc>
 T getBilinear(Array2D<T> src, vec2 p)
 {
 	return getBilinear<T, FetchFunc>(src, p.x, p.y);
 }
-template<class T, class FetchFunc>
+export template<class T, class FetchFunc>
 T getBilinear(Array2D<T> src, float x, float y)
 {
 	int ix = x, iy = y;
@@ -134,42 +138,42 @@ T getBilinear(Array2D<T> src, float x, float y)
 		lerp(FetchFunc::fetch(src, ix, iy + 1), FetchFunc::fetch(src, ix + 1, iy + 1), fractx),
 		fracty);
 }
-template<class T>
+export template<class T>
 T getBilinear(Array2D<T> src, float x, float y)
 {
 	return getBilinear<T, WrapModes::DefaultImpl>(src, x, y);
 }
-template<class T>
+export template<class T>
 T getBilinear(Array2D<T> src, vec2 p)
 {
 	return getBilinear<T, WrapModes::DefaultImpl>(src, p);
 }
 
-Array2D<float> to01(Array2D<float> a);
-Array2D<vec3> to01(Array2D<vec3> a, float min, float max);
-template<class T>
+export Array2D<float> to01(Array2D<float> a);
+export Array2D<vec3> to01(Array2D<vec3> a, float min, float max);
+export template<class T>
 T& zero() {
 	static T val = T()*0.0f;
 	val = T()*0.0f;
 	return val;
 }
 
-template<class T>
+export template<class T>
 Array2D<T> empty_like(Array2D<T> a) {
 	return Array2D<T>(a.Size(), nofill());
 }
 
-template<class T>
+export template<class T>
 Array2D<T> ones_like(Array2D<T> a) {
 	return Array2D<T>(a.Size(), 1.0f);
 }
 
-template<class T>
+export template<class T>
 Array2D<T> zeros_like(Array2D<T> a) {
 	return Array2D<T>(a.Size(), ::zero<T>());
 }
 
-inline ivec2 clampPoint(ivec2 p, int w, int h)
+export inline ivec2 clampPoint(ivec2 p, int w, int h)
 {
 	ivec2 wp = p;
 	if (wp.x < 0) wp.x = 0;
@@ -178,18 +182,18 @@ inline ivec2 clampPoint(ivec2 p, int w, int h)
 	if (wp.y > h - 1) wp.y = h - 1;
 	return wp;
 }
-template<class T>
+export template<class T>
 T& get_clamped(Array2D<T>& src, int x, int y)
 {
 	return src(clampPoint(ivec2(x, y), src.w, src.h));
 }
-template<class T>
+export template<class T>
 T const& get_clamped(Array2D<T> const& src, int x, int y)
 {
 	return src(clampPoint(ivec2(x, y), src.w, src.h));
 }
 
-template<class T>
+export template<class T>
 Array2D<T> gauss3(Array2D<T> src) {
 	T zero = ::zero<T>();
 	Array2D<T> dst1(src.w, src.h);
@@ -201,7 +205,7 @@ Array2D<T> gauss3(Array2D<T> src) {
 	return dst2;
 }
 
-template<class T>
+export template<class T>
 T& get_wrapZeros(Array2D<T>& src, int x, int y)
 {
 	if (x < 0 || y < 0 || x >= src.w || y >= src.h)
@@ -210,7 +214,7 @@ T& get_wrapZeros(Array2D<T>& src, int x, int y)
 	}
 	return src(x, y);
 }
-template<class T>
+export template<class T>
 T const& get_wrapZeros(Array2D<T> const& src, int x, int y)
 {
 	if (x < 0 || y < 0 || x >= src.w || y >= src.h)
@@ -219,17 +223,15 @@ T const& get_wrapZeros(Array2D<T> const& src, int x, int y)
 	}
 	return src(x, y);
 }
-template<class T, class FetchFunc = WrapModes::DefaultImpl>
+export template<class T, class FetchFunc = WrapModes::DefaultImpl>
 vec2 gradient_i(Array2D<T>& src, ivec2 const& p)
 {
-	//if(p.x<1||p.y<1||p.x>=src.w-1||p.y>=src.h-1)
-	//	return vec2::zero();
 	vec2 gradient;
 	gradient.x = (FetchFunc::fetch(src, p.x + 1, p.y) - FetchFunc::fetch(src, p.x - 1, p.y)) / 2.0f;
 	gradient.y = (FetchFunc::fetch(src, p.x, p.y + 1) - FetchFunc::fetch(src, p.x, p.y - 1)) / 2.0f;
 	return gradient;
 }
-template<class T, class FetchFunc>
+export template<class T, class FetchFunc>
 vec2 gradient_i_nodiv(Array2D<T>& src, ivec2 const& p)
 {
 	vec2 gradient(
@@ -237,7 +239,7 @@ vec2 gradient_i_nodiv(Array2D<T>& src, ivec2 const& p)
 		FetchFunc::fetch(src, p.x, p.y + 1) - FetchFunc::fetch(src, p.x, p.y - 1));
 	return gradient;
 }
-template<class T, class FetchFunc>
+export template<class T, class FetchFunc>
 Array2D<vec2> get_gradients(Array2D<T>& src)
 {
 	auto src2 = src.clone();
@@ -261,25 +263,23 @@ Array2D<vec2> get_gradients(Array2D<T>& src)
 	}
 	return gradients;
 }
-template<class T>
+export template<class T>
 Array2D<vec2> get_gradients(Array2D<T> src)
 {
 	return get_gradients<T, WrapModes::DefaultImpl>(src);
 }
 
-void mm(string desc, Array2D<float> arr);
-void mm(string desc, Array2D<vec3> arr);
-void mm(string desc, Array2D<vec2> arr);
-//get_wrapZeros
+export void mm(string desc, Array2D<float> arr);
+export void mm(string desc, Array2D<vec3> arr);
+export void mm(string desc, Array2D<vec2> arr);
 
-vector<float> getGaussianKernel(int ksize, float sigma); // ksize must be odd
+export vector<float> getGaussianKernel(int ksize, float sigma); // ksize must be odd
 
-float sigmaFromKsize(float ksize);
+export float sigmaFromKsize(float ksize);
 
-float ksizeFromSigma(float sigma);
+export float ksizeFromSigma(float sigma);
 
-// KS means it has ksize and sigma args
-template<class T, class FetchFunc>
+export template<class T, class FetchFunc>
 Array2D<T> separableConvolve(Array2D<T> src, vector<float>& kernel) {
 	int ksize = kernel.size();
 	int r = ksize / 2;
@@ -290,12 +290,9 @@ Array2D<T> separableConvolve(Array2D<T> src, vector<float>& kernel) {
 
 	int w = src.w, h = src.h;
 
-	// vertical
-
 	for (int y = 0; y < h; y++)
 	{
 		auto blurVert = [&](int x0, int x1) {
-			// guard against w<r
 			x0 = std::max(x0, 0);
 			x1 = std::min(x1, w);
 
@@ -310,7 +307,6 @@ Array2D<T> separableConvolve(Array2D<T> src, vector<float>& kernel) {
 			}
 		};
 
-
 		blurVert(0, r);
 		blurVert(w - r, w);
 		for (int x = r; x < w - r; x++)
@@ -324,11 +320,9 @@ Array2D<T> separableConvolve(Array2D<T> src, vector<float>& kernel) {
 		}
 	}
 
-	// horizontal
 	for (int x = 0; x < w; x++)
 	{
 		auto blurHorz = [&](int y0, int y1) {
-			// guard against h<r
 			y0 = std::max(y0, 0);
 			y1 = std::min(y1, h);
 			for (int y = y0; y < y1; y++)
@@ -356,18 +350,124 @@ Array2D<T> separableConvolve(Array2D<T> src, vector<float>& kernel) {
 	}
 	return dst2;
 }
-// one-arg version for backward compatibility
-template<class T, class FetchFunc>
-Array2D<T> gaussianBlur(Array2D<T> src, int ksize) { // ksize must be odd.
+
+export template<class T, class FetchFunc>
+Array2D<T> gaussianBlur(Array2D<T> src, int ksize) {
 	auto kernel = getGaussianKernel(ksize, sigmaFromKsize(ksize));
 	return separableConvolve<T, FetchFunc>(src, kernel);
 }
-template<class T>
+export template<class T>
 Array2D<T> gaussianBlur(Array2D<T> src, int ksize) {
 	return gaussianBlur<T, WrapModes::DefaultImpl>(src, ksize);
 }
 
+export Array2D<vec3> merge(vector<Array2D<float> > channels);
 
-Array2D<vec3> merge(vector<Array2D<float> > channels);
+export Array2D<float> div(Array2D<vec2> a);
 
-Array2D<float> div(Array2D<vec2> a);
+export vector<Array2D<float>> split(Array2D<vec3> arr);
+
+// --- Implementations from Array2D_imageProc.cpp ---
+
+void mm(string desc, Array2D<float> arr) {
+	if (desc != "") {
+		cout << "[" << desc << "] ";
+	}
+	cout << "min: " << *std::min_element(arr.begin(), arr.end()) << ", "
+		<< "max: " << *std::max_element(arr.begin(), arr.end()) << endl;
+}
+void mm(string desc, Array2D<vec3> arr) {
+	if (desc != "") {
+		cout << "[" << desc << "] ";
+	}
+	auto data = (float*)arr.data;
+	cout << "min: " << *std::min_element(data, data + arr.area * 3) << ", "
+		<< "max: " << *std::max_element(data, data + arr.area * 3) << endl;
+}
+void mm(string desc, Array2D<vec2> arr) {
+	if (desc != "") {
+		cout << "[" << desc << "] ";
+	}
+	auto data = (float*)arr.data;
+	cout << "min: " << *std::min_element(data, data + arr.area * 2) << ", "
+		<< "max: " << *std::max_element(data, data + arr.area * 2) << endl;
+}
+
+vector<float> getGaussianKernel(int ksize, float sigma) {
+	vector<float> result;
+	int r = ksize / 2;
+	float sum = 0.0f;
+	for (int i = -r; i <= r; i++) {
+		float exponent = -(i*i / sq(2 * sigma));
+		float val = exp(exponent);
+		sum += val;
+		result.push_back(val);
+	}
+	for (int i = 0; i < result.size(); i++) {
+		result[i] /= sum;
+	}
+	return result;
+}
+
+float sigmaFromKsize(float ksize) {
+	float sigma = 0.3*((ksize - 1)*0.5 - 1) + 0.8;
+	return sigma;
+}
+
+float ksizeFromSigma(float sigma) {
+	int ksize = ceil(((sigma - 0.8) / 0.3 + 1) / 0.5 + 1);
+	if (ksize % 2 == 0)
+		ksize++;
+	return ksize;
+}
+
+vector<Array2D<float>> split(Array2D<vec3> arr) {
+	Array2D<float> r(arr.w, arr.h);
+	Array2D<float> g(arr.w, arr.h);
+	Array2D<float> b(arr.w, arr.h);
+	forxy(arr) {
+		r(p) = arr(p).x;
+		g(p) = arr(p).y;
+		b(p) = arr(p).z;
+	}
+	vector<Array2D<float>> result;
+	result.push_back(r);
+	result.push_back(g);
+	result.push_back(b);
+	return result;
+}
+
+Array2D<vec3> merge(vector<Array2D<float>> channels) {
+	Array2D<float>& r = channels[0];
+	Array2D<float>& g = channels[1];
+	Array2D<float>& b = channels[2];
+	Array2D<vec3> result(r.w, r.h);
+	forxy(result) {
+		result(p) = vec3(r(p), g(p), b(p));
+	}
+	return result;
+}
+
+Array2D<float> div(Array2D<vec2> a) {
+	throw 0;
+}
+
+Array2D<float> to01(Array2D<float> a) {
+	auto minn = *std::min_element(a.begin(), a.end());
+	auto maxx = *std::max_element(a.begin(), a.end());
+	auto b = a.clone();
+	forxy(b) {
+		b(p) -= minn;
+		b(p) /= (maxx - minn);
+	}
+	return b;
+}
+
+Array2D<vec3> to01(Array2D<vec3> a, float min, float max) {
+	auto b = a.clone();
+	forxy(b) {
+		b(p) -= vec3(min);
+		b(p) /= vec3(max - min);
+	}
+	return b;
+}

@@ -1,34 +1,9 @@
-/*
-Tonemaster - HDR software
-Copyright (C) 2018, 2019, 2020 Stefan Monov <logixoul@gmail.com>
+module;
+#include "precompiled.h"
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
+export module lxlib.util;
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-*/
-
-#pragma once
-#include <glm/vec2.hpp>
-#include <glm/vec3.hpp>
-#include <algorithm>
-#include <functional>
-#include <vector>
-
-using glm::ivec2;
-using glm::vec2;
-using glm::vec3;
-
-template<class T>
+export template<class T>
 class ArrayDeleter
 {
 public:
@@ -82,14 +57,11 @@ private:
 	T* arrayPtr;
 };
 
-enum nofill {};
+export enum nofill {};
 
-template<class T>
-struct Array2D;
+export typedef glm::tvec3<unsigned char> bytevec3;
 
-typedef glm::tvec3<unsigned char> bytevec3;
-
-template<class T>
+export template<class T>
 struct Array2D
 {
 	T* data;
@@ -107,7 +79,7 @@ struct Array2D
 	Array2D(int w, int h, T const& defaultValue = T()) : deleter(Init(w, h)) { fill(defaultValue); }
 	Array2D(ivec2 s, T const& defaultValue = T()) : deleter(Init(s.x, s.y)) { fill(defaultValue); }
 	Array2D() : deleter(Init(0, 0)) { }
-	
+
 #ifdef OPENCV_CORE_HPP
 	template<class TSrc>
 	Array2D(cv::Mat_<TSrc> const& mat) : deleter(nullptr)
@@ -156,9 +128,7 @@ private:
 		std::fill(begin(), end(), value);
 	}
 	T* Init(int w, int h) {
-		// fftwf_malloc so we can use "new-array execute" fftw functions
 #ifdef FFTW3_H
-		fftwf_free(arrayPtr);
 		auto data = (T*)fftwf_malloc(w * h * sizeof(T));
 #else
 		auto data = new T[w * h];
@@ -174,25 +144,23 @@ private:
 	}
 };
 
-void rotate(vec2& p, float angle);
+export void rotate(vec2& p, float angle);
 
-void trapFP();
+export void trapFP();
 
-template<class F> vec3 apply(vec3 const& v, F f)
+export template<class F> vec3 apply(vec3 const& v, F f)
 {
 	return vec3(f(v.x), f(v.y), f(v.z));
 }
 
-template<class F> float apply(float v, F f)
+export template<class F> float apply(float v, F f)
 {
 	return f(v);
 }
 
-const float pi = 3.14159265f;
+export const float pi = 3.14159265f;
 
-//void createConsole();
-
-template<class InputIt, class T>
+export template<class InputIt, class T>
 T accumulate(InputIt begin, InputIt end, T base) {
 	T sum = base;
 	for (auto it = begin; it != end; it++) {
@@ -201,10 +169,30 @@ T accumulate(InputIt begin, InputIt end, T base) {
 	return sum;
 }
 
-extern float randFloat();
+export float randFloat();
 
-template<class T>
+export template<class T>
 void myRemoveIf(std::vector<T>& vec, std::function<bool(T const&)> const& pred) {
 	vec.erase(std::remove_if(vec.begin(), vec.end(), pred), vec.end());
 }
 
+// --- Implementations from util.cpp ---
+
+void rotate(vec2& p, float angle)
+{
+	float c = cos(angle), s = sin(angle);
+	p = vec2(p.x * c + p.y * (-s), p.x * s + p.y * c);
+}
+
+void trapFP()
+{
+	unsigned int cw;
+	_controlfp_s(&cw, 0, 0);
+	cw &=~(EM_OVERFLOW|EM_UNDERFLOW|/*EM_INEXACT|*/EM_ZERODIVIDE|EM_DENORMAL);
+	_controlfp_s(NULL, cw, MCW_EM);
+}
+
+float randFloat()
+{
+	return rand() / (float)RAND_MAX;
+}

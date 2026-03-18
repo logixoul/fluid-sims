@@ -17,10 +17,73 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
+module;
 #include "precompiled.h"
-#include "gpgpu.h"
-import lxlib.stuff;
 #include "macros.h"
+#include "shade.h"
+
+export module lxlib.gpgpu;
+
+import lxlib.TextureRef;
+import lxlib.stuff;
+
+export gl::TextureRef get_gradients_tex(gl::TextureRef src, GLuint wrap = GL_REPEAT);
+
+export gl::TextureRef baseshade2(vector<gl::TextureRef> texv, string const& src, ShadeOpts const& opts = ShadeOpts(), string const& lib = "");
+export gl::TextureRef shade2(
+	gl::TextureRef tex,
+	string const& src, ShadeOpts const& opts = ShadeOpts(), string const& lib = "");
+export gl::TextureRef shade2(
+	gl::TextureRef tex, gl::TextureRef tex2,
+	string const& src, ShadeOpts const& opts = ShadeOpts(), string const& lib = "");
+export gl::TextureRef shade2(
+	gl::TextureRef tex, gl::TextureRef tex2, gl::TextureRef tex3,
+	string const& src, ShadeOpts const& opts = ShadeOpts(), string const& lib = "");
+export gl::TextureRef shade2(
+	gl::TextureRef tex, gl::TextureRef tex2, gl::TextureRef tex3, gl::TextureRef tex4,
+	string const& src, ShadeOpts const& opts = ShadeOpts(), string const& lib = "");
+export gl::TextureRef shade2(
+	gl::TextureRef tex, gl::TextureRef tex2, gl::TextureRef tex3, gl::TextureRef tex4, gl::TextureRef tex5,
+	string const& src, ShadeOpts const& opts = ShadeOpts(), string const& lib = "");
+export gl::TextureRef shade2(
+	gl::TextureRef tex, gl::TextureRef tex2, gl::TextureRef tex3, gl::TextureRef tex4, gl::TextureRef tex5, gl::TextureRef tex6,
+	string const& src, ShadeOpts const& opts = ShadeOpts(), string const& lib = "");
+export gl::TextureRef gauss3tex(gl::TextureRef src);
+
+export gl::TextureRef get_laplace_tex(gl::TextureRef src, GLuint wrap);
+
+export struct Operable {
+	explicit Operable(gl::TextureRef aTex);
+	Operable operator+(gl::TextureRef other);
+	Operable operator-(gl::TextureRef other);
+	Operable operator*(gl::TextureRef other);
+	Operable operator/(gl::TextureRef other);
+	Operable operator+(float scalar) {
+		return Operable(shade2(tex, "_out = fetch4() + scalar;", ShadeOpts().uniform("scalar", scalar)));
+	}
+	Operable operator-(float scalar) {
+		return Operable(shade2(tex, "_out = fetch4() - scalar;", ShadeOpts().uniform("scalar", scalar)));
+	}
+	Operable operator*(float scalar) {
+		return Operable(shade2(tex, "_out = fetch4() * scalar;", ShadeOpts().uniform("scalar", scalar)));
+	}
+	Operable operator/(float scalar) {
+		return Operable(shade2(tex, "_out = fetch4() / scalar;", ShadeOpts().uniform("scalar", scalar)));
+	}
+	void operator+=(gl::TextureRef other);
+	void operator-=(gl::TextureRef other);
+	void operator*=(gl::TextureRef other);
+	void operator/=(gl::TextureRef other);
+	float dot(gl::TextureRef other);
+	gl::TextureRef dotTex(gl::TextureRef other);
+	operator gl::TextureRef();
+private:
+	gl::TextureRef tex;
+};
+
+export Operable op(gl::TextureRef tex);
+
+// --- Implementations from gpgpu.cpp ---
 
 gl::TextureRef get_gradients_tex(gl::TextureRef src, GLuint wrap) {
 	GPU_SCOPE("get_gradients_tex");
@@ -41,37 +104,37 @@ gl::TextureRef get_gradients_tex(gl::TextureRef src, GLuint wrap) {
 	);
 }
 
-inline gl::TextureRef baseshade2(vector<gl::TextureRef> texv, string const& src, ShadeOpts const & opts, string const& lib)
+inline gl::TextureRef baseshade2(vector<gl::TextureRef> texv, string const& src, ShadeOpts const& opts, string const& lib)
 {
 	return shade(texv, lib + "void shade() {" + src + "}", opts);
 }
 
-gl::TextureRef shade2(gl::TextureRef tex, string const& src, ShadeOpts const & opts, string const& lib)
+gl::TextureRef shade2(gl::TextureRef tex, string const& src, ShadeOpts const& opts, string const& lib)
 {
 	return baseshade2({ tex }, src, opts, lib);
 }
 
-gl::TextureRef shade2(gl::TextureRef tex, gl::TextureRef tex2, string const& src, ShadeOpts const & opts, string const& lib)
+gl::TextureRef shade2(gl::TextureRef tex, gl::TextureRef tex2, string const& src, ShadeOpts const& opts, string const& lib)
 {
 	return baseshade2({ tex,tex2 }, src, opts, lib);
 }
 
-gl::TextureRef shade2(gl::TextureRef tex, gl::TextureRef tex2, gl::TextureRef tex3, string const& src, ShadeOpts const & opts, string const& lib)
+gl::TextureRef shade2(gl::TextureRef tex, gl::TextureRef tex2, gl::TextureRef tex3, string const& src, ShadeOpts const& opts, string const& lib)
 {
 	return baseshade2({ tex, tex2, tex3 }, src, opts, lib);
 }
 
-gl::TextureRef shade2(gl::TextureRef tex, gl::TextureRef tex2, gl::TextureRef tex3, gl::TextureRef tex4, string const& src, ShadeOpts const & opts, string const& lib)
+gl::TextureRef shade2(gl::TextureRef tex, gl::TextureRef tex2, gl::TextureRef tex3, gl::TextureRef tex4, string const& src, ShadeOpts const& opts, string const& lib)
 {
 	return baseshade2({ tex, tex2, tex3, tex4 }, src, opts, lib);
 }
 
-gl::TextureRef shade2(gl::TextureRef tex, gl::TextureRef tex2, gl::TextureRef tex3, gl::TextureRef tex4, gl::TextureRef tex5, string const& src, ShadeOpts const & opts, string const& lib)
+gl::TextureRef shade2(gl::TextureRef tex, gl::TextureRef tex2, gl::TextureRef tex3, gl::TextureRef tex4, gl::TextureRef tex5, string const& src, ShadeOpts const& opts, string const& lib)
 {
 	return baseshade2({ tex, tex2, tex3, tex4, tex5 }, src, opts, lib);
 }
 
-gl::TextureRef shade2(gl::TextureRef tex, gl::TextureRef tex2, gl::TextureRef tex3, gl::TextureRef tex4, gl::TextureRef tex5, gl::TextureRef tex6, string const& src, ShadeOpts const & opts, string const& lib)
+gl::TextureRef shade2(gl::TextureRef tex, gl::TextureRef tex2, gl::TextureRef tex3, gl::TextureRef tex4, gl::TextureRef tex5, gl::TextureRef tex6, string const& src, ShadeOpts const& opts, string const& lib)
 {
 	return baseshade2({ tex, tex2, tex3, tex4, tex5, tex6 }, src, opts, lib);
 }
@@ -111,109 +174,10 @@ gl::TextureRef get_laplace_tex(gl::TextureRef src, GLuint wrap) {
 		);
 	return state;
 }
-static int nextPowerOf2(int v) {
-	float Lf = std::log2(v);
-	if (Lf == floor(Lf)) {
-		return v;
-	}
-	else {
-		return 1 << int(std::ceil(Lf));
-	}
-}
-// haven't reimplemented the following yet
-#if 0
-
-static void drawBetter(gl::TextureRef& texture, const Area& srcArea, const Rectf& dstRect, gl::GlslProgRef glslArg)
-{
-	texture->setTopDown(true);
-	auto ctx = gl::context();
-
-	Rectf texRect = texture->getAreaTexCoords(srcArea);
-
-	gl::ScopedVao vaoScp(ctx->getDrawTextureVao());
-	//ScopedBuffer vboScp(ctx->getDrawTextureVbo());
-	glBindTexture(texture->getTarget(), texture->getId());
-
-	gl::GlslProgRef glsl;
-	if (glslArg != nullptr) {
-		glsl = glslArg;
-	}
-	else {
-		glsl = gl::getStockShader(gl::ShaderDef().color().texture(texture));
-	}
-	gl::ScopedGlslProg glslScp(glsl);
-	glsl->uniform("uTex0", 0);
-
-	ctx->setDefaultShaderVars();
-	ctx->drawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-	texture->setTopDown(false);
-}
-
-static void drawBetter(gl::TextureRef& texture, const Rectf& dstRect, gl::GlslProgRef glslArg = nullptr) // todo: rm the last arg
-{
-	drawBetter(texture, texture->getBounds(), dstRect, glslArg);
-}
-
-gl::TextureRef pad(gl::TextureRef in, ivec2 newSize) {
-	auto res = maketex(newSize.x, newSize.y, in->getInternalFormat(), true);
-	//res = shade2(res, "_out = vec4(0);");
-	beginRTT(res);
-	lxClear();
-	{
-		gl::ScopedViewport sv(ivec2(0, 0), in->getSize());
-		gl::pushMatrices();
-		{
-			gl::setMatricesWindow(ivec2(1, 1), false);
-
-			drawBetter(in, Rectf(0, 0, 1, 1));
-			gl::popMatrices();
-		}
-	}
-	endRTT();
-	return res;
-}
-gl::TextureRef sumTex(gl::TextureRef in) {
-	// todo: since the POT code here is commented out, things may be broken.
-	// Without it, we have "breaking at iter 18" (0.33spf). With it, we have "breaking at iter 17" (~0.9spf)
-	auto origSize = in->getSize();
-	ivec2 sz = in->getSize(); sz.x = nextPowerOf2(sz.x); sz.y = nextPowerOf2(sz.y);
-	in = pad(in, sz);
-	bindTexture(in);
-	glGenerateMipmap(in->getTarget());
-	int mips = gl::Texture2d::requiredMipLevels(in->getWidth(), in->getHeight(), 1);
-	auto res = maketex(1, 1, in->getInternalFormat());
-	shade2(in, "_out.r = texelFetch(tex, ivec2(0,0), lastmip).x * area;"
-		, ShadeOpts().targetTex(res).dstRectSize(res->getSize())
-		.uniform("area", sz.x * sz.y)
-		.uniform("lastmip", mips - 1)
-	);
-	return res;
-}
-
-gl::TextureRef dotTex(gl::TextureRef lhs, gl::TextureRef rhs) {
-	auto muld = maketex(lhs->getWidth(), lhs->getHeight(), lhs->getInternalFormat(), false);
-	shade2(lhs, rhs,
-		"_out.r = fetch1() * fetch1(tex2);",
-		ShadeOpts()
-		.scope("mul")
-		.targetTex(muld)
-		.dstRectSize(muld->getSize())
-	);
-	return sumTex(muld);
-}
-#endif
-
-/*float dot(gl::TextureRef lhs, gl::TextureRef rhs) {
-	auto muld = dotTex(lhs, rhs);
-	return dl<float>(muld)(0, 0);
-}*/
 
 Operable op(gl::TextureRef tex) {
 	return Operable(tex);
 }
-
-
 
 inline Operable::Operable(gl::TextureRef aTex) {
 	tex = aTex;
@@ -244,12 +208,7 @@ void Operable::operator*=(gl::TextureRef other) {
 void Operable::operator/=(gl::TextureRef other) {
 	tex = shade2(tex, other, "_out = fetch4() / fetch4(tex2);");
 }
-/*float Operable::dot(gl::TextureRef other) {
-	return ::dot(tex, other);
-}
-gl::TextureRef Operable::dotTex(gl::TextureRef other) {
-	return ::dotTex(tex, other);
-}*/
+
 Operable::operator gl::TextureRef() {
 	return tex;
 }

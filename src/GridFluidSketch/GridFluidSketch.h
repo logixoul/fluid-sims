@@ -1,14 +1,13 @@
 #include "precompiled.h"
 //#include "using_namespace.h"
 #include <lxlib/shade.h>
-#include <lxlib/gpgpu.h>
-#include <lxlib/Array2D_imageProc.h>
-#include <lxlib/util.h>
+import lxlib.gpgpu;
+import lxlib.Array2D_imageProc;
+import lxlib.util;
 import lxlib.stuff;
 import lxlib.gpuBlur2_5;
 import lxlib.ConfigManager3;
 #include <lxlib/macros.h>
-#include "SketchScaffold.h"
 import lxlib.AreaRectf;
 import lxlib.SketchBase;
 
