@@ -20,17 +20,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 module;
 #include "precompiled.h"
 #include "util.h"
+#include "TextureCache.h"
+#include "shade.h"
 
 export module lxlib.stuff;
 
 import lxlib.TextureRef;
 
 // TextureCache.h depends on lxlib.TextureRef, include it after the import
-#include "TextureCache.h"
 
 // Forward declarations for functions defined in gpgpu.cpp
-void beginRTT(gl::TextureRef fbotex);
-void endRTT();
+//void beginRTT(gl::TextureRef fbotex);
+//void endRTT();
 
 export void bind(gl::TextureRef& tex);
 export void bindTexture(gl::TextureRef& tex);
@@ -68,7 +69,9 @@ export template<> Array2D<vec2> dl<vec2>(gl::TextureRef tex);
 export template<> Array2D<vec3> dl<vec3>(gl::TextureRef tex);
 export template<> Array2D<vec4> dl<vec4>(gl::TextureRef tex);
 
-export float sq(float f);
+export float sq(float f) {
+	return f * f;
+}
 
 export vector<Array2D<float>> split(Array2D<vec3> arr);
 export void setWrapBlack(gl::TextureRef tex);
@@ -209,16 +212,6 @@ gl::TextureRef gtex(Array2D<uvec4> a)
 	bind(tex);
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RGBA_INTEGER, GL_UNSIGNED_INT, a.data);
 	return tex;
-}
-
-static ivec2 clampPoint(ivec2 p, int w, int h)
-{
-	ivec2 wp = p;
-	if (wp.x < 0) wp.x = 0;
-	if (wp.x > w - 1) wp.x = w - 1;
-	if (wp.y < 0) wp.y = 0;
-	if (wp.y > h - 1) wp.y = h - 1;
-	return wp;
 }
 
 int sign(float f)

@@ -20,13 +20,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 module;
 #include "precompiled.h"
 #include "macros.h"
+#include "shade.h"
+#include "gpgpu.h"
 
 export module lxlib.gpuBlur2_5;
 
 import lxlib.TextureRef;
 import lxlib.stuff;
-#include "shade.h"
-#include "gpgpu.h"
 
 // Forward declarations (exported interface)
 export namespace gpuBlur2_5 {

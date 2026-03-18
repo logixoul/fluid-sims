@@ -216,6 +216,7 @@ struct MultiscaleGrowthSketch : public SketchBase {
 	}
 	void stefanDraw()
 	{
+		lxClear();
 		options.update();
 
 		gl::TextureRef tex = gtex(img);
