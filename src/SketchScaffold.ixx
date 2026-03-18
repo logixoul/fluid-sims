@@ -7,6 +7,7 @@ extern bool keys2[256];
 extern bool mouseDown_[3];
 extern glm::ivec2 windowSize;
 #include "GridFluidSketch/GridFluidSketch.h"
+#include "ParticleTraces2DSketch/ParticleTraces2DSketch.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 #include "imgui.h"
@@ -39,7 +40,8 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
 struct SketchScaffold {
 	//MultiscaleGrowthSketch sketch;
 	//ParticleFluidSketch sketch;
-	GridFluidSketch sketch;
+	//GridFluidSketch sketch;
+	ParticleTraces2DSketch sketch;
 	GLFWwindow* window;
 
 	shared_ptr<IntegratedConsole> integratedConsole;

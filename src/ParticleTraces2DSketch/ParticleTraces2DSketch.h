@@ -1,15 +1,16 @@
 #include "precompiled.h"
-#if 0
+#include <lxlib/simplexnoise.h>
+#if 1
 import lxlib.util;
 import lxlib.stuff;
 import lxlib.TextureRef;
 import lxlib.gpgpu;
 import lxlib.gpuBlur2_5;
 import lxlib.SketchBase;
-#include <lxlib/shade.h>
-#include <lxlib/simplexnoise.h>
-
-#include <lxlib/colorspaces.h>
+import lxlib.shade;
+import lxlib.colorspaces;
+import lxlib.VaoVbo;
+import lxlib.GlslProg;
 
 int wsx = 1280, wsy = 720;
 int scale = 1;
@@ -93,8 +94,27 @@ void updateConfig() {
 }
 
 struct ParticleTraces2DSketch : public SketchBase {
+	GlslProgRef colorProg;
+
 	void setup()
 	{
+		colorProg = std::make_shared<GlslProg>(
+			"#version 330\n"
+			"in vec4 vColor;\n"
+			"out vec4 outColor;\n"
+			"void main() {\n"
+			"	outColor = vColor;\n"
+			"}",
+			"#version 330\n"
+			"in vec2 pos;\n"
+			"in vec4 color;\n"
+			"out vec4 vColor;\n"
+			"void main() {\n"
+			"	gl_Position = vec4(pos * 2.0 - 1.0, 0, 1);\n"
+			"	vColor = color;\n"
+			"}"
+		);
+
 		enableDenormalFlushToZero();
 
 		disableGLReadClamp();
@@ -105,8 +125,7 @@ struct ParticleTraces2DSketch : public SketchBase {
 	}
 	void keyDown(int key)
 	{
-
-		if (keys['p'] || keys['2'])
+		if (key == 'p')
 		{
 			pause = !pause;
 		}
@@ -119,25 +138,45 @@ struct ParticleTraces2DSketch : public SketchBase {
 		if (!pause) {
 			noiseTimeDim += noiseProgressSpeed;
 
-			foreach(Walker & walker, walkers) {
+			for(Walker & walker : walkers) {
 				walker.update();
 				if (walker.age > MAX_AGE) {
 					walker = Walker();
 				}
 			}
 		}
-
-		if (pause)
-			Sleep(50);
 	}
 
+	void drawPoints(std::vector<vec2> const& pos, std::vector<vec4> const& color)
+	{
+		VAO vao;
+		VBO vboPos, vboColor;
+		
+		vao.bind();
+
+		vboPos.setData(pos.data(), pos.size()*sizeof(pos[0]), GL_STATIC_DRAW, GL_ARRAY_BUFFER);
+		vboPos.bind(GL_ARRAY_BUFFER);
+		vao.defineAttrib(0, 2, GL_FLOAT, GL_FALSE, sizeof(pos[0]), (const void*)0);
+
+		vboColor.setData(color.data(), color.size()*sizeof(color[0]), GL_STATIC_DRAW, GL_ARRAY_BUFFER);
+		vboColor.bind(GL_ARRAY_BUFFER);
+		vao.defineAttrib(1, 4, GL_FLOAT, GL_FALSE, sizeof(color[0]), (const void*)0);
+
+		glDrawArrays(GL_POINTS, 0, (GLsizei)pos.size());
+
+		VBO::unbind(GL_ARRAY_BUFFER);
+		VAO::unbind();
+	}
+
+	int elapsedFrames = 0;
 	void stefanDraw() {
-		auto t = getElapsedFrames() * 0.01f;
+		elapsedFrames++;
+		auto t = elapsedFrames * 0.01f;
 		//mat3 rotMat3 = glm::rotate(rotMat3, std::sin(t / 10.0f));
 		//mat2 rotMat = mat2(rotMat3);
 		auto refVec = vec2(sinf(t), cosf(t));
 
-		gl::clear(Color(0, 0, 0));
+		lxClear();
 		static Array2D<vec3> sizeSource(sx, sy);
 		static auto sizeSourceTex = gtex(sizeSource);
 		string bg = "vec3 bg = vec3(0.0);";
@@ -149,41 +188,29 @@ struct ParticleTraces2DSketch : public SketchBase {
 			std::vector<vec4> color;
 			std::vector<vec2> pos;
 			{
-				foreach(Walker & walker, walkers) {
+				for(Walker & walker : walkers) {
 					auto walkerColor = walker.color;
 					float hueDot = dot(refVec, safeNormalized(walker.lastMove));
-					hueDot = max(0.0f, hueDot);
-					hueDot = max(0.0f, 1 - hueDot);
+					hueDot = std::max(0.0f, hueDot);
+					hueDot = std::max(0.0f, 1 - hueDot);
 					walkerColor *= hueDot;
 					auto c = vec4(walkerColor, walker.alpha());
 
-					color.push_back(c); pos.push_back(walker.pos);
+					color.push_back(c);
+					pos.push_back(walker.pos / vec2(sx, sy));
 				}
-				//gl::popMatrices();
 			}
 			{
-				gl::ScopedBlend sb1(true);
-				gl::ScopedBlend(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				gl::ScopedViewport(0, 0, sx, sy);
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 				//gl::ScopedBlend(GL_SRC_ALPHA, GL_ONE);
-				gl::pushMatrices();
-				gl::setMatricesWindow(sx, sy, true);
-				static auto colorDef = gl::ShaderDef().color();
-				static auto colorProg = gl::getStockShader(colorDef);
-				gl::ScopedGlslProg sgp(colorProg);
+				glViewport(0, 0, sx, sy);
+				//gl::setMatricesWindow(sx, sy, true);
+				colorProg->bind();
 
 				beginRTT(walkerTex);
 				{
-					gl::VboRef colorVbo = gl::Vbo::create(GL_ARRAY_BUFFER, color, GL_STATIC_DRAW);
-					gl::VboRef posVbo = gl::Vbo::create(GL_ARRAY_BUFFER, pos, GL_STATIC_DRAW);
-					geom::BufferLayout colorLayout, posLayout;
-					colorLayout.append(geom::COLOR, 4, sizeof(decltype(color[0])), 0);
-					posLayout.append(geom::POSITION, 2, sizeof(decltype(pos[0])), 0);
-
-					gl::VboMeshRef vboMesh = gl::VboMesh::create(color.size(), GL_POINTS,
-						{ std::make_pair(colorLayout, colorVbo), std::make_pair(posLayout, posVbo) });
-					//glUseProgram(0);
-					gl::draw(vboMesh);
+					drawPoints(pos, color);
 				}
 				endRTT();
 			}
@@ -208,6 +235,8 @@ struct ParticleTraces2DSketch : public SketchBase {
 			ShadeOpts().ifmt(GL_RGB32F),
 			FileCache::get("stuff.fs")
 		);
+		glViewport(0, 0, wsx, wsy);
+		glDisable(GL_BLEND);
 		lxDraw(walkerTex2);
 	}
 };
