@@ -9,7 +9,7 @@
 #include "GridFluidSketch/GridFluidSketch.h"
 #include "ParticleTraces2DSketch/ParticleTraces2DSketch.h"
 
-import SketchScaffold;
+import lxlib.SketchScaffold;
 
 import MultiscaleGrowthSketch;
 import ParticleFluidSketch;

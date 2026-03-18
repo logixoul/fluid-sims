@@ -197,7 +197,7 @@
     </ClCompile>
     <ClCompile Include="ParticleFluidSketch.ixx" />
     <ClInclude Include="lxlib\simplexnoise.h" />
-    <ClCompile Include="SketchScaffold.ixx" />
+    <ClCompile Include="lxlib\SketchScaffold.ixx" />
     <ClCompile Include="precompiled.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
