@@ -1,8 +1,11 @@
 #pragma once
 
 #include "../precompiled.h"
+#include <lxlib/macros.h>
 import lxlib.Array2D_imageProc;
 import lxlib.gpgpu;
+import lxlib.util;
+import lxlib.TextureRef;
 
 namespace ThisSketch {
 
