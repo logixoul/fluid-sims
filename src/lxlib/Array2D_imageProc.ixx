@@ -7,34 +7,6 @@ export module lxlib.Array2D_imageProc;
 import lxlib.util;
 import lxlib.stuff;
 
-export template<class T>
-ivec2 wrapPoint(Array2D<T> const& src, ivec2 p)
-{
-	ivec2 wp = p;
-	wp.x %= src.w; if (wp.x < 0) wp.x += src.w;
-	wp.y %= src.h; if (wp.y < 0) wp.y += src.h;
-	return wp;
-}
-export template<class T>
-T const& getWrapped(Array2D<T> const& src, ivec2 p)
-{
-	return src(wrapPoint(src, p));
-}
-export template<class T>
-T const& getWrapped(Array2D<T> const& src, int x, int y)
-{
-	return getWrapped(src, ivec2(x, y));
-}
-export template<class T>
-T& getWrapped(Array2D<T>& src, ivec2 p)
-{
-	return src(wrapPoint(src, p));
-}
-export template<class T>
-T& getWrapped(Array2D<T>& src, int x, int y)
-{
-	return getWrapped(src, ivec2(x, y));
-}
 export struct WrapModes {
 	struct GetMirrorWrapped {
 		template<class T>
@@ -51,7 +23,7 @@ export struct WrapModes {
 		template<class T>
 		static T& fetch(Array2D<T>& src, int x, int y)
 		{
-			return ::getWrapped(src, x, y);
+			return src.wr(x, y);
 		}
 	};
 	struct Get_WrapZeros {
@@ -77,17 +49,6 @@ export struct WrapModes {
 	};
 	typedef GetWrapped DefaultImpl;
 };
-export template<class T>
-void aaPoint_i(Array2D<T>& dst, ivec2 p, T value)
-{
-	dst.wr(p) += value;
-}
-export template<class T>
-void aaPoint_i(Array2D<T>& dst, int x, int y, T value)
-{
-	dst.wr(x, y) += value;
-}
-
 export template<class T, class FetchFunc>
 void aaPoint(Array2D<T>& dst, vec2 p, T value)
 {
@@ -109,16 +70,6 @@ void aaPoint(Array2D<T>& dst, float x, float y, T value)
 	FetchFunc::fetch(dst, ix + 1, iy) += (fractx * fracty1) * value;
 	FetchFunc::fetch(dst, ix + 1, iy + 1) += (fractx * fracty) * value;
 }
-export template<class T>
-void aaPoint(Array2D<T>& dst, float x, float y, T value)
-{
-	aaPoint<T, WrapModes::DefaultImpl>(dst, x, y, value);
-}
-export template<class T>
-void aaPoint(Array2D<T>& dst, vec2 p, T value)
-{
-	aaPoint<T, WrapModes::DefaultImpl>(dst, p, value);
-}
 export template<class T, class FetchFunc>
 T getBilinear(Array2D<T> src, vec2 p)
 {
@@ -137,16 +88,6 @@ T getBilinear(Array2D<T> src, float x, float y)
 		lerp(FetchFunc::fetch(src, ix, iy), FetchFunc::fetch(src, ix + 1, iy), fractx),
 		lerp(FetchFunc::fetch(src, ix, iy + 1), FetchFunc::fetch(src, ix + 1, iy + 1), fractx),
 		fracty);
-}
-export template<class T>
-T getBilinear(Array2D<T> src, float x, float y)
-{
-	return getBilinear<T, WrapModes::DefaultImpl>(src, x, y);
-}
-export template<class T>
-T getBilinear(Array2D<T> src, vec2 p)
-{
-	return getBilinear<T, WrapModes::DefaultImpl>(src, p);
 }
 
 export Array2D<float> to01(Array2D<float> a);
