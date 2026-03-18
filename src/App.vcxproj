@@ -213,7 +213,9 @@
     <ClInclude Include="lxlib\lxGlslProg.h" />
     <ClInclude Include="lxlib\lxTextureRef.h" />
     <ClInclude Include="lxlib\lxVaoVbo.h" />
-    <ClInclude Include="ParticleTraces2DSketch\ParticleTraces2DSketch.h" />
+    <ClCompile Include="ParticleTraces2DSketch\ParticleTraces2DSketch.ixx">
+      <FileType>Document</FileType>
+    </ClCompile>
     <ClInclude Include="third-party\imgui\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="MultiscaleCurvatureGrowthSketch\toml.hpp" />
     <ClInclude Include="precompiled.h" />

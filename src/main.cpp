@@ -7,13 +7,12 @@
 #undef max
 
 #include "GridFluidSketch/GridFluidSketch.h"
-#include "ParticleTraces2DSketch/ParticleTraces2DSketch.h"
 
 import lxlib.SketchScaffold;
 
 import MultiscaleGrowthSketch;
 import ParticleFluidSketch;
-import MultiscaleGrowthSketch;
+import ParticleTraces2DSketch;
 
 int WINAPI WinMain(
 	HINSTANCE hInstance,

@@ -1,6 +1,7 @@
+module;
 #include "precompiled.h"
 #include <lxlib/simplexnoise.h>
-#if 1
+
 import lxlib.util;
 import lxlib.stuff;
 import lxlib.TextureRef;
@@ -11,6 +12,8 @@ import lxlib.shade;
 import lxlib.colorspaces;
 import lxlib.VaoVbo;
 import lxlib.GlslProg;
+
+export module ParticleTraces2DSketch;
 
 int wsx = 1280, wsy = 720;
 int scale = 1;
@@ -90,10 +93,7 @@ struct Walker {
 
 vector<Walker> walkers;
 
-void updateConfig() {
-}
-
-struct ParticleTraces2DSketch : public SketchBase {
+export struct ParticleTraces2DSketch : public SketchBase {
 	GlslProgRef colorProg;
 
 	void setup()
@@ -236,4 +236,3 @@ struct ParticleTraces2DSketch : public SketchBase {
 		lxDraw(walkerTex2);
 	}
 };
-#endif
