@@ -22,15 +22,11 @@ module;
 
 export module lxlib.stuff;
 
-import lxlib.shade;
+//import lxlib.shade;
 
 import lxlib.TextureRef;
 import lxlib.util;
 import lxlib.TextureCache;
-
-// Forward declarations for functions defined in gpgpu.cpp
-//void beginRTT(gl::TextureRef fbotex);
-//void endRTT();
 
 export void bind(gl::TextureRef& tex);
 export void bindTexture(gl::TextureRef& tex);
@@ -238,6 +234,46 @@ void setWrap(gl::TextureRef tex, GLenum wrap) {
 	bind(tex);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
+}
+
+/*thread_local*/ bool fboBound = false;
+
+export void beginRTT(gl::TextureRef fbotex)
+{
+	/*thread_local*/ static unsigned int fboid = 0;
+
+	if (fboid == 0)
+	{
+		glGenFramebuffers(1, &fboid);
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER, fboid);
+	if (fbotex != nullptr)
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fbotex->getId(), 0);
+	fboBound = true;
+}
+export void beginRTT(vector<gl::TextureRef> fbotexs)
+{
+	if (fbotexs.size() != 1)
+		throw runtime_error("not implemented");
+
+	/*thread_local*/ static unsigned int fboid = 0; // hack: a separate fbo for this case. this is brittle. todo.
+
+	if (fboid == 0)
+	{
+		glGenFramebuffers(1, &fboid);
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER, fboid);
+	int i = 0;
+	for (auto& fbotex : fbotexs) {
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, fbotex->getId(), 0);
+		i++;
+	}
+	fboBound = true;
+}
+export void endRTT()
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	fboBound = false;
 }
 
 gl::TextureRef maketex(int w, int h, GLint ifmt, bool allocateMipmaps, bool clear) {

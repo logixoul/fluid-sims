@@ -25,23 +25,13 @@ export module lxlib.shade;
 import lxlib.GlslProg;
 import lxlib.TextureRef;
 import lxlib.util;
+import lxlib.stuff;
 import lxlib.VaoVbo;
-
-// Forward declarations of functions defined in lxlib.stuff.
-// We avoid importing lxlib.stuff here because lxlib.stuff imports lxlib.shade,
-// which would create a circular module dependency. These symbols are resolved by
-// the linker from the lxlib.stuff translation unit.
-gl::TextureRef maketex(int w, int h, GLint ifmt, bool allocateMipmaps = false, bool clear = false);
-void bindTexture(gl::TextureRef& tex);
-void bindTexture(gl::TextureRef tex, GLenum textureUnit);
 
 export struct GpuScope {
 	GpuScope(string name);
 	~GpuScope();
 };
-
-export void beginRTT(gl::TextureRef fbotex);
-export void endRTT();
 
 export void drawRect();
 
@@ -131,46 +121,6 @@ export gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string cons
 export inline gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string const& fshader, float resScale);
 
 // --- Implementations ---
-
-/*thread_local*/ bool fboBound = false;
-
-void beginRTT(gl::TextureRef fbotex)
-{
-	/*thread_local*/ static unsigned int fboid = 0;
-
-	if(fboid == 0)
-	{
-		glGenFramebuffers(1, &fboid);
-	}
-	glBindFramebuffer(GL_FRAMEBUFFER, fboid);
-	if (fbotex != nullptr)
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fbotex->getId(), 0);
-	fboBound = true;
-}
-void beginRTT(vector<gl::TextureRef> fbotexs)
-{
-	if (fbotexs.size() != 1)
-		throw runtime_error("not implemented");
-
-	/*thread_local*/ static unsigned int fboid = 0; // hack: a separate fbo for this case. this is brittle. todo.
-
-	if (fboid == 0)
-	{
-		glGenFramebuffers(1, &fboid);
-	}
-	glBindFramebuffer(GL_FRAMEBUFFER, fboid);
-	int i = 0;
-	for (auto& fbotex : fbotexs) {
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, fbotex->getId(), 0);
-		i++;
-	}
-	fboBound = true;
-}
-void endRTT()
-{
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	fboBound = false;
-}
 
 void drawRect() {
 	static std::shared_ptr<QuadGpu> quad = createQuadVAO_VBOs();

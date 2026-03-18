@@ -10,6 +10,7 @@ import lxlib.ConfigManager3;
 #include <lxlib/macros.h>
 import lxlib.AreaRectf;
 import lxlib.SketchBase;
+import lxlib.TextureRef;
 
 struct GridFluidSketch : public SketchBase {
 	ConfigManager3 cfg;

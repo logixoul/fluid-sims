@@ -188,7 +188,10 @@
     </ClCompile>
     <ClCompile Include="MultiscaleGrowthSketch\gpuBlurClaude.ixx" />
     <ClCompile Include="MultiscaleGrowthSketch\ThisSketch_ImageProcessingHelpers.ixx" />
-    <ClCompile Include="MultiscaleGrowthSketch\MultiscaleGrowthSketch.ixx" />
+    <ClCompile Include="MultiscaleGrowthSketch\MultiscaleGrowthSketch.ixx">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
     <ClCompile Include="ParticleFluidSketch.ixx" />
     <ClCompile Include="SketchScaffold.ixx" />
     <ClCompile Include="precompiled.cpp">
