@@ -1,10 +1,6 @@
 module;
 #include "precompiled.h"
 #include <lxlib/macros.h>
-extern bool keys[256];
-extern bool keys2[256];
-extern bool mouseDown_[3];
-extern glm::ivec2 windowSize;
 
 export module ParticleFluidSketch;
 
