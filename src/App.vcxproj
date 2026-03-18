@@ -206,7 +206,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GridFluidSketch\GridFluidSketch.h" />
+    <ClCompile Include="GridFluidSketch\GridFluidSketch.ixx">
+      <FileType>Document</FileType>
+    </ClCompile>
     <ClInclude Include="lxlib\macros.h" />
     <ClInclude Include="lxlib\precompiled.h" />
     <ClInclude Include="lxlib\lxAreaRectf.h" />

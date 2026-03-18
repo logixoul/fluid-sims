@@ -2,17 +2,13 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-// these two are #defined by Windows.h and cause problems with std::min and std::max, so we undefine them
-#undef min
-#undef max
-
-#include "GridFluidSketch/GridFluidSketch.h"
 
 import lxlib.SketchScaffold;
 
 import MultiscaleGrowthSketch;
 import ParticleFluidSketch;
 import ParticleTraces2DSketch;
+import GridFluidSketch;
 
 int WINAPI WinMain(
 	HINSTANCE hInstance,

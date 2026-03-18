@@ -1,3 +1,4 @@
+module;
 #include "precompiled.h"
 //#include "using_namespace.h"
 import lxlib.shade;
@@ -12,7 +13,9 @@ import lxlib.AreaRectf;
 import lxlib.SketchBase;
 import lxlib.TextureRef;
 
-struct GridFluidSketch : public SketchBase {
+export module GridFluidSketch;
+
+export struct GridFluidSketch : public SketchBase {
 	ConfigManager3 cfg;
 
 	GridFluidSketch() :
