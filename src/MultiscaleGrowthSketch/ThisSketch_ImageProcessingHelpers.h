@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../precompiled.h"
-#include <lxlib/Array2D_imageProc.h>
-#include <lxlib/gpgpu.h>
+import lxlib.Array2D_imageProc;
+import lxlib.gpgpu;
 
 namespace ThisSketch {
 

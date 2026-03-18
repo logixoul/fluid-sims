@@ -1,9 +1,9 @@
 ﻿#pragma once
 #include "../precompiled.h"
-#include <lxlib/util.h>
+import lxlib.util;
 import lxlib.stuff;
-#include <lxlib/Array2D_imageProc.h>
-#include <lxlib/gpgpu.h>
+import lxlib.Array2D_imageProc;
+import lxlib.gpgpu;
 import lxlib.ConfigManager3;
 import lxlib.SketchBase;
 #include "ThisSketch_ImageProcessingHelpers.h"

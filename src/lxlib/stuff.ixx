@@ -19,15 +19,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 module;
 #include "precompiled.h"
-#include "util.h"
-#include "TextureCache.h"
 #include "shade.h"
 
 export module lxlib.stuff;
 
 import lxlib.TextureRef;
-
-// TextureCache.h depends on lxlib.TextureRef, include it after the import
+import lxlib.util;
+import lxlib.TextureCache;
 
 // Forward declarations for functions defined in gpgpu.cpp
 //void beginRTT(gl::TextureRef fbotex);
@@ -73,7 +71,6 @@ export float sq(float f) {
 	return f * f;
 }
 
-export vector<Array2D<float>> split(Array2D<vec3> arr);
 export void setWrapBlack(gl::TextureRef tex);
 
 export void setWrap(gl::TextureRef tex, GLenum wrap);

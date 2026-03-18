@@ -2,7 +2,7 @@
 #include <lxlib/precompiled.h>
 import lxlib.TextureRef;
 #include <glm/vec2.hpp>
-#include <lxlib/util.h>
+import lxlib.util;
 using glm::ivec2;
 
 namespace gpuBlurClaude {

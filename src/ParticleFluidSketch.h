@@ -1,13 +1,11 @@
 #include "precompiled.h"
 import lxlib.stuff;
 #include <lxlib/shade.h>
-#include <lxlib/gpgpu.h>
-#include <lxlib/Array2D_imageProc.h>
+import lxlib.gpgpu;
+import lxlib.Array2D_imageProc;
 import lxlib.SketchBase;
-
-#include <lxlib/util.h>
+import lxlib.util;
 #include <lxlib/macros.h>
-#include "SketchScaffold.h"
 
 struct ParticleFluidSketch : public SketchBase {
 	typedef Array2D<float> Image;
