@@ -1,8 +1,8 @@
 #include "precompiled.h"
 #include "gpuBlurClaude.h"
-#include <lxlib/gpuBlur2_5.h>
+import lxlib.gpuBlur2_5;
 #include <lxlib/gpgpu.h>
-#include <lxlib/stuff.h>
+import lxlib.stuff;
 #include <lxlib/macros.h>
 
 namespace gpuBlurClaude {

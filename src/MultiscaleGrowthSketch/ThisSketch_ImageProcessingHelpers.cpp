@@ -1,6 +1,6 @@
 #include "precompiled.h"
 #include "ThisSketch_ImageProcessingHelpers.h"
-#include <lxlib/stuff.h>
+import lxlib.stuff;
 #include "gpuBlurClaude.h"
 
 namespace ThisSketch {

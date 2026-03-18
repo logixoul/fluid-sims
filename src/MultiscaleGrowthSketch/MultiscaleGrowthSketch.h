@@ -1,10 +1,10 @@
 ﻿#pragma once
 #include "../precompiled.h"
 #include <lxlib/util.h>
-#include <lxlib/stuff.h>
+import lxlib.stuff;
 #include <lxlib/Array2D_imageProc.h>
 #include <lxlib/gpgpu.h>
-#include <lxlib/ConfigManager3.h>
+import lxlib.ConfigManager3;
 import lxlib.SketchBase;
 #include "ThisSketch_ImageProcessingHelpers.h"
 #include "gpuBlurClaude.h"
@@ -216,6 +216,7 @@ struct MultiscaleGrowthSketch : public SketchBase {
 	}
 	void stefanDraw()
 	{
+		lxClear();
 		options.update();
 
 		gl::TextureRef tex = gtex(img);

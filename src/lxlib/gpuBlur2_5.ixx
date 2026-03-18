@@ -17,17 +17,37 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-
-
+module;
 #include "precompiled.h"
+#include "macros.h"
 #include "shade.h"
-#include "stuff.h"
-#include "shade.h"
-#include "gpgpu.h" // for shade2
-#include "gpuBlur2_5.h"
-#include <lxlib/macros.h>
+#include "gpgpu.h"
 
+export module lxlib.gpuBlur2_5;
+
+import lxlib.TextureRef;
+import lxlib.stuff;
+
+// Forward declarations (exported interface)
+export namespace gpuBlur2_5 {
+	gl::TextureRef run(gl::TextureRef src, int lvls);
+	gl::TextureRef run_longtail(gl::TextureRef src, int lvls, float lvlmul, float hscale = .5f, float vscale = .5f);
+	float getGaussW();
+	float gauss(float f, float width);
+	gl::TextureRef upscale(gl::TextureRef src, ivec2 toSize);
+	gl::TextureRef upscale(gl::TextureRef src, float hscale, float vscale);
+	gl::TextureRef singleblur(gl::TextureRef src, float hscale, float vscale, GLenum wrap = GL_CLAMP_TO_BORDER);
+	std::vector<gl::TextureRef> buildGaussianPyramid(gl::TextureRef const& src, float scalePerLevel);
+}
+
+export namespace gpuBlur = gpuBlur2_5;
+
+// Implementations
 namespace gpuBlur2_5 {
+
+	static float logAB(float a, float b) {
+		return log(b) / log(a);
+	}
 
 	gl::TextureRef run(gl::TextureRef src, int lvls) {
 		auto state = shade2(src, "_out.rgb = fetch3();");
@@ -37,10 +57,6 @@ namespace gpuBlur2_5 {
 		}
 		state = upscale(state, src->getSize());
 		return state;
-	}
-
-	float logAB(float a, float b) {
-		return log(b) / log(a);
 	}
 
 	gl::TextureRef run_longtail(gl::TextureRef src, int lvls, float lvlmul, float hscale, float vscale) {
@@ -59,11 +75,6 @@ namespace gpuBlur2_5 {
 		for (float& w : weights) {
 			w /= sumw;
 		}
-		/*cout << "Weights: ";
-		for(float w: weights) {
-			cout << w << ", ";
-		}
-		cout << "\n";*/
 		vector<gl::TextureRef> zoomstates;
 		zoomstates.push_back(src);
 		zoomstates[0] = shade2(zoomstates[0],
@@ -87,18 +98,21 @@ namespace gpuBlur2_5 {
 		}
 		return zoomstates[0];
 	}
+
 	float getGaussW() {
 		// default value determined by trial and error
 		return 0.75f;
 	}
+
 	float gauss(float f, float width) {
 		return exp(-f * f / (width*width));
 	}
+
 	gl::TextureRef upscale(gl::TextureRef src, ivec2 toSize) {
 		return upscale(src, float(toSize.x) / src->getWidth(), float(toSize.y) / src->getHeight());
 	}
+
 	gl::TextureRef upscale(gl::TextureRef src, float hscale, float vscale) {
-		//globaldict["gaussW"] = getGaussW();
 		string lib =
 			"float gauss(float f, float width) {"
 			"	return exp(-f*f/(width*width));"
@@ -142,26 +156,19 @@ namespace gpuBlur2_5 {
 			, lib);
 		return vscaled;
 	}
+
 	gl::TextureRef singleblur(gl::TextureRef src, float hscale, float vscale, GLenum wrap) {
 		GPU_SCOPE("singleblur");
-		//float gaussW = mouseY * 4 + .1;
 		float gaussW = getGaussW();
-		//cout << "2020gauss=" << gaussW<<endl;
-		
-		/*float w0 = (mouseY - .5) * .01 + .9958f;
-		float w1 = (1 - w0) /2;*/
 		float w0 = gauss(0.0, gaussW);
 		float w1 = gauss(1.0, gaussW);
 		float w2 = gauss(2.0, gaussW);
-		/*float w0 = 2;
-		float w1 = 1;*/
 		float sum = 2.0f*(w1+w2) + w0;
 		w2 /= sum;
 		w1 /= sum;
 		w0 /= sum;
 		std::stringstream weights;
 		weights << fixed << "float w0=" << w0 << ", w1=" << w1 << ", w2=" << w2 << ";" << endl;
-		//cout << "weights=" << weights.str() << endl;
 		string shader =
 			"vec2 offset = vec2(GB2_offsetX, GB2_offsetY);"
 			"vec3 aM2 = fetch3(tex, tc + (-2.0) * offset * tsize);"
@@ -173,18 +180,14 @@ namespace gpuBlur2_5 {
 			+ weights.str() +
 			"_out.rgb = w2 * (aM2 + aP2) + w1 * (aM1 + aP1) + w0 * a0;";
 
-		//setWrapBlack(src);
 		setWrap(src, wrap);
-		//setWrapBlack(src);
 		auto hscaled = shade2(src, shader,
 			ShadeOpts()
 				.scale(hscale, 1.0f)
 				.uniform("GB2_offsetX", 1.0f)
 				.uniform("GB2_offsetY", 0.0f)
 			);
-		//setWrapBlack(hscaled);
 		setWrap(hscaled, wrap);
-		//setWrapBlack(hscaled);
 		auto vscaled = shade2(hscaled, shader,
 			ShadeOpts()
 			.uniform("GB2_offsetX", 0.0f)

@@ -8,6 +8,7 @@
 using namespace std;
 using namespace glm;
 #include "Array2D_imageProc.h"
+import lxlib.stuff;
 
 // todo: consolidate the following mm funcs
 void mm(string desc, Array2D<float> arr) {
@@ -32,10 +33,6 @@ void mm(string desc, Array2D<vec2> arr) {
 	auto data = (float*)arr.data;
 	cout << "min: " << *std::min_element(data, data + arr.area + 1) << ", "
 		<< "max: " << *std::max_element(data, data + arr.area + 1) << endl;
-}
-
-float sq(float f) {
-	return f * f;
 }
 
 vector<float> getGaussianKernel(int ksize, float sigma) {
