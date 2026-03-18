@@ -73,7 +73,7 @@ export struct ParticleFluidSketch : public SketchBase {
 	}
 	float surfaceTensionThreshold = 1.0f;
 	float surfaceTensionCoef = 0.2f;
-	void stefanDraw()
+	void draw()
 	{
 		static float blurSize = 1.41f;
 		ImGui::DragFloat("blurSize", &blurSize, 1.0f, 0.1, 100, "%.3f", ImGuiSliderFlags_Logarithmic);
@@ -118,7 +118,7 @@ export struct ParticleFluidSketch : public SketchBase {
 		//lxDraw(tex);
 	}
 	int elapsedFrames = 0;
-	void stefanUpdate()
+	void update()
 	{
 		if (!pause)
 		{

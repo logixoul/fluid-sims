@@ -5,10 +5,16 @@ module;
 export module lxlib.SketchBase;
 
 export struct SketchBase {
-	void keyDown(int key) {
+	virtual void keyDown(int key) {
 	}
-	void keyUp(int key) {
+	virtual void keyUp(int key) {
 	}
-	void mouseMove(glm::ivec2 pos) {
+	virtual void mouseMove(glm::ivec2 pos) {
+	}
+	virtual void draw() {
+	}
+	virtual void update() {
+	}
+	virtual void setup() {
 	}
 };

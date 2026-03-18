@@ -132,7 +132,7 @@ struct GridFluidSketch : public SketchBase {
 		return state;
 	}
 
-	void stefanDraw()
+	void draw()
 	{
 		lxClear();
 
@@ -297,7 +297,7 @@ struct GridFluidSketch : public SketchBase {
 		lxDraw(tex2);
 		//lxDraw(envMap);
 	}
-	void stefanUpdate()
+	void update()
 	{
 		if (!pause)
 		{

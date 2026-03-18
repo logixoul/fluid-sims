@@ -11,8 +11,6 @@ extern glm::ivec2 windowSize;
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 #include "imgui.h"
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
 
 export module SketchScaffold;
 
@@ -33,18 +31,22 @@ class SketchScaffold;
 
 SketchScaffold* instance;
 
-static void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos);
-static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
-static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos);
+void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
-struct SketchScaffold {
+export struct SketchScaffold {
 	//MultiscaleGrowthSketch sketch;
 	//ParticleFluidSketch sketch;
 	//GridFluidSketch sketch;
-	ParticleTraces2DSketch sketch;
+	//ParticleTraces2DSketch sketch;
 	GLFWwindow* window;
 
 	shared_ptr<IntegratedConsole> integratedConsole;
+
+	SketchBase* sketch;
+
+	SketchScaffold(SketchBase* sketch) : sketch(sketch) {}
 
 	void setup()
 	{
@@ -86,7 +88,7 @@ struct SketchScaffold {
 
 		disableGLReadClamp();
 
-		sketch.setup();
+		sketch->setup();
 	}
 
 	// https://github.com/ocornut/imgui/blob/master/examples/example_glfw_opengl3/main.cpp
@@ -124,15 +126,15 @@ struct SketchScaffold {
 	{
 		ImGui::Begin("Parameters");
 		
-		sketch.stefanUpdate();
-		sketch.stefanDraw();
+		sketch->update();
+		sketch->draw();
 		integratedConsole->update();
 		ImGui::End();
 	}
 
 	void mouseMove(ivec2 pos)
 	{
-		sketch.mouseMove(pos);
+		sketch->mouseMove(pos);
 	}
 };
 
@@ -158,7 +160,7 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
     if (io.WantCaptureKeyboard)
         return;
 
-    cout << "key: " << key << " scancode: " << scancode << " action: " << action << " mods: " << mods << endl;
+    //cout << "key: " << key << " scancode: " << scancode << " action: " << action << " mods: " << mods << endl;
     if (key >= 0 && key < 256)
     {
         key = tolower(key);
@@ -168,20 +170,9 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
             keys2[key] = !keys2[key];
         }
         if(action == GLFW_PRESS)
-            instance->sketch.keyDown(key);
+            instance->sketch->keyDown(key);
         else if (action == GLFW_RELEASE)
-            instance->sketch.keyUp(key);
+            instance->sketch->keyUp(key);
 
     }
-}
-
-int WINAPI WinMain(
-	HINSTANCE hInstance,
-	HINSTANCE hPrevInstance,
-	LPSTR     lpCmdLine,
-	int       nCmdShow
-) {
-	SketchScaffold sketchScaffold;
-	sketchScaffold.setup();
-	sketchScaffold.mainLoop();
 }

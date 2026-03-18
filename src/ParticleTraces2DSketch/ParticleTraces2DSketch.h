@@ -115,10 +115,6 @@ struct ParticleTraces2DSketch : public SketchBase {
 			"}"
 		);
 
-		enableDenormalFlushToZero();
-
-		disableGLReadClamp();
-
 		for (int i = 0; i < 4000 / sq(::scale); i++) {
 			walkers.push_back(Walker());
 		}
@@ -132,7 +128,7 @@ struct ParticleTraces2DSketch : public SketchBase {
 	}
 	float noiseProgressSpeed;
 
-	void stefanUpdate() {
+	void update() {
 		noiseProgressSpeed = .00008f;
 
 		if (!pause) {
@@ -169,7 +165,7 @@ struct ParticleTraces2DSketch : public SketchBase {
 	}
 
 	int elapsedFrames = 0;
-	void stefanDraw() {
+	void draw() {
 		elapsedFrames++;
 		auto t = elapsedFrames * 0.01f;
 		//mat3 rotMat3 = glm::rotate(rotMat3, std::sin(t / 10.0f));

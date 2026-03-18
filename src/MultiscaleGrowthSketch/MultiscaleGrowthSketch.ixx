@@ -60,8 +60,6 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 	{
 		options.init();
 		reset();
-		enableDenormalFlushToZero();
-		disableGLReadClamp();
 	}
 
 	void keyDown(int key)
@@ -141,7 +139,7 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 		}
 		return updatedScales[0];
 	}
-	void stefanUpdate() {
+	void update() {
 		Array2D<float> newImg;
 		if (options.multiscale)
 			newImg = multiscaleApply(img, [this](auto arg) { return updateSingleScale(arg); });
@@ -223,7 +221,7 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 			ShadeOpts().ifmt(GL_RGBA16F));
 		return stateTex;
 	}
-	void stefanDraw()
+	void draw()
 	{
 		lxClear();
 		options.update();
