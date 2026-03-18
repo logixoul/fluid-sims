@@ -1,0 +1,458 @@
+module;
+
+#include <cmath>
+#include <iostream>
+#include <string>
+#include <vector>
+#include <memory>
+#include <functional>
+#include <algorithm>
+#include <glad/glad.h>
+#include <imgui.h>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
+#include <glm/gtx/io.hpp>
+
+#define forxy(image) \
+    for(glm::ivec2 p(0, 0); p.y < image.h; p.y++) \
+        for(p.x = 0; p.x < image.w; p.x++)
+
+#define MULTILINE(...) #__VA_ARGS__
+
+#define GET_FLOAT_LOGSCALE(name, defaultValue, min, max) \
+    static float name = defaultValue; \
+    ImGui::DragFloat(#name, &name, 0.5f, min, max, "%.3f", ImGuiSliderFlags_Logarithmic);
+
+export module GridFluidSketch;
+
+import lxTextureRef;
+import lxAreaRectf;
+import shade;
+import stuff;
+import gpgpu;
+import gpuBlur2_5;
+import Array2D_imageProc;
+import util;
+
+using namespace std;
+using namespace glm;
+
+// windowSize, keys, mouseDown_ are defined in SketchScaffold module
+extern glm::ivec2 windowSize;
+extern bool keys[256];
+extern bool mouseDown_[3];
+
+export struct GridFluidSketch {
+    const int scale = 6;
+    int sx;
+    int sy;
+    ivec2 sz;
+    struct Material {
+        Array2D<float> density;
+        Array2D<vec2> momentum;
+    };
+    Material red, green;
+    vector<Material*> materials{ &green, &red };
+    float surfTensionThres;
+
+    bool pause = false;
+
+    Array2D<float> bounces_dbg;
+
+    void setup()
+    {
+        sx = ::windowSize.x / scale;
+        sy = ::windowSize.y / scale;
+        sz = ivec2(sx, sy);
+
+        for (auto& material : materials) {
+            material->density = Array2D<float>(sz);
+            material->momentum = Array2D<vec2>(sz);
+        }
+
+        glDisable(GL_BLEND);
+
+        reset();
+    }
+    void keyDown(int key)
+    {
+        if (keys[' ']) {
+            doFluidStep();
+        }
+        if (keys['r'])
+        {
+            reset();
+        }
+        if (keys['p'] || keys['2'])
+        {
+            pause = !pause;
+        }
+    }
+    void keyUp(int key)
+    {
+    }
+    void reset() {
+        std::fill(red.density.begin(), red.density.end(), 0.0f);
+        std::fill(red.momentum.begin(), red.momentum.end(), vec2());
+
+        std::fill(green.density.begin(), green.density.end(), 0.0f);
+        std::fill(green.momentum.begin(), green.momentum.end(), vec2());
+    }
+    vec2 direction;
+    vec2 lastm;
+    void mouseMove(ivec2 pos)
+    {
+        mm_mouse(pos);
+        cout << "move " << pos << endl;
+    }
+    void mm_mouse(ivec2 pos)
+    {
+        direction = vec2(pos) - lastm;
+        lastm = pos;
+    }
+    gl::TextureRef gtexF32(Array2D<float> a)
+    {
+        gl::TextureRef tex = maketex(a.w, a.h, GL_R32F);
+        bind(tex);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RED, GL_FLOAT, a.data);
+        return tex;
+    }
+
+    gl::TextureRef gauss3texScaled(gl::TextureRef src, float scale) {
+        auto state = shade2(src,
+            "vec3 sum = vec3(0.0);"
+            "sum += fetch3(tex, tc + tsize * vec2(-1.0, -1.0)) / 16.0;"
+            "sum += fetch3(tex, tc + tsize * vec2(-1.0, 0.0)) / 8.0;"
+            "sum += fetch3(tex, tc + tsize * vec2(-1.0, +1.0)) / 16.0;"
+            "sum += fetch3(tex, tc + tsize * vec2(0.0, -1.0)) / 8.0;"
+            "sum += fetch3(tex, tc + tsize * vec2(0.0, 0.0)) / 4.0;"
+            "sum += fetch3(tex, tc + tsize * vec2(0.0, +1.0)) / 8.0;"
+            "sum += fetch3(tex, tc + tsize * vec2(+1.0, -1.0)) / 16.0;"
+            "sum += fetch3(tex, tc + tsize * vec2(+1.0, 0.0)) / 8.0;"
+            "sum += fetch3(tex, tc + tsize * vec2(+1.0, +1.0)) / 16.0;"
+            "_out.rgb = sum;",
+            ShadeOpts().scale(scale)
+        );
+        return state;
+    }
+
+    void stefanDraw()
+    {
+        lxClear();
+
+        static float colorAmount = 0.06f;
+        ImGui::DragFloat("colorAmount", &colorAmount, 1.0f, 0.01, 8.0, "%.3f", ImGuiSliderFlags_Logarithmic);
+        static float matterAmount = 13.0f;
+        ImGui::DragFloat("matterAmount", &matterAmount, 1.0f, 0.01, 8.0, "%.3f", ImGuiSliderFlags_Logarithmic);
+        static float matterThreshold = 1.0f;
+        ImGui::DragFloat("matterThreshold", &matterThreshold, 1.0f, 0.01, 8.0, "%.3f", ImGuiSliderFlags_Logarithmic);
+
+        auto density = empty_like(red.density);
+        forxy(density) {
+            density(p) = red.density(p) + green.density(p);
+        }
+        auto sumTex = gtex(density);
+        auto redTex = gtex(red.density);
+        auto greenTex = gtex(green.density);
+
+        sumTex = gauss3texScaled(sumTex, 1.0);
+        sumTex = gauss3texScaled(sumTex, 1.0);
+        sumTex = gauss3texScaled(sumTex, 1.0);
+        sumTex = shade2(sumTex,
+            "float f = fetch1();"
+            "float fw = fwidth(f);"
+            "_out.r = f * smoothstep(matterThreshold-fw/2, matterThreshold+fw/2, f);"
+            , ShadeOpts().uniform("matterThreshold", matterThreshold).scale(scale)
+        );
+        sumTex = Operable(sumTex) * matterAmount;
+        redTex = Operable(redTex) * colorAmount;
+        greenTex = Operable(greenTex) * colorAmount;
+
+        auto momentumTex = gtex(red.momentum);
+        auto hsvTex = shade2(momentumTex, MULTILINE(
+            vec2 momentum = fetch2();
+        float angle = atan(momentum.y, momentum.x) / (2 * pi) + .5;
+        float len = length(momentum);
+        len /= len + 1.0;
+        _out.rgb = hsl2rgb(vec3(angle, 1.0, .5)) * pow(len, 3.0) * 3.0;
+            ),
+            ShadeOpts().ifmt(GL_RGB16F),
+            FileCache::get("stuff.fs"));
+
+        static float bloomSize = 1.5f;
+        static int bloomIters = 6;
+        static float bloomIntensity = 0.07f;
+        ImGui::DragFloat("bloomSize", &bloomSize, 1.0f, 0.1, 100, "%.3f", ImGuiSliderFlags_Logarithmic);
+        ImGui::DragInt("bloomIters", &bloomIters, 1.0f, 1, 16, "%d", ImGuiSliderFlags_None);
+        ImGui::DragFloat("bloomIntensity", &bloomIntensity, 1.0f, 0.0001, 2000, "%.3f", ImGuiSliderFlags_Logarithmic);
+        auto redTexB = gpuBlur2_5::run_longtail(redTex, bloomIters, bloomSize);
+        auto greenTexB = gpuBlur2_5::run_longtail(greenTex, bloomIters, bloomSize);
+        auto hsvTexB = gpuBlur2_5::run_longtail(hsvTex, bloomIters, bloomSize);
+
+        greenTex = op(greenTex) * 0.16f;
+
+        hsvTex = shade2(hsvTex, hsvTexB, MULTILINE(
+            _out.rgb = (fetch3() + fetch3(tex2) * 1.0) * bloomIntensity;
+        ),
+            ShadeOpts().uniform("bloomIntensity", bloomIntensity)
+        );
+        static const auto format = gl::Texture::Format().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR).magFilter(GL_LINEAR).loadTopDown(true).wrap(GL_MIRRORED_REPEAT).internalFormat(GL_RGBA8);
+        static auto envMap = gl::Texture::create("milkyway.png", format);
+        static auto envMap2 = shade2(envMap, MULTILINE(
+            vec3 c = fetch3();
+        c /= vec3(1.0) - c * 0.99;
+        _out.rgb = c;
+            ),
+            ShadeOpts().ifmt(GL_RGB16F));
+
+        auto grads = get_gradients_tex(sumTex);
+
+        auto tex2 = shade2(sumTex, grads, envMap2, redTex, greenTex, hsvTex,
+            "vec3 hsv = fetch3(tex6);"
+            "vec2 d = fetch2(tex2);"
+            "vec3 normal = normalize(vec3(d.x, d.y, 1.0));"
+            "vec3 viewDir = normalize(vec3(0.0, 0.0, 1.0));"
+            "float eta=1.0/1.3;"
+            "vec3 refr=refract(viewDir, normal, eta);"
+            "float z = max(abs(refr.z), 1e-3);"
+            "vec2 refractOffset = refr.xy / z;"
+            "vec2 refractUv = tc + refractOffset * .1;"
+            "vec2 dPdx = dFdx(refractUv);"
+            "vec2 dPdy = dFdy(refractUv);"
+            "vec3 c = textureGrad(tex3, refractUv, dPdx, dPdy).rgb;"
+            "float redVal = fetch1(tex4);"
+            "float greenVal = fetch1(tex5);"
+            "vec3 redColor = redVal * vec3(0.0, 0.4, 1.0).zyx;"
+            "vec3 greenColor = greenVal / vec3(0.5, 0.99, 1.0);"
+            "c *= exp(-greenColor * 10.0);"
+            "_out.rgb = c;"
+            , ShadeOpts().ifmt(GL_RGB16F)
+            .uniform("surfTensionThres", surfTensionThres)
+            .uniform("lodBias", 0.0f)
+            .uniform("lodMax", 3.0f)
+            .uniform("refractLodScale", 5.0f)
+            ,
+            "float PI = 3.14159265358979323846264;\n"
+            "vec2 latlong(vec3 refl) {\n"
+            "	return vec2(atan(refl.z, refl.x) / (2.0 * PI) + 0.5, asin(clamp(refl.y, -1.0, 1.0)) / PI + 0.5);"
+            "}\n"
+            "vec3 getEnv(vec3 v) {\n"
+            "	vec3 c = fetch3(tex3, latlong(v));\n"
+            "	return c;"
+            "}\n"
+            MULTILINE(
+                float manualLod(vec2 uv, vec2 texSize, vec2 refractOffset) {
+            vec2 uvPixels = uv * texSize;
+            vec2 dx = dFdx(uvPixels);
+            vec2 dy = dFdy(uvPixels);
+            float rho = max(dot(dx, dx), dot(dy, dy));
+            rho = max(rho, 1e-8);
+            float lod = 0.5 * log2(rho);
+            float refractMetric = length(dFdx(refractOffset)) + length(dFdy(refractOffset));
+            lod += log2(1.0 + refractMetric * refractLodScale);
+            float maxLod = floor(log2(max(texSize.x, texSize.y)));
+            return clamp(lod, 0.0, maxLod);
+        })
+        );
+
+        const auto tex2Thres = shade2(tex2, "vec3 c=fetch3(); c *= step(vec3(1.0), c); _out.rgb=c;");
+        auto tex2b = gpuBlur2_5::run_longtail(tex2Thres, bloomIters, bloomSize);
+        tex2 = op(tex2) + op(tex2b) * bloomIntensity;
+
+        tex2 = shade2(tex2,
+            "vec3 c = fetch3(tex);"
+            "if(c.r<0.0||c.g<0.0||c.b<0.0) { _out.rgb = vec3(1.0, 0.0, 0.0); }"
+            "c /= c + vec3(1.0);"
+            "c = pow(c, vec3(1.0/2.2));"
+            "c = smoothstep(vec3(0.0), vec3(1.0), c);"
+            "_out.rgb = c;"
+        );
+
+        lxDraw(tex2);
+    }
+
+    void stefanUpdate()
+    {
+        if (!pause)
+        {
+            doFluidStep();
+        }
+        auto material = keys['g'] ? &red : &green;
+
+        vec2 mousePos = this->lastm;
+        mousePos /= scale;
+        if (mouseDown_[0])
+        {
+            lxArea a = lxArea(ivec2(mousePos), ivec2(mousePos));
+            int r = (int)(80 / std::pow(2, scale));
+            a.expand(r, r);
+            for (int x = a.x1; x <= a.x2; x++)
+            {
+                for (int y = a.y1; y <= a.y2; y++)
+                {
+                    vec2 v = vec2(x, y) - mousePos;
+                    float w = std::max(0.0f, 1.0f - length(v) / r);
+                    w = 3 * w * w - 2 * w * w * w;
+                    material->density.wr(x, y) += 1.f * w * 100.0f;
+                }
+            }
+        }
+        else if (mouseDown_[2]) {
+            lxArea a(ivec2(mousePos), ivec2(mousePos));
+            int r = 15;
+            a.expand(r, r);
+            for (int x = a.x1; x <= a.x2; x++)
+            {
+                for (int y = a.y1; y <= a.y2; y++)
+                {
+                    vec2 v = vec2(x, y) - mousePos;
+                    float w = std::max(0.0f, 1.0f - length(v) / r);
+                    w = 3 * w * w - 2 * w * w * w;
+                    if (material->density.wr(x, y) != 0.0f)
+                        material->momentum.wr(x, y) += w * material->density.wr(x, y) * 4.0f * direction / (float)scale;
+                }
+            }
+        }
+    }
+
+    template<class T, class FetchFunc>
+    static Array2D<T> convolve(Array2D<T> in, Array2D<float> kernel) {
+        int r = kernel.w / 2;
+        auto out = ::empty_like(in);
+        forxy(out) {
+            float sum = 0.0f;
+            for (int kx = -r; kx < r; kx++) {
+                for (int ky = -r; ky < r; ky++) {
+                    sum += kernel(kx + r, ky + r) * FetchFunc::template fetch<T>(in, p.x + kx, p.y + ky);
+                }
+            }
+            out(p) = sum;
+        }
+        return out;
+    }
+
+    void repel(Material& affectedMaterial, Material& actingMaterial) {
+        Array2D<float> kernel(7, 7);
+        ivec2 center = kernel.Size() / 2;
+        int r = kernel.w / 2;
+        forxy(kernel) {
+            ivec2 p2 = p - center;
+            vec2 p2f = vec2(p2);
+            float distance = length(p2f);
+            if (distance >= r)
+                continue;
+            kernel(p) = std::pow(1 - distance / r, 2.0f);
+        }
+        auto kernelSum = ::accumulate(kernel.begin(), kernel.end(), 0.0f);
+        forxy(kernel) {
+            kernel(p) /= kernelSum;
+        }
+        auto& guidance = actingMaterial.density;
+
+        static float intermaterialRepelCoef = 0.5f;
+        ImGui::DragFloat("intermaterialRepelCoef", &intermaterialRepelCoef, 1.0f, 0.1, 5.0f, "%.3f", ImGuiSliderFlags_Logarithmic);
+
+        forxy(affectedMaterial.density)
+        {
+            auto g = gradient_i<float, WrapModes::Get_WrapZeros>(guidance, p);
+            affectedMaterial.momentum(p) += -g * affectedMaterial.density(p) * intermaterialRepelCoef;
+        }
+    }
+
+    void doFluidStep() {
+        GET_FLOAT_LOGSCALE(surfTensionThres, 1.5f, 0.1, 50000.0f);
+        GET_FLOAT_LOGSCALE(surfTension, 1.0f, 0.0001, 40000.0f);
+        GET_FLOAT_LOGSCALE(gravity, .1f, 0.0001, 40000.0f);
+        GET_FLOAT_LOGSCALE(incompressibilityCoef, 1.0f, 0.01f, 40.0f);
+
+        for (auto material : materials) {
+            if (material == &red)
+                continue;
+            auto& momentum = material->momentum;
+            auto& density = material->density;
+
+            forxy(momentum)
+            {
+                momentum(p) += vec2(0.0f, gravity) * density(p);
+            }
+
+            density = gauss3_forwardMapping<float, WrapModes::GetMirrorWrapped>(density);
+            density = gauss3_forwardMapping<float, WrapModes::GetMirrorWrapped>(density);
+            momentum = gauss3_forwardMapping<vec2, WrapModes::GetMirrorWrapped>(momentum);
+            momentum = gauss3_forwardMapping<vec2, WrapModes::GetMirrorWrapped>(momentum);
+
+            auto& guidance = density;
+            forxy(momentum)
+            {
+                auto g = gradient_i<float, WrapModes::Get_WrapZeros>(guidance, p);
+                if (guidance(p) < surfTensionThres)
+                {
+                    g = g * surfTension * density(p);
+                }
+                else
+                {
+                    g *= -incompressibilityCoef;
+                }
+                momentum(p) += g;
+            }
+
+            auto offsets = empty_like(momentum);
+            forxy(offsets) {
+                offsets(p) = momentum(p) / density(p);
+            }
+            advect(*material, offsets);
+        }
+    }
+
+    void advect(Material& material, Array2D<vec2> offsets) {
+        auto& density = material.density;
+        auto& momentum = material.momentum;
+
+        auto density3 = Array2D<float>(sx, sy);
+        auto momentum3 = Array2D<vec2>(sx, sy, vec2());
+        forxy(density)
+        {
+            if (density(p) == 0.0f)
+                continue;
+
+            vec2 offset = offsets(p);
+            vec2 dst = vec2(p) + offset;
+
+            vec2 newEnergy = momentum(p);
+            for (int dim = 0; dim <= 1; dim++) {
+                float maxVal = (float)(sz[dim] - 1);
+                if (dst[dim] > maxVal) {
+                    newEnergy[dim] *= -1.0f;
+                    dst[dim] = maxVal - (dst[dim] - maxVal);
+                }
+                if (dst[dim] < 0) {
+                    newEnergy[dim] *= -1.0f;
+                    dst[dim] = -dst[dim];
+                }
+            }
+            aaPoint<float, WrapModes::GetMirrorWrapped>(density3, dst, density(p));
+            aaPoint<vec2, WrapModes::GetMirrorWrapped>(momentum3, dst, newEnergy);
+        }
+        density = density3;
+        momentum = momentum3;
+    }
+
+    template<class T, class FetchFunc>
+    static Array2D<T> gauss3_forwardMapping(Array2D<T> src) {
+        Array2D<T> dst1(src.w, src.h);
+        Array2D<T> dst2(src.w, src.h);
+        forxy(dst1) {
+            FetchFunc::fetch(dst1, p.x - 1, p.y) += .25f * src(p);
+            FetchFunc::fetch(dst1, p.x, p.y) += .5f * src(p);
+            FetchFunc::fetch(dst1, p.x + 1, p.y) += .25f * src(p);
+        }
+        forxy(dst1) {
+            FetchFunc::fetch(dst2, p.x, p.y - 1) += .25f * dst1(p);
+            FetchFunc::fetch(dst2, p.x, p.y) += .5f * dst1(p);
+            FetchFunc::fetch(dst2, p.x, p.y + 1) += .25f * dst1(p);
+        }
+        return dst2;
+    }
+};

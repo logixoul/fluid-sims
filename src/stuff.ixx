@@ -1,0 +1,314 @@
+module;
+
+#include <cmath>
+#include <iostream>
+#include <string>
+#include <vector>
+#include <sstream>
+#include <mutex>
+#include <functional>
+#include <fstream>
+#include <map>
+#include <memory>
+#include <algorithm>
+#include <stdexcept>
+#include <glad/glad.h>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
+#include <glm/gtx/io.hpp>
+#ifdef _WIN32
+#include <float.h>
+#endif
+
+export module stuff;
+
+import lxGlslProg;
+import lxTextureRef;
+import TextureCache;
+import shade;
+import util;
+
+using namespace std;
+using namespace glm;
+
+// ---- Exported declarations ----
+
+export void my_assert_func(bool isTrue, string desc);
+
+export void bind(gl::TextureRef& tex);
+export void bindTexture(gl::TextureRef& tex);
+export void bindTexture(gl::TextureRef tex, GLenum textureUnit);
+export gl::TextureRef gtex(Array2D<float> a);
+export gl::TextureRef gtex(Array2D<vec2> a);
+export gl::TextureRef gtex(Array2D<vec3> a);
+export gl::TextureRef gtex(Array2D<bytevec3> a);
+export gl::TextureRef gtex(Array2D<vec4> a);
+export gl::TextureRef gtex(Array2D<uvec4> a);
+
+export int sign(float f);
+export float expRange(float x, float min, float max);
+
+export gl::TextureRef maketex(int w, int h, GLint ifmt, bool allocateMipmaps = false, bool clear = false);
+
+export template<class T>
+Array2D<T> dl(gl::TextureRef tex) {
+    return Array2D<T>(); // tmp.
+}
+
+export template<class T>
+Array2D<T> gettexdata(gl::TextureRef tex, GLenum format, GLenum type) {
+    Array2D<T> data(tex->getSize());
+    bind(tex);
+    glGetTexImage(GL_TEXTURE_2D, 0, format, type, data.data);
+    return data;
+}
+
+// Explicit specialization declarations (inherit export from primary template)
+template<> Array2D<bytevec3> dl<bytevec3>(gl::TextureRef tex);
+template<> Array2D<float> dl<float>(gl::TextureRef tex);
+template<> Array2D<vec2> dl<vec2>(gl::TextureRef tex);
+template<> Array2D<vec3> dl<vec3>(gl::TextureRef tex);
+template<> Array2D<vec4> dl<vec4>(gl::TextureRef tex);
+
+export void checkGLError(string place);
+
+export void setWrapBlack(gl::TextureRef tex);
+export void setWrap(gl::TextureRef tex, GLenum wrap);
+
+export class FileCache {
+public:
+    static string get(string filename);
+};
+
+export void disableGLReadClamp();
+export void enableDenormalFlushToZero();
+
+export template<class TVec>
+TVec safeNormalized(TVec const& vec) {
+    typename TVec::value_type len = length(vec);
+    if (len == 0.0f) {
+        return vec;
+    }
+    return vec / len;
+}
+
+export unsigned int ilog2(unsigned int val);
+export vec2 compdiv(vec2 const& v1, vec2 const& v2);
+export void enableGlDebugOutput();
+
+// ---- Implementation ----
+
+static std::map<string,string> FileCache_db;
+
+static std::string readFile(const std::string& path) {
+    std::ifstream file(path, std::ios::binary);
+    if (!file) {
+        throw std::runtime_error("Failed to open file");
+    }
+
+    file.seekg(0, std::ios::end);
+    std::size_t size = file.tellg();
+    file.seekg(0);
+
+    std::string buffer(size, '\0');
+    file.read((char*)buffer.data(), size);
+
+    return buffer;
+}
+
+string FileCache::get(string filename) {
+    if(FileCache_db.find(filename)== FileCache_db.end()) {
+        FileCache_db[filename]=readFile("../assets/"+filename);
+    }
+    return FileCache_db[filename];
+}
+
+static void APIENTRY messageCallback(GLenum source,
+    GLenum type,
+    GLuint id,
+    GLenum severity,
+    GLsizei length,
+    const GLchar* message,
+    const void* userParam)
+{
+    if (type == GL_DEBUG_TYPE_PUSH_GROUP || type == GL_DEBUG_TYPE_POP_GROUP)
+        return;
+
+    cout << "GL CALLBACK. Msg: " << message << endl;
+
+    if (type == GL_DEBUG_TYPE_ERROR) {
+        cout << endl;
+    }
+}
+
+void enableGlDebugOutput() {
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback(messageCallback, 0);
+}
+
+void my_assert_func(bool isTrue, string desc) {
+    if (!isTrue) {
+        cout << "Assertion failed: " << desc << endl;
+    }
+}
+
+void bind(gl::TextureRef& tex) {
+    glBindTexture(tex->getTarget(), tex->getId());
+}
+void bindTexture(gl::TextureRef& tex) {
+    glBindTexture(tex->getTarget(), tex->getId());
+}
+
+void bindTexture(gl::TextureRef tex, GLenum textureUnit)
+{
+    glActiveTexture(textureUnit);
+    bindTexture(tex);
+    glActiveTexture(GL_TEXTURE0);
+}
+
+gl::TextureRef gtex(Array2D<float> a)
+{
+    gl::TextureRef tex = maketex(a.w, a.h, GL_R16F);
+    bind(tex);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RED, GL_FLOAT, a.data);
+    return tex;
+}
+
+gl::TextureRef gtex(Array2D<vec2> a)
+{
+    gl::TextureRef tex = maketex(a.w, a.h, GL_RG16F);
+    bind(tex);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RG, GL_FLOAT, a.data);
+    return tex;
+}
+
+gl::TextureRef gtex(Array2D<vec3> a)
+{
+    gl::TextureRef tex = maketex(a.w, a.h, GL_RGB16F);
+    bind(tex);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RGB, GL_FLOAT, a.data);
+    return tex;
+}
+
+gl::TextureRef gtex(Array2D<bytevec3> a)
+{
+    gl::TextureRef tex = maketex(a.w, a.h, GL_RGB8);
+    bind(tex);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RGB, GL_UNSIGNED_BYTE, a.data);
+    return tex;
+}
+
+gl::TextureRef gtex(Array2D<vec4> a)
+{
+    gl::TextureRef tex = maketex(a.w, a.h, GL_RGBA16F);
+    bind(tex);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RGBA, GL_FLOAT, a.data);
+    return tex;
+}
+
+gl::TextureRef gtex(Array2D<uvec4> a)
+{
+    gl::TextureRef tex = maketex(a.w, a.h, GL_RGBA32UI);
+    bind(tex);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RGBA_INTEGER, GL_UNSIGNED_INT, a.data);
+    return tex;
+}
+
+int sign(float f)
+{
+    if (f < 0) return -1;
+    if (f > 0) return 1;
+    return 0;
+}
+
+float expRange(float x, float min, float max) {
+    return std::exp(glm::mix(std::log(min), std::log(max), x));
+}
+
+void setWrapBlack(gl::TextureRef tex) {
+    bind(tex);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    float black[] = { 0.0f, 0.0f, 0.0f, 0.0f };
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, black);
+}
+
+void setWrap(gl::TextureRef tex, GLenum wrap) {
+    bind(tex);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
+}
+
+gl::TextureRef maketex(int w, int h, GLint ifmt, bool allocateMipmaps, bool clear) {
+    TextureCacheKey key;
+    key.ifmt = ifmt;
+    key.size = ivec2(w, h);
+    key.allocateMipmaps = allocateMipmaps;
+    auto tex = TextureCache::instance()->get(key);
+    if(clear) {
+        beginRTT(tex);
+        lxClear();
+        endRTT();
+    }
+    return tex;
+}
+
+void checkGLError(string place)
+{
+    GLenum errCode;
+    if ((errCode = glGetError()) != GL_NO_ERROR)
+    {
+        cout << "GL error 0x" << hex << errCode << dec << " at " << place << endl;
+    }
+    else {
+        cout << "NO error at " << place << endl;
+    }
+}
+
+void disableGLReadClamp() {
+    glClampColor(GL_CLAMP_READ_COLOR, GL_FALSE);
+}
+
+void enableDenormalFlushToZero() {
+    _controlfp(_DN_FLUSH, _MCW_DN);
+}
+
+unsigned int ilog2(unsigned int val) {
+    unsigned int ret = -1;
+    while (val != 0) {
+        val >>= 1;
+        ret++;
+    }
+    return ret;
+}
+
+vec2 compdiv(vec2 const& v1, vec2 const& v2) {
+    float a = v1.x, b = v1.y;
+    float c = v2.x, d = v2.y;
+    float cd = c*c + d*d;
+    return vec2(
+        (a*c + b * d) / cd,
+        (b*c - a * d) / cd);
+}
+
+template<> Array2D<bytevec3> dl<bytevec3>(gl::TextureRef tex) {
+    return gettexdata<bytevec3>(tex, GL_RGB, GL_UNSIGNED_BYTE);
+}
+
+template<> Array2D<float> dl<float>(gl::TextureRef tex) {
+    return gettexdata<float>(tex, GL_RED, GL_FLOAT);
+}
+
+template<> Array2D<vec2> dl<vec2>(gl::TextureRef tex) {
+    return gettexdata<vec2>(tex, GL_RG, GL_FLOAT);
+}
+
+template<> Array2D<vec3> dl<vec3>(gl::TextureRef tex) {
+    return gettexdata<vec3>(tex, GL_RGB, GL_FLOAT);
+}
+
+template<> Array2D<vec4> dl<vec4>(gl::TextureRef tex) {
+    return gettexdata<vec4>(tex, GL_RGBA, GL_FLOAT);
+}
