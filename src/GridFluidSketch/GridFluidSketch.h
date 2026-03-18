@@ -1,6 +1,6 @@
 #include "precompiled.h"
 //#include "using_namespace.h"
-#include <lxlib/shade.h>
+import lxlib.shade;
 import lxlib.gpgpu;
 import lxlib.Array2D_imageProc;
 import lxlib.util;

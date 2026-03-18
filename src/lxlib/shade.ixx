@@ -17,10 +17,117 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
+module;
 #include "precompiled.h"
-#include "shade.h"
-import lxlib.stuff;
+
+export module lxlib.shade;
+
+import lxlib.GlslProg;
+import lxlib.TextureRef;
+import lxlib.util;
 import lxlib.VaoVbo;
+
+// Forward declarations of functions defined in lxlib.stuff (avoids circular module dependency)
+gl::TextureRef maketex(int w, int h, GLint ifmt, bool allocateMipmaps = false, bool clear = false);
+void bindTexture(gl::TextureRef& tex);
+void bindTexture(gl::TextureRef tex, GLenum textureUnit);
+
+export struct GpuScope {
+	GpuScope(string name);
+	~GpuScope();
+};
+
+export void beginRTT(gl::TextureRef fbotex);
+export void endRTT();
+
+export void drawRect();
+
+export struct Str {
+	string s;
+	Str& operator<<(string s2) {
+		s += s2 + "\n";
+		return *this;
+	}
+	Str& operator<<(Str s2) {
+		s += s2.s + "\n";
+		return *this;
+	}
+	operator std::string() {
+		return s;
+	}
+};
+
+export struct Uniform {
+	function<void(GlslProgRef)> setter;
+	string shortDecl;
+};
+
+export template<class T>
+struct optional {
+	T val;
+	bool exists;
+	optional(T const& t) { val=t; exists=true; }
+	optional() { exists=false; }
+};
+
+export template<class T> string typeToString();
+export template<> inline string typeToString<float>() {
+	return "float";
+}
+export template<> inline string typeToString<int>() {
+	return "int";
+}
+export template<> inline string typeToString<ivec2>() {
+	return "ivec2";
+}
+export template<> inline string typeToString<vec2>() {
+	return "vec2";
+}
+
+export struct ShadeOpts
+{
+	ShadeOpts();
+	ShadeOpts& ifmt(GLenum val) { _ifmt=val; return *this; }
+	ShadeOpts& scale(float val) { _scaleX=val; _scaleY=val; return *this; }
+	ShadeOpts& scale(float valX, float valY) { _scaleX=valX; _scaleY=valY; return *this; }
+	ShadeOpts& scope(std::string name) { _scopeName = name; return *this; }
+	ShadeOpts& targetTex(gl::TextureRef val) { _targetTexs = { val }; return *this; }
+	ShadeOpts& targetTexs(vector<gl::TextureRef> val) { _targetTexs = val; return *this; }
+	ShadeOpts& targetImg(gl::TextureRef val) { _targetImg = val; return *this; }
+	ShadeOpts& dstPos(ivec2 val) { _dstPos = val; return *this; }
+	ShadeOpts& dstRectSize(ivec2 val) { _dstRectSize = val; return *this; }
+	ShadeOpts& enableResult(bool val) {
+		_enableResult = val; return *this;
+	}
+	template<class T>
+	ShadeOpts& uniform(string name, T val) {
+		_uniforms.push_back(Uniform{
+			[val, name](GlslProgRef prog) { prog->uniform(name, val); },
+			typeToString<T>() + " " + name
+			});
+		return *this;
+	}
+	ShadeOpts& vshaderExtra(string val) {
+		_vshaderExtra = val;
+		return *this;
+	}
+
+	optional<GLenum> _ifmt;
+	float _scaleX, _scaleY;
+	std::string _scopeName;
+	vector<gl::TextureRef> _targetTexs;
+	gl::TextureRef _targetImg = nullptr;
+	ivec2 _dstPos;
+	ivec2 _dstRectSize = ivec2(0, 0);
+	bool _enableResult = true;
+	vector<Uniform> _uniforms;
+	string _vshaderExtra;
+};
+
+export gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string const& fshader, ShadeOpts const& opts=ShadeOpts());
+export inline gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string const& fshader, float resScale);
+
+// --- Implementations ---
 
 /*thread_local*/ bool fboBound = false;
 
@@ -169,32 +276,12 @@ std::string getCompleteFshader(vector<gl::TextureRef> const& texv, vector<Unifor
 	return intro + fshader + outro;
 }
 
-// location++ breaks things on Intel
-/*void setUniform(int location, float val) {
-	glUniform1f(location, val);
-}
-
-void setUniform(int location, vec2 val) {
-	glUniform2f(location, val.x, val.y);
-}
-
-void setUniform(int location, ivec2 val) {
-	glUniform2i(location, val.x, val.y);
-}
-
-void setUniform(int location, int val) {
-	glUniform1i(location, val);
-}*/
-
 gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string const& fshader, ShadeOpts const& opts)
 {
 	shared_ptr<GpuScope> gpuScope;
 	if (opts._scopeName != "") {
 		gpuScope = make_shared<GpuScope>(opts._scopeName);
 	}
-	//const string fshader = "void shade() { }";
-	//static std::mutex mapMutex;
-	//unique_lock<std::mutex> ul(mapMutex);
 	static std::map<string, GlslProgRef> shaders;
 	GlslProgRef shader;
 	if(shaders.find(fshader) == shaders.end())

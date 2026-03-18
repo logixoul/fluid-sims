@@ -143,10 +143,7 @@
     <ClCompile Include="lxlib\gpuBlur2_5.ixx" />
     <ClCompile Include="lxlib\IntegratedConsole.ixx" />
     <ClCompile Include="lxlib\MyTimer.ixx" />
-    <ClCompile Include="lxlib\shade.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
+    <ClCompile Include="lxlib\shade.ixx" />
     <ClCompile Include="lxlib\SketchBase.ixx" />
     <ClCompile Include="lxlib\stuff.ixx" />
     <ClCompile Include="lxlib\TextureCache.ixx" />
@@ -189,12 +186,10 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="MultiscaleGrowthSketch\gpuBlurClaude.cpp" />
-    <ClInclude Include="GridFluidSketch\GridFluidSketch.h" />
-    <ClInclude Include="lxlib\macros.h" />
-    <ClInclude Include="lxlib\precompiled.h" />
-    <ClInclude Include="MultiscaleGrowthSketch\MultiscaleGrowthSketch.h" />
-    <ClCompile Include="MultiscaleGrowthSketch\ThisSketch_ImageProcessingHelpers.cpp" />
+    <ClCompile Include="MultiscaleGrowthSketch\gpuBlurClaude.ixx" />
+    <ClCompile Include="MultiscaleGrowthSketch\ThisSketch_ImageProcessingHelpers.ixx" />
+    <ClCompile Include="MultiscaleGrowthSketch\MultiscaleGrowthSketch.ixx" />
+    <ClCompile Include="ParticleFluidSketch.ixx" />
     <ClCompile Include="SketchScaffold.ixx" />
     <ClCompile Include="precompiled.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -204,16 +199,15 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GridFluidSketch\GridFluidSketch.h" />
+    <ClInclude Include="lxlib\macros.h" />
+    <ClInclude Include="lxlib\precompiled.h" />
     <ClInclude Include="lxlib\lxAreaRectf.h" />
     <ClInclude Include="lxlib\lxGlslProg.h" />
     <ClInclude Include="lxlib\lxTextureRef.h" />
     <ClInclude Include="lxlib\lxVaoVbo.h" />
-    <ClInclude Include="lxlib\shade.h" />
     <ClInclude Include="third-party\imgui\backends\imgui_impl_opengl3.h" />
-    <ClInclude Include="MultiscaleGrowthSketch\gpuBlurClaude.h" />
-    <ClInclude Include="MultiscaleGrowthSketch\ThisSketch_ImageProcessingHelpers.h" />
     <ClInclude Include="MultiscaleCurvatureGrowthSketch\toml.hpp" />
-    <ClInclude Include="ParticleFluidSketch.h" />
     <ClInclude Include="precompiled.h" />
   </ItemGroup>
   <ItemGroup>

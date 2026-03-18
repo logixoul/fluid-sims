@@ -1,10 +1,22 @@
+module;
 #include "precompiled.h"
-#include "gpuBlurClaude.h"
-#include <lxlib/shade.h>
+#include <lxlib/macros.h>
+
+export module gpuBlurClaude;
+
+import lxlib.shade;
+import lxlib.TextureRef;
+import lxlib.util;
 import lxlib.gpuBlur2_5;
 import lxlib.gpgpu;
 import lxlib.stuff;
-#include <lxlib/macros.h>
+
+export namespace gpuBlurClaude {
+	Array2D<float> singleblurLikeCinder(Array2D<float> src, ivec2 dstSize);
+	gl::TextureRef singleblurLikeCinder(gl::TextureRef src, ivec2 dstSize);
+	std::vector<gl::TextureRef> buildGaussianPyramid(gl::TextureRef const& src, float scalePerLevel = 0.5f);
+	gl::TextureRef blurWithInvKernel(gl::TextureRef const& src);
+}
 
 namespace gpuBlurClaude {
 	// todo: move this to stuff.cpp/h. Copy-pasted in gpuBlur2_5.cpp as well.

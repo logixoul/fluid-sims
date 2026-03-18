@@ -19,9 +19,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 module;
 #include "precompiled.h"
-#include "shade.h"
 
 export module lxlib.stuff;
+
+import lxlib.shade;
 
 import lxlib.TextureRef;
 import lxlib.util;
