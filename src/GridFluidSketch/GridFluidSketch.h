@@ -49,8 +49,8 @@ struct GridFluidSketch : public SketchBase {
 	void setup()
 	{
 		cfg.init();
-		sx = ::windowSize.x / scale;
-		sy = ::windowSize.y / scale;
+		sx = windowSize.x / scale;
+		sy = windowSize.y / scale;
 		sz = ivec2(sx, sy);
 
 		for (auto& material : materials) {

@@ -5,6 +5,14 @@ module;
 export module lxlib.SketchBase;
 
 export struct SketchBase {
+	std::vector<bool> keys;
+	std::vector<bool> mouseDown_;
+	glm::ivec2 windowSize;
+	SketchBase() {
+		keys.resize(256);
+		mouseDown_.resize(3);
+	}
+	
 	virtual void keyDown(int key) {
 	}
 	virtual void keyUp(int key) {

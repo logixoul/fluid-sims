@@ -1,13 +1,5 @@
 module;
 #include "precompiled.h"
-// Provide extern declarations for the sketch headers that reference these globals
-// (replaces the role of SketchScaffold.h being included by sketch headers)
-extern bool keys[256];
-extern bool keys2[256];
-extern bool mouseDown_[3];
-extern glm::ivec2 windowSize;
-#include "GridFluidSketch/GridFluidSketch.h"
-#include "ParticleTraces2DSketch/ParticleTraces2DSketch.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 #include "imgui.h"
@@ -15,13 +7,8 @@ extern glm::ivec2 windowSize;
 export module SketchScaffold;
 
 import lxlib.IntegratedConsole;
-import ParticleFluidSketch;
-import MultiscaleGrowthSketch;
-
-export bool keys[256];
-export bool keys2[256];
-export bool mouseDown_[3];
-export glm::ivec2 windowSize;
+import lxlib.SketchBase;
+import lxlib.stuff;
 
 static void glfw_error_callback(int error, const char* description)
 {
@@ -36,10 +23,6 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 export struct SketchScaffold {
-	//MultiscaleGrowthSketch sketch;
-	//ParticleFluidSketch sketch;
-	//GridFluidSketch sketch;
-	//ParticleTraces2DSketch sketch;
 	GLFWwindow* window;
 
 	shared_ptr<IntegratedConsole> integratedConsole;
@@ -50,7 +33,7 @@ export struct SketchScaffold {
 
 	void setup()
 	{
-		::windowSize = ivec2(768, 768);
+		sketch->windowSize = ivec2(768, 768);
 		::instance = this;
 
 		glfwSetErrorCallback(glfw_error_callback);
@@ -60,7 +43,7 @@ export struct SketchScaffold {
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
-		this->window = glfwCreateWindow(::windowSize.x, ::windowSize.y, "Dear ImGui GLFW+OpenGL3 example", nullptr, nullptr);
+		this->window = glfwCreateWindow(sketch->windowSize.x, sketch->windowSize.y, "Dear ImGui GLFW+OpenGL3 example", nullptr, nullptr);
 		if (window == nullptr)
 			throw std::runtime_error("can't create window");
 		glfwMakeContextCurrent(window);
@@ -106,7 +89,7 @@ export struct SketchScaffold {
 			this->update();
 			
 			ImGui::Render();
-			glfwGetFramebufferSize(window, &::windowSize.x, &windowSize.y);
+			glfwGetFramebufferSize(window, &sketch->windowSize.x, &sketch->windowSize.y);
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 			glfwSwapBuffers(window);
@@ -152,7 +135,7 @@ static void mouseButtonCallback(GLFWwindow* window, int button, int action, int 
     if (io.WantCaptureMouse)
         return;
 
-    mouseDown_[button] = action == GLFW_PRESS;
+	instance->sketch->mouseDown_[button] = action == GLFW_PRESS;
 }
 
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -164,11 +147,7 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
     if (key >= 0 && key < 256)
     {
         key = tolower(key);
-        keys[key] = action != GLFW_RELEASE;
-        if (action == GLFW_PRESS && (mods & GLFW_MOD_CONTROL) != 0)
-        {
-            keys2[key] = !keys2[key];
-        }
+        instance->sketch->keys[key] = action != GLFW_RELEASE;
         if(action == GLFW_PRESS)
             instance->sketch->keyDown(key);
         else if (action == GLFW_RELEASE)

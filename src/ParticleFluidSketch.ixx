@@ -41,7 +41,7 @@ export struct ParticleFluidSketch : public SketchBase {
 
 	void setup()
 	{
-		sz = ivec2(::windowSize.x / scale, ::windowSize.y / scale);
+		sz = ivec2(windowSize.x / scale, windowSize.y / scale);
 
 		reset();
 	}
