@@ -17,22 +17,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#pragma once
-#include <vector>
+module;
 #include "precompiled.h"
-import lxlib.TextureRef;
-#include "TextureCache.h"
 
-namespace gpuBlur2_5 {
-	gl::TextureRef run(gl::TextureRef src, int lvls);
-	gl::TextureRef run_longtail(gl::TextureRef src, int lvls, float lvlmul, float hscale = .5f, float vscale = .5f);
-	float getGaussW();
-	float gauss(float f, float width);
-	gl::TextureRef upscale(gl::TextureRef src, ivec2 toSize);
-	gl::TextureRef upscale(gl::TextureRef src, float hscale, float vscale);
-	gl::TextureRef singleblur(gl::TextureRef src, float hscale, float vscale, GLenum wrap = GL_CLAMP_TO_BORDER);
+export module lxlib.MyTimer;
 
-	std::vector<gl::TextureRef> buildGaussianPyramid(gl::TextureRef const& src, float scalePerLevel);
-}
-
-namespace gpuBlur = gpuBlur2_5;
+// The original MyTimer and TimerManager classes were entirely disabled (#if 0).
+// This module exists as a placeholder should they be re-enabled in the future.

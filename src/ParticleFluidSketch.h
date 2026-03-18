@@ -1,5 +1,5 @@
 #include "precompiled.h"
-#include <lxlib/stuff.h>
+import lxlib.stuff;
 #include <lxlib/shade.h>
 #include <lxlib/gpgpu.h>
 #include <lxlib/Array2D_imageProc.h>

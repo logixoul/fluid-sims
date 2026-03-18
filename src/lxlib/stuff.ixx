@@ -17,10 +17,89 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
+module;
 #include "precompiled.h"
-#include "stuff.h"
-#include "gpgpu.h"
+#include "util.h"
+
+export module lxlib.stuff;
+
+import lxlib.TextureRef;
+
+// TextureCache.h depends on lxlib.TextureRef, include it after the import
 #include "TextureCache.h"
+
+// Forward declarations for functions defined in gpgpu.cpp
+void beginRTT(gl::TextureRef fbotex);
+void endRTT();
+
+export void bind(gl::TextureRef& tex);
+export void bindTexture(gl::TextureRef& tex);
+export void bindTexture(gl::TextureRef tex, GLenum textureUnit);
+export gl::TextureRef gtex(Array2D<float> a);
+export gl::TextureRef gtex(Array2D<vec2> a);
+export gl::TextureRef gtex(Array2D<vec3> a);
+export gl::TextureRef gtex(Array2D<bytevec3> a);
+export gl::TextureRef gtex(Array2D<vec4> a);
+export gl::TextureRef gtex(Array2D<uvec4> a);
+
+export int sign(float f);
+export float expRange(float x, float min, float max);
+
+export gl::TextureRef maketex(int w, int h, GLint ifmt, bool allocateMipmaps = false, bool clear = false);
+
+export template<class T>
+Array2D<T> dl(gl::TextureRef tex) {
+	return Array2D<T>(); // tmp.
+}
+
+export template<class T>
+Array2D<T> gettexdata(gl::TextureRef tex, GLenum format, GLenum type) {
+	Array2D<T> data(tex->getSize());
+
+	bind(tex);
+	glGetTexImage(GL_TEXTURE_2D, 0, format, type, data.data);
+
+	return data;
+}
+
+export template<> Array2D<bytevec3> dl<bytevec3>(gl::TextureRef tex);
+export template<> Array2D<float> dl<float>(gl::TextureRef tex);
+export template<> Array2D<vec2> dl<vec2>(gl::TextureRef tex);
+export template<> Array2D<vec3> dl<vec3>(gl::TextureRef tex);
+export template<> Array2D<vec4> dl<vec4>(gl::TextureRef tex);
+
+export float sq(float f);
+
+export vector<Array2D<float>> split(Array2D<vec3> arr);
+export void setWrapBlack(gl::TextureRef tex);
+
+export void setWrap(gl::TextureRef tex, GLenum wrap);
+
+export class FileCache {
+public:
+	static string get(string filename);
+};
+
+export void disableGLReadClamp();
+
+export void enableDenormalFlushToZero();
+
+export template<class TVec>
+TVec safeNormalized(TVec const& vec) {
+	typename TVec::value_type len = length(vec);
+	if (len == 0.0f) {
+		return vec;
+	}
+	return vec / len;
+}
+
+export unsigned int ilog2(unsigned int val);
+
+export vec2 compdiv(vec2 const& v1, vec2 const& v2);
+
+export void enableGlDebugOutput();
+
+// --- Implementations ---
 
 // tried to have this as a static member (with thread_local) but I got errors. todo.
 /*thread_local*/ static std::map<string,string> FileCache_db;
@@ -56,8 +135,6 @@ static void APIENTRY messageCallback(GLenum source,
 	const GLchar* message,
 	const void* userParam)
 {
-	//	if (type != GL_DEBUG_TYPE_ERROR)
-		//	return;
 	if (type == GL_DEBUG_TYPE_PUSH_GROUP || type == GL_DEBUG_TYPE_POP_GROUP)
 		return;
 
@@ -134,7 +211,7 @@ gl::TextureRef gtex(Array2D<uvec4> a)
 	return tex;
 }
 
-ivec2 clampPoint(ivec2 p, int w, int h)
+static ivec2 clampPoint(ivec2 p, int w, int h)
 {
 	ivec2 wp = p;
 	if (wp.x < 0) wp.x = 0;
@@ -164,11 +241,9 @@ void setWrapBlack(gl::TextureRef tex) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	float black[] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, black);
-	//tex->setWrap(GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
 }
 
 void setWrap(gl::TextureRef tex, GLenum wrap) {
-	// I think the border color is transparent black by default. It doesn't hurt that it is transparent.
 	bind(tex);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);

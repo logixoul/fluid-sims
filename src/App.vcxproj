@@ -140,36 +140,21 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="lxlib\ConfigManager3.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
+    <ClCompile Include="lxlib\ConfigManager3.ixx" />
     <ClCompile Include="lxlib\GlslProg.ixx" />
     <ClCompile Include="lxlib\gpgpu.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="lxlib\gpuBlur2_5.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="lxlib\IntegratedConsole.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="lxlib\MyTimer.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
+    <ClCompile Include="lxlib\gpuBlur2_5.ixx" />
+    <ClCompile Include="lxlib\IntegratedConsole.ixx" />
+    <ClCompile Include="lxlib\MyTimer.ixx" />
     <ClCompile Include="lxlib\shade.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="lxlib\SketchBase.ixx" />
-    <ClCompile Include="lxlib\stuff.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
+    <ClCompile Include="lxlib\stuff.ixx" />
     <ClCompile Include="lxlib\TextureCache.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
@@ -232,17 +217,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lxlib\Array2D_imageProc.h" />
-    <ClInclude Include="lxlib\ConfigManager3.h" />
     <ClInclude Include="lxlib\gpgpu.h" />
-    <ClInclude Include="lxlib\gpuBlur2_5.h" />
-    <ClInclude Include="lxlib\IntegratedConsole.h" />
     <ClInclude Include="lxlib\lxAreaRectf.h" />
     <ClInclude Include="lxlib\lxGlslProg.h" />
     <ClInclude Include="lxlib\lxTextureRef.h" />
     <ClInclude Include="lxlib\lxVaoVbo.h" />
-    <ClInclude Include="lxlib\MyTimer.h" />
     <ClInclude Include="lxlib\shade.h" />
-    <ClInclude Include="lxlib\stuff.h" />
     <ClInclude Include="lxlib\TextureCache.h" />
     <ClInclude Include="lxlib\util.h" />
     <ClInclude Include="third-party\imgui\backends\imgui_impl_opengl3.h" />

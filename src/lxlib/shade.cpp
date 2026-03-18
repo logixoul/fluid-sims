@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "precompiled.h"
 #include "shade.h"
-#include "stuff.h"
+import lxlib.stuff;
 import lxlib.VaoVbo;
 
 /*thread_local*/ bool fboBound = false;

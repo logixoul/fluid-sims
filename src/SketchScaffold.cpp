@@ -3,7 +3,7 @@
 #include "GridFluidSketch/GridFluidSketch.h"
 #include "SketchScaffold.h"
 #include "MultiscaleGrowthSketch/MultiscaleGrowthSketch.h"
-#include <lxlib/IntegratedConsole.h>
+import lxlib.IntegratedConsole;
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 #include "imgui.h"
