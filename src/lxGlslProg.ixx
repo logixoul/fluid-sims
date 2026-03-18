@@ -1,7 +1,17 @@
-#pragma once
-#include "precompiled.h"
+module;
 
-class lxGlslProg {
+#include <glad/glad.h>
+#include <stdexcept>
+#include <string>
+#include <vector>
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+export module lxGlslProg;
+
+export class lxGlslProg {
 public:
     lxGlslProg(const std::string& fragmentSrc, const std::string& vertexSrc)
     {
@@ -68,8 +78,20 @@ public:
         glUniform1f(getUniformLocation(name), v);
     }
 
-    void uniform(const std::string & name, glm::vec2 v) const {
+    void uniform(const std::string& name, glm::vec2 v) const {
         glUniform2fv(getUniformLocation(name), 1, &v[0]);
+    }
+
+    void uniform(const std::string& name, glm::ivec2 v) const {
+        glUniform2iv(getUniformLocation(name), 1, &v[0]);
+    }
+
+    void uniform(const std::string& name, glm::vec3 v) const {
+        glUniform3fv(getUniformLocation(name), 1, &v[0]);
+    }
+
+    void uniform(const std::string& name, glm::vec4 v) const {
+        glUniform4fv(getUniformLocation(name), 1, &v[0]);
     }
 
 private:
@@ -103,4 +125,4 @@ private:
     }
 };
 
-typedef std::shared_ptr<lxGlslProg> lxGlslProgRef;
+export typedef std::shared_ptr<lxGlslProg> lxGlslProgRef;
