@@ -7,6 +7,15 @@ export module lxlib.Array2D_imageProc;
 import lxlib.util;
 import lxlib.stuff;
 
+export inline ivec2 clampPoint(ivec2 p, int w, int h)
+{
+	ivec2 wp = p;
+	if (wp.x < 0) wp.x = 0;
+	if (wp.x > w - 1) wp.x = w - 1;
+	if (wp.y < 0) wp.y = 0;
+	if (wp.y > h - 1) wp.y = h - 1;
+	return wp;
+}
 export struct WrapModes {
 	struct GetMirrorWrapped {
 		template<class T>
@@ -44,7 +53,7 @@ export struct WrapModes {
 		template<class T>
 		static T& fetch(Array2D<T>& src, int x, int y)
 		{
-			return ::get_clamped(src, x, y);
+			return src(clampPoint(ivec2(x, y), src.w, src.h));
 		}
 	};
 	typedef GetWrapped DefaultImpl;
@@ -112,26 +121,6 @@ Array2D<T> ones_like(Array2D<T> a) {
 export template<class T>
 Array2D<T> zeros_like(Array2D<T> a) {
 	return Array2D<T>(a.Size(), ::zero<T>());
-}
-
-export inline ivec2 clampPoint(ivec2 p, int w, int h)
-{
-	ivec2 wp = p;
-	if (wp.x < 0) wp.x = 0;
-	if (wp.x > w - 1) wp.x = w - 1;
-	if (wp.y < 0) wp.y = 0;
-	if (wp.y > h - 1) wp.y = h - 1;
-	return wp;
-}
-export template<class T>
-T& get_clamped(Array2D<T>& src, int x, int y)
-{
-	return src(clampPoint(ivec2(x, y), src.w, src.h));
-}
-export template<class T>
-T const& get_clamped(Array2D<T> const& src, int x, int y)
-{
-	return src(clampPoint(ivec2(x, y), src.w, src.h));
 }
 
 export template<class T>
