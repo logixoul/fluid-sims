@@ -4,9 +4,9 @@
 #include <map>
 
 
-ConfigManager3::ConfigManager3()
+ConfigManager3::ConfigManager3(std::string const filePath)
 {
-	tbl = toml::parse_file("config.toml");
+	tbl = toml::parse_file(filePath);
 }
 
 void ConfigManager3::init()
@@ -25,8 +25,8 @@ void ConfigManager3::end()
 	ImGui::End();
 }
 
-template<class T> T& getOpt_Base(string const& name, T defaultValue) {
-	static std::map<string, T> m;
+template<class T> T& getOpt_Base(std::string const& name, T defaultValue) {
+	static std::map<std::string, T> m;
 	if (!m.count(name)) {
 		m[name] = defaultValue;
 	}
@@ -41,7 +41,7 @@ template<class T> T& getOpt_Base(string const& name, T defaultValue) {
 }*/
 
 // Note: using value_or throughout to handle the "entire table doesn't exist" possibility
-float ConfigManager3::getFloat(string const& name) {
+float ConfigManager3::getFloat(std::string const& name) {
 	auto subTable = tbl.at_path("param." + name);
 	float& ref = getOpt_Base<float>(name, subTable["default"].value_or(0.5));
 
@@ -58,7 +58,7 @@ float ConfigManager3::getFloat(string const& name) {
 }
 
 // Note: using value_or throughout to handle the "entire table doesn't exist" possibility
-bool ConfigManager3::getBool(string const& name) {
+bool ConfigManager3::getBool(std::string const& name) {
 	auto val = tbl.at_path("param." + name);
 	auto& ref = getOpt_Base<bool>(name, val["default"].value_or(false));
 	ImGui::Checkbox(name.c_str(), &ref);

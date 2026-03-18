@@ -16,7 +16,7 @@ using namespace ThisSketch;
 
 Array2D<float> img(256, 256);
 
-struct MultiscaleCurvatureGrowthSketch : public SketchBase {
+struct MultiscaleGrowthSketch : public SketchBase {
 	struct Options {
 		float morphogenesisStrength;
 		const float contrastizeStrength = 1.0f;
@@ -27,21 +27,19 @@ struct MultiscaleCurvatureGrowthSketch : public SketchBase {
 		float highPassStrength;
 		ConfigManager3 cfg;
 
+		Options() : cfg("MultiscaleGrowthConfig.toml") {}
+
 		void init() {
 			cfg.init();
 		}
 
 		void update() {
-			cfg.begin();
-
 			morphogenesisStrength = cfg.getFloat("morphogenesisStrength");
 			blendWeaken = cfg.getFloat("blendWeaken");
 			weightFactor = cfg.getFloat("weightFactor");
 			multiscale = cfg.getBool("multiscale");
 			binarizePostprocessing = cfg.getBool("binarizePostprocessing");
 			highPassStrength = cfg.getFloat("highPassStrength");
-
-			cfg.end();
 		}
 	};
 

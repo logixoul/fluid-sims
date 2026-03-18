@@ -216,10 +216,11 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="MultiscaleCurvatureGrowthSketch\gpuBlurClaude.cpp" />
+    <ClCompile Include="MultiscaleGrowthSketch\gpuBlurClaude.cpp" />
+    <ClInclude Include="GridFluidSketch\GridFluidSketch.h" />
     <ClInclude Include="lxlib\precompiled.h" />
-    <ClInclude Include="MultiscaleCurvatureGrowthSketch\Sketch.h" />
-    <ClCompile Include="MultiscaleCurvatureGrowthSketch\ThisSketch_ImageProcessingHelpers.cpp" />
+    <ClInclude Include="MultiscaleGrowthSketch\MultiscaleGrowthSketch.h" />
+    <ClCompile Include="MultiscaleGrowthSketch\ThisSketch_ImageProcessingHelpers.cpp" />
     <ClCompile Include="SketchScaffold.cpp" />
     <ClCompile Include="precompiled.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -244,9 +245,8 @@
     <ClInclude Include="lxlib\TextureCache.h" />
     <ClInclude Include="lxlib\util.h" />
     <ClInclude Include="third-party\imgui\backends\imgui_impl_opengl3.h" />
-    <ClInclude Include="GridFluidSketch.h" />
-    <ClInclude Include="MultiscaleCurvatureGrowthSketch\gpuBlurClaude.h" />
-    <ClInclude Include="MultiscaleCurvatureGrowthSketch\ThisSketch_ImageProcessingHelpers.h" />
+    <ClInclude Include="MultiscaleGrowthSketch\gpuBlurClaude.h" />
+    <ClInclude Include="MultiscaleGrowthSketch\ThisSketch_ImageProcessingHelpers.h" />
     <ClInclude Include="MultiscaleCurvatureGrowthSketch\toml.hpp" />
     <ClInclude Include="ParticleFluidSketch.h" />
     <ClInclude Include="precompiled.h" />
@@ -256,7 +256,12 @@
     <Text Include="OldCode.txt" />
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="config.toml">
+    <CopyFileToFolders Include="GridFluidSketch\gridFluidConfig.toml">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="MultiscaleGrowthSketch\MultiscaleGrowthConfig.toml">
       <FileType>Document</FileType>
     </CopyFileToFolders>
   </ItemGroup>

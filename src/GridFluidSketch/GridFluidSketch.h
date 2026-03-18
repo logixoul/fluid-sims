@@ -6,15 +6,28 @@
 #include <lxlib/gpuBlur2_5.h>
 #include <lxlib/Array2D_imageProc.h>
 #include <lxlib/util.h>
+#include <lxlib/ConfigManager3.h>
 #include "SketchScaffold.h"
 import lxlib.AreaRectf;
+import lxlib.SketchBase;
 
+struct GridFluidSketch : public SketchBase {
+	ConfigManager3 cfg;
 
-#define GET_FLOAT_LOGSCALE(name, defaultValue, min, max) \
-	static float name = defaultValue; \
-	ImGui::DragFloat(#name, &name, 0.5f, min, max, "%.3f", ImGuiSliderFlags_Logarithmic);
+	GridFluidSketch() :
+		cfg("gridFluidConfig.toml")
+	{}
 
-struct GridFluidSketch {
+	/*void update() {
+		surfTensionThres = cfg.getFloat("surfTensionThres");
+		surfTension = cfg.getFloat("surfTension");
+		gravity = cfg.getFloat("gravity");
+		incompressibilityCoef = cfg.getFloat("incompressibilityCoef");
+			
+
+		cfg.end();
+	}*/
+
 	const int scale = 6;
 	int sx;
 	int sy;
@@ -25,8 +38,7 @@ struct GridFluidSketch {
 	};
 	Material red, green;
 	vector<Material*> materials{ &green, &red };//&red, &green };
-	float surfTensionThres;
-
+	
 	bool pause = false;
 
 	Array2D<float> bounces_dbg;
@@ -35,6 +47,7 @@ struct GridFluidSketch {
 
 	void setup()
 	{
+		cfg.init();
 		sx = ::windowSize.x / scale;
 		sy = ::windowSize.y / scale;
 		sz = ivec2(sx, sy);
@@ -236,7 +249,7 @@ struct GridFluidSketch {
 			//"_out.rgb = vec3(d, 0.0);"
 			//"_out.rgb /= _out.rgb + 1.0;"
 			, ShadeOpts().ifmt(GL_RGB16F)
-			.uniform("surfTensionThres", surfTensionThres)
+			.uniform("surfTensionThres", cfg.getFloat("surfTensionThres"))
 			.uniform("lodBias", 0.0f)
 			.uniform("lodMax", 3.0f)
 			.uniform("refractLodScale", 5.0f)
@@ -380,11 +393,6 @@ struct GridFluidSketch {
 	}
 
 	void doFluidStep() {
-		GET_FLOAT_LOGSCALE(surfTensionThres, 1.5f, 0.1, 50000.0f);
-		GET_FLOAT_LOGSCALE(surfTension, 1.0f, 0.0001, 40000.0f);
-		GET_FLOAT_LOGSCALE(gravity, .1f, 0.0001, 40000.0f);
-		GET_FLOAT_LOGSCALE(incompressibilityCoef, 1.0f, 0.01f, 40.0f);
-
 		//repel(::red, ::green);
 		//repel(::green, ::red);
 
@@ -393,7 +401,7 @@ struct GridFluidSketch {
 				continue;
 			auto& momentum = material->momentum;
 			auto& density = material->density;
-
+			float gravity = cfg.getFloat("gravity");
 			forxy(momentum)
 			{
 				momentum(p) += vec2(0.0f, gravity) * density(p);
@@ -408,6 +416,9 @@ struct GridFluidSketch {
 			//for(int i < 0
 			//density_b = gaussianBlur<float, WrapModes::GetClamped>(density_b, 3 * 2 + 1);
 			auto& guidance = density;
+			float surfTensionThres = cfg.getFloat("surfTensionThres");
+			float surfTension = cfg.getFloat("surfTension");
+			float incompressibilityCoef = cfg.getFloat("incompressibilityCoef");
 			forxy(momentum)
 			{
 				auto g = gradient_i<float, WrapModes::Get_WrapZeros>(guidance, p);

@@ -3,8 +3,8 @@
   <ItemGroup>
     <ClCompile Include="SketchScaffold.cpp" />
     <ClCompile Include="precompiled.cpp" />
-    <ClCompile Include="MultiscaleCurvatureGrowthSketch\gpuBlurClaude.cpp" />
-    <ClCompile Include="MultiscaleCurvatureGrowthSketch\ThisSketch_ImageProcessingHelpers.cpp" />
+    <ClCompile Include="MultiscaleGrowthSketch\gpuBlurClaude.cpp" />
+    <ClCompile Include="MultiscaleGrowthSketch\ThisSketch_ImageProcessingHelpers.cpp" />
     <ClCompile Include="lxlib\Array2D_imageProc.cpp" />
     <ClCompile Include="lxlib\ConfigManager3.cpp" />
     <ClCompile Include="lxlib\gpgpu.cpp" />
@@ -33,12 +33,11 @@
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
     <ClInclude Include="ParticleFluidSketch.h" />
-    <ClInclude Include="GridFluidSketch.h" />
     <ClInclude Include="SketchScaffold.h" />
-    <ClInclude Include="MultiscaleCurvatureGrowthSketch\gpuBlurClaude.h" />
-    <ClInclude Include="MultiscaleCurvatureGrowthSketch\ThisSketch_ImageProcessingHelpers.h" />
+    <ClInclude Include="MultiscaleGrowthSketch\gpuBlurClaude.h" />
+    <ClInclude Include="MultiscaleGrowthSketch\ThisSketch_ImageProcessingHelpers.h" />
     <ClInclude Include="MultiscaleCurvatureGrowthSketch\toml.hpp" />
-    <ClInclude Include="MultiscaleCurvatureGrowthSketch\Sketch.h" />
+    <ClInclude Include="MultiscaleGrowthSketch\MultiscaleGrowthSketch.h" />
     <ClInclude Include="lxlib\Array2D_imageProc.h" />
     <ClInclude Include="lxlib\ConfigManager3.h" />
     <ClInclude Include="lxlib\gpgpu.h" />
@@ -55,6 +54,7 @@
     <ClInclude Include="lxlib\util.h" />
     <ClInclude Include="third-party\imgui\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="lxlib\precompiled.h" />
+    <ClInclude Include="GridFluidSketch\GridFluidSketch.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="OldCode.txt" />
@@ -68,6 +68,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="config.toml" />
+    <CopyFileToFolders Include="GridFluidSketch\gridFluidConfig.toml" />
+    <CopyFileToFolders Include="MultiscaleGrowthSketch\MultiscaleGrowthConfig.toml" />
   </ItemGroup>
 </Project>
