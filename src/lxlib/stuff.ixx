@@ -119,7 +119,7 @@ static std::string readFile(const std::string& path) {
 
 string FileCache::get(string filename) {
 	if(FileCache_db.find(filename)== FileCache_db.end()) {
-		FileCache_db[filename]=readFile("../assets/"+filename);
+		FileCache_db[filename]=readFile("../../assets/"+filename);
 	}
 	return FileCache_db[filename];
 }

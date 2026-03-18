@@ -37,9 +37,9 @@ static void mouseButtonCallback(GLFWwindow* window, int button, int action, int 
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 struct SketchScaffold {
-	MultiscaleGrowthSketch sketch;
+	//MultiscaleGrowthSketch sketch;
 	//ParticleFluidSketch sketch;
-	//GridFluidSketch sketch;
+	GridFluidSketch sketch;
 	GLFWwindow* window;
 
 	shared_ptr<IntegratedConsole> integratedConsole;

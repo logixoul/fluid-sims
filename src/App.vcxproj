@@ -137,6 +137,7 @@
   <ItemGroup>
     <ClCompile Include="lxlib\AreaRectf.ixx" />
     <ClCompile Include="lxlib\Array2D_imageProc.ixx" />
+    <ClCompile Include="lxlib\colorspaces.cpp" />
     <ClCompile Include="lxlib\ConfigManager3.ixx" />
     <ClCompile Include="lxlib\GlslProg.ixx" />
     <ClCompile Include="lxlib\gpgpu.ixx" />
@@ -144,6 +145,8 @@
     <ClCompile Include="lxlib\IntegratedConsole.ixx" />
     <ClCompile Include="lxlib\MyTimer.ixx" />
     <ClCompile Include="lxlib\shade.ixx" />
+    </ClCompile>
+    <ClCompile Include="lxlib\simplexnoise.cpp" />
     <ClCompile Include="lxlib\SketchBase.ixx" />
     <ClCompile Include="lxlib\stuff.ixx" />
     <ClCompile Include="lxlib\TextureCache.ixx" />
@@ -193,6 +196,8 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="ParticleFluidSketch.ixx" />
+    <ClInclude Include="lxlib\colorspaces.h" />
+    <ClInclude Include="lxlib\simplexnoise.h" />
     <ClCompile Include="SketchScaffold.ixx" />
     <ClCompile Include="precompiled.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -209,6 +214,7 @@
     <ClInclude Include="lxlib\lxGlslProg.h" />
     <ClInclude Include="lxlib\lxTextureRef.h" />
     <ClInclude Include="lxlib\lxVaoVbo.h" />
+    <ClInclude Include="ParticleTraces2DSketch\ParticleTraces2DSketch.h" />
     <ClInclude Include="third-party\imgui\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="MultiscaleCurvatureGrowthSketch\toml.hpp" />
     <ClInclude Include="precompiled.h" />
@@ -225,6 +231,9 @@
     <CopyFileToFolders Include="MultiscaleGrowthSketch\MultiscaleGrowthConfig.toml">
       <FileType>Document</FileType>
     </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ParticleTraces2DSketch\ParticleTraces2DConfig.toml" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
