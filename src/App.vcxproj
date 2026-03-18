@@ -143,7 +143,6 @@
     <ClCompile Include="lxlib\gpgpu.ixx" />
     <ClCompile Include="lxlib\gpuBlur2_5.ixx" />
     <ClCompile Include="lxlib\IntegratedConsole.ixx" />
-    <ClCompile Include="lxlib\MyTimer.ixx" />
     <ClCompile Include="lxlib\shade.ixx" />
     <ClCompile Include="lxlib\simplexnoise.cpp" />
     <ClCompile Include="lxlib\SketchBase.ixx" />
