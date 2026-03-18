@@ -6,9 +6,7 @@ extern bool keys[256];
 extern bool keys2[256];
 extern bool mouseDown_[3];
 extern glm::ivec2 windowSize;
-#include "ParticleFluidSketch.h"
 #include "GridFluidSketch/GridFluidSketch.h"
-#include "MultiscaleGrowthSketch/MultiscaleGrowthSketch.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 #include "imgui.h"
@@ -18,6 +16,8 @@ extern glm::ivec2 windowSize;
 export module SketchScaffold;
 
 import lxlib.IntegratedConsole;
+import ParticleFluidSketch;
+import MultiscaleGrowthSketch;
 
 export bool keys[256];
 export bool keys2[256];

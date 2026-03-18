@@ -20,10 +20,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 module;
 #include "precompiled.h"
 #include "macros.h"
-#include "shade.h"
 
 export module lxlib.gpuBlur2_5;
 
+import lxlib.shade;
 import lxlib.TextureRef;
 import lxlib.stuff;
 import lxlib.gpgpu;

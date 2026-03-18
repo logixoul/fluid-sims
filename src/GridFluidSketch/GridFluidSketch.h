@@ -1,6 +1,6 @@
 #include "precompiled.h"
 //#include "using_namespace.h"
-#include <lxlib/shade.h>
+import lxlib.shade;
 import lxlib.gpgpu;
 import lxlib.Array2D_imageProc;
 import lxlib.util;
@@ -10,6 +10,7 @@ import lxlib.ConfigManager3;
 #include <lxlib/macros.h>
 import lxlib.AreaRectf;
 import lxlib.SketchBase;
+import lxlib.TextureRef;
 
 struct GridFluidSketch : public SketchBase {
 	ConfigManager3 cfg;

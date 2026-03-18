@@ -1,13 +1,22 @@
+module;
 #include "precompiled.h"
+#include <lxlib/macros.h>
+extern bool keys[256];
+extern bool keys2[256];
+extern bool mouseDown_[3];
+extern glm::ivec2 windowSize;
+
+export module ParticleFluidSketch;
+
 import lxlib.stuff;
-#include <lxlib/shade.h>
+import lxlib.shade;
 import lxlib.gpgpu;
 import lxlib.Array2D_imageProc;
 import lxlib.SketchBase;
 import lxlib.util;
-#include <lxlib/macros.h>
+import lxlib.TextureRef;
 
-struct ParticleFluidSketch : public SketchBase {
+export struct ParticleFluidSketch : public SketchBase {
 	typedef Array2D<float> Image;
 	const int scale = 4;
 	ivec2 sz;

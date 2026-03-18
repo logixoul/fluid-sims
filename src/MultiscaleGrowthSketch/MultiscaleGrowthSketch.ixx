@@ -1,15 +1,24 @@
-﻿#pragma once
+module;
 #include "../precompiled.h"
+#include <numeric>
+#include <lxlib/macros.h>
+extern bool keys[256];
+extern bool keys2[256];
+extern bool mouseDown_[3];
+extern glm::ivec2 windowSize;
+
+export module MultiscaleGrowthSketch;
+
 import lxlib.util;
 import lxlib.stuff;
 import lxlib.Array2D_imageProc;
 import lxlib.gpgpu;
 import lxlib.ConfigManager3;
 import lxlib.SketchBase;
-#include "ThisSketch_ImageProcessingHelpers.h"
-#include "gpuBlurClaude.h"
-#include <numeric>
-#include <lxlib/macros.h>
+import lxlib.shade;
+import lxlib.TextureRef;
+import ThisSketch_ImageProcessingHelpers;
+import gpuBlurClaude;
 
 int wsx = 700, wsy = 700;
 
@@ -17,7 +26,7 @@ using namespace ThisSketch;
 
 Array2D<float> img(256, 256);
 
-struct MultiscaleGrowthSketch : public SketchBase {
+export struct MultiscaleGrowthSketch : public SketchBase {
 	struct Options {
 		float morphogenesisStrength;
 		const float contrastizeStrength = 1.0f;
