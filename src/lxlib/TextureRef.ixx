@@ -43,7 +43,7 @@ public:
 	}
 	Texture(std::string filePath, Format const& format) {
 		int width, height, n;
-		filePath = "../assets/" + filePath;
+		filePath = "../../assets/" + filePath;
 		unsigned char *data = stbi_load(filePath.c_str(), &width, &height, &n, 4);
 		if (data == nullptr)
 			throw std::runtime_error("Couldn't load image");

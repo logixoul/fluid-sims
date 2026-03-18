@@ -137,6 +137,7 @@
   <ItemGroup>
     <ClCompile Include="lxlib\AreaRectf.ixx" />
     <ClCompile Include="lxlib\Array2D_imageProc.ixx" />
+    <ClCompile Include="lxlib\colorspaces.cpp" />
     <ClCompile Include="lxlib\ConfigManager3.ixx" />
     <ClCompile Include="lxlib\GlslProg.ixx" />
     <ClCompile Include="lxlib\gpgpu.ixx" />
@@ -147,6 +148,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="lxlib\simplexnoise.cpp" />
     <ClCompile Include="lxlib\SketchBase.ixx" />
     <ClCompile Include="lxlib\stuff.ixx" />
     <ClCompile Include="lxlib\TextureCache.ixx" />
@@ -191,8 +193,10 @@
     </ClCompile>
     <ClCompile Include="MultiscaleGrowthSketch\gpuBlurClaude.cpp" />
     <ClInclude Include="GridFluidSketch\GridFluidSketch.h" />
+    <ClInclude Include="lxlib\colorspaces.h" />
     <ClInclude Include="lxlib\macros.h" />
     <ClInclude Include="lxlib\precompiled.h" />
+    <ClInclude Include="lxlib\simplexnoise.h" />
     <ClInclude Include="MultiscaleGrowthSketch\MultiscaleGrowthSketch.h" />
     <ClCompile Include="MultiscaleGrowthSketch\ThisSketch_ImageProcessingHelpers.cpp" />
     <ClCompile Include="SketchScaffold.ixx" />
@@ -209,6 +213,7 @@
     <ClInclude Include="lxlib\lxTextureRef.h" />
     <ClInclude Include="lxlib\lxVaoVbo.h" />
     <ClInclude Include="lxlib\shade.h" />
+    <ClInclude Include="ParticleTraces2DSketch\ParticleTraces2DSketch.h" />
     <ClInclude Include="third-party\imgui\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="MultiscaleGrowthSketch\gpuBlurClaude.h" />
     <ClInclude Include="MultiscaleGrowthSketch\ThisSketch_ImageProcessingHelpers.h" />
@@ -228,6 +233,9 @@
     <CopyFileToFolders Include="MultiscaleGrowthSketch\MultiscaleGrowthConfig.toml">
       <FileType>Document</FileType>
     </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ParticleTraces2DSketch\ParticleTraces2DConfig.toml" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,20 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="SketchScaffold.cpp" />
     <ClCompile Include="precompiled.cpp" />
     <ClCompile Include="MultiscaleGrowthSketch\gpuBlurClaude.cpp" />
     <ClCompile Include="MultiscaleGrowthSketch\ThisSketch_ImageProcessingHelpers.cpp" />
-    <ClCompile Include="lxlib\Array2D_imageProc.cpp" />
-    <ClCompile Include="lxlib\ConfigManager3.cpp" />
-    <ClCompile Include="lxlib\gpgpu.cpp" />
-    <ClCompile Include="lxlib\gpuBlur2_5.cpp" />
-    <ClCompile Include="lxlib\IntegratedConsole.cpp" />
-    <ClCompile Include="lxlib\MyTimer.cpp" />
     <ClCompile Include="lxlib\shade.cpp" />
-    <ClCompile Include="lxlib\stuff.cpp" />
-    <ClCompile Include="lxlib\TextureCache.cpp" />
-    <ClCompile Include="lxlib\util.cpp" />
     <ClCompile Include="third-party\imgui\backends\imgui_impl_opengl3.cpp" />
     <ClCompile Include="third-party\imgui\backends\imgui_impl_glfw.cpp" />
     <ClCompile Include="third-party\imgui\imgui.cpp" />
@@ -29,33 +19,38 @@
     <ClCompile Include="lxlib\VaoVbo.ixx" />
     <ClCompile Include="lxlib\GlslProg.ixx" />
     <ClCompile Include="lxlib\TextureRef.ixx" />
+    <ClCompile Include="lxlib\Array2D_imageProc.ixx" />
+    <ClCompile Include="lxlib\ConfigManager3.ixx" />
+    <ClCompile Include="lxlib\gpgpu.ixx" />
+    <ClCompile Include="lxlib\gpuBlur2_5.ixx" />
+    <ClCompile Include="lxlib\IntegratedConsole.ixx" />
+    <ClCompile Include="lxlib\MyTimer.ixx" />
+    <ClCompile Include="lxlib\stuff.ixx" />
+    <ClCompile Include="lxlib\TextureCache.ixx" />
+    <ClCompile Include="lxlib\util.ixx" />
+    <ClCompile Include="SketchScaffold.ixx" />
+    <ClCompile Include="lxlib\simplexnoise.cpp" />
+    <ClCompile Include="lxlib\colorspaces.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
     <ClInclude Include="ParticleFluidSketch.h" />
-    <ClInclude Include="SketchScaffold.h" />
     <ClInclude Include="MultiscaleGrowthSketch\gpuBlurClaude.h" />
     <ClInclude Include="MultiscaleGrowthSketch\ThisSketch_ImageProcessingHelpers.h" />
     <ClInclude Include="MultiscaleCurvatureGrowthSketch\toml.hpp" />
     <ClInclude Include="MultiscaleGrowthSketch\MultiscaleGrowthSketch.h" />
-    <ClInclude Include="lxlib\Array2D_imageProc.h" />
-    <ClInclude Include="lxlib\ConfigManager3.h" />
-    <ClInclude Include="lxlib\gpgpu.h" />
-    <ClInclude Include="lxlib\gpuBlur2_5.h" />
-    <ClInclude Include="lxlib\IntegratedConsole.h" />
     <ClInclude Include="lxlib\lxAreaRectf.h" />
     <ClInclude Include="lxlib\lxGlslProg.h" />
     <ClInclude Include="lxlib\lxTextureRef.h" />
     <ClInclude Include="lxlib\lxVaoVbo.h" />
-    <ClInclude Include="lxlib\MyTimer.h" />
     <ClInclude Include="lxlib\shade.h" />
-    <ClInclude Include="lxlib\stuff.h" />
-    <ClInclude Include="lxlib\TextureCache.h" />
-    <ClInclude Include="lxlib\util.h" />
     <ClInclude Include="third-party\imgui\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="lxlib\precompiled.h" />
     <ClInclude Include="GridFluidSketch\GridFluidSketch.h" />
     <ClInclude Include="lxlib\macros.h" />
+    <ClInclude Include="ParticleTraces2DSketch\ParticleTraces2DSketch.h" />
+    <ClInclude Include="lxlib\simplexnoise.h" />
+    <ClInclude Include="lxlib\colorspaces.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="OldCode.txt" />
@@ -71,5 +66,8 @@
   <ItemGroup>
     <CopyFileToFolders Include="GridFluidSketch\gridFluidConfig.toml" />
     <CopyFileToFolders Include="MultiscaleGrowthSketch\MultiscaleGrowthConfig.toml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ParticleTraces2DSketch\ParticleTraces2DConfig.toml" />
   </ItemGroup>
 </Project>
