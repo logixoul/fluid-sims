@@ -7,11 +7,16 @@
             "description": "Configure with vcpkg toolchain using Ninja Multi-Config generator",
             "generator": "Ninja Multi-Config",
             "binaryDir": "${sourceDir}/build",
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            },
             "cacheVariables": {
                 "CMAKE_TOOLCHAIN_FILE": {
                     "value": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
                     "type": "FILEPATH"
-                }
+                },
+                "VCPKG_TARGET_TRIPLET": "x64-windows"
             }
         }
     ],
