@@ -291,3 +291,6 @@ __pycache__/
 /vcpkg_installed/x64-windows
 /vcpkg_installed/x64-windows-v141
 /src/imgui.ini
+
+# CMake build directory
+/build/
