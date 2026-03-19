@@ -9,6 +9,7 @@
 #include <functional>
 #include <fstream>
 #include <map>
+#include <numeric>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 // glm doesn't compile unless I I define the following...

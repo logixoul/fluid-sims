@@ -16,7 +16,7 @@ export inline ivec2 clampPoint(ivec2 p, int w, int h)
 	if (wp.y > h - 1) wp.y = h - 1;
 	return wp;
 }
-export struct WrapModes {
+export namespace WrapModes {
 	struct GetMirrorWrapped {
 		template<class T>
 		static T& fetch(Array2D<T>& src, int x, int y)

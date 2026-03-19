@@ -376,7 +376,7 @@ export struct GridFluidSketch : public SketchBase {
 				continue;
 			kernel(p) = pow(1 - distance / r, 2.0f);
 		}
-		auto kernelSum = ::accumulate(kernel.begin(), kernel.end(), 0.0f);
+		auto kernelSum = std::accumulate(kernel.begin(), kernel.end(), 0.0f);
 		forxy(kernel) {
 			kernel(p) /= kernelSum;
 		}

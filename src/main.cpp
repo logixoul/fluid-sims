@@ -17,10 +17,10 @@ int WINAPI WinMain(
 	int       nCmdShow
 ) {
 	//ParticleFluidSketch sketch;
-	//GridFluidSketch sketch;
+	GridFluidSketch sketch;
 	//ParticleTraces2DSketch sketch;
 
-	MultiscaleGrowthSketch sketch;
+	//MultiscaleGrowthSketch sketch;
 	SketchScaffold sketchScaffold(&sketch);
 	sketchScaffold.setup();
 	sketchScaffold.mainLoop();

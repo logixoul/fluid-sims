@@ -144,55 +144,17 @@ private:
 	}
 };
 
-export void rotate(vec2& p, float angle);
-
-export void trapFP();
-
-export template<class F> vec3 apply(vec3 const& v, F f)
-{
-	return vec3(f(v.x), f(v.y), f(v.z));
-}
-
-export template<class F> float apply(float v, F f)
-{
-	return f(v);
-}
-
 export const float pi = 3.14159265f;
-
-export template<class InputIt, class T>
-T accumulate(InputIt begin, InputIt end, T base) {
-	T sum = base;
-	for (auto it = begin; it != end; it++) {
-		sum += *it;
-	}
-	return sum;
-}
-
-export float randFloat();
-
-export template<class T>
-void myRemoveIf(std::vector<T>& vec, std::function<bool(T const&)> const& pred) {
-	vec.erase(std::remove_if(vec.begin(), vec.end(), pred), vec.end());
-}
 
 // --- Implementations from util.cpp ---
 
-void rotate(vec2& p, float angle)
+export void rotate(vec2& p, float angle)
 {
 	float c = cos(angle), s = sin(angle);
 	p = vec2(p.x * c + p.y * (-s), p.x * s + p.y * c);
 }
 
-void trapFP()
-{
-	unsigned int cw;
-	_controlfp_s(&cw, 0, 0);
-	cw &=~(EM_OVERFLOW|EM_UNDERFLOW|/*EM_INEXACT|*/EM_ZERODIVIDE|EM_DENORMAL);
-	_controlfp_s(NULL, cw, MCW_EM);
-}
-
-float randFloat()
+export float randFloat()
 {
 	return rand() / (float)RAND_MAX;
 }
