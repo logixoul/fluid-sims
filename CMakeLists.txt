@@ -11,7 +11,7 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 # ── Packages ──────────────────────────────────────────────────────────────────
 find_package(OpenGL REQUIRED)
-find_package(FFTW3  CONFIG REQUIRED)
+find_package(FFTW3f CONFIG REQUIRED)
 find_package(glfw3  CONFIG REQUIRED)
 find_package(glm    CONFIG REQUIRED)
 

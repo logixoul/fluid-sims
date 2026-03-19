@@ -11,9 +11,7 @@
                 "CMAKE_TOOLCHAIN_FILE": {
                     "value": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
                     "type": "FILEPATH"
-                },
-                "VCPKG_TARGET_TRIPLET": "x64-windows-v141",
-                "VCPKG_OVERLAY_TRIPLETS": "${sourceDir}/lx-triplets"
+                }
             }
         }
     ],
