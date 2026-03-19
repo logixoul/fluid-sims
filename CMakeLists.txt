@@ -11,7 +11,6 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 # ── Packages ──────────────────────────────────────────────────────────────────
 find_package(OpenGL REQUIRED)
-find_package(FFTW3f CONFIG REQUIRED)
 find_package(glfw3  CONFIG REQUIRED)
 find_package(glm    CONFIG REQUIRED)
 
@@ -114,7 +113,6 @@ target_link_libraries(App PRIVATE
     OpenGL::GL
     glfw
     glm::glm
-    FFTW3::fftw3f
 )
 
 # ── Post-build: copy runtime config files next to the executable ──────────────
