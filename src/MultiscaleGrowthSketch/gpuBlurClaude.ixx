@@ -6,7 +6,7 @@ export module gpuBlurClaude;
 
 import lxlib.shade;
 import lxlib.TextureRef;
-import lxlib.util;
+import lxlib.Array2D;
 import lxlib.gpuBlur2_5;
 import lxlib.gpgpu;
 import lxlib.stuff;

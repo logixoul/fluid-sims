@@ -9,7 +9,7 @@ import lxlib.shade;
 import lxlib.gpgpu;
 import lxlib.Array2D_imageProc;
 import lxlib.SketchBase;
-import lxlib.util;
+import lxlib.Array2D;
 import lxlib.TextureRef;
 
 export struct ParticleFluidSketch : public SketchBase {

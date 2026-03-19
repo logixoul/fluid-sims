@@ -6,7 +6,7 @@ export module lxlib.shade;
 
 import lxlib.GlslProg;
 import lxlib.TextureRef;
-import lxlib.util;
+import lxlib.Array2D;
 import lxlib.stuff;
 import lxlib.VaoVbo;
 

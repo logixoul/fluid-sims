@@ -5,7 +5,7 @@ module;
 
 export module MultiscaleGrowthSketch;
 
-import lxlib.util;
+import lxlib.Array2D;
 import lxlib.stuff;
 import lxlib.Array2D_imageProc;
 import lxlib.gpgpu;

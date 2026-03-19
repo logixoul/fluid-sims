@@ -2,7 +2,7 @@ module;
 #include "precompiled.h"
 #include <lxlib/simplexnoise.h>
 
-import lxlib.util;
+import lxlib.Array2D;
 import lxlib.stuff;
 import lxlib.TextureRef;
 import lxlib.gpgpu;

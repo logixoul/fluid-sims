@@ -47,7 +47,7 @@ set(CXX_MODULE_SOURCES
     src/lxlib/stuff.ixx
     src/lxlib/TextureCache.ixx
     src/lxlib/TextureRef.ixx
-    src/lxlib/util.ixx
+    src/lxlib/Array2D.ixx
     src/lxlib/VaoVbo.ixx
     src/MultiscaleGrowthSketch/gpuBlurClaude.ixx
     src/MultiscaleGrowthSketch/ThisSketch_ImageProcessingHelpers.ixx

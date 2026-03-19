@@ -1,7 +1,7 @@
 module;
 #include "precompiled.h"
 
-export module lxlib.util;
+export module lxlib.Array2D;
 /*
 #ifdef FFTW3_H
 			fftwf_free(arrayPtr);

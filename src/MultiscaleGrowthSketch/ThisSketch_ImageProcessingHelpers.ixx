@@ -6,7 +6,7 @@ export module ThisSketch_ImageProcessingHelpers;
 
 import lxlib.Array2D_imageProc;
 import lxlib.gpgpu;
-import lxlib.util;
+import lxlib.Array2D;
 import lxlib.TextureRef;
 import lxlib.stuff;
 import lxlib.shade;

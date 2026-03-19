@@ -4,7 +4,7 @@ module;
 import lxlib.shade;
 import lxlib.gpgpu;
 import lxlib.Array2D_imageProc;
-import lxlib.util;
+import lxlib.Array2D;
 import lxlib.stuff;
 import lxlib.gpuBlur2_5;
 import lxlib.ConfigManager3;

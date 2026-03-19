@@ -7,7 +7,7 @@ export module lxlib.stuff;
 //import lxlib.shade;
 
 import lxlib.TextureRef;
-import lxlib.util;
+import lxlib.Array2D;
 import lxlib.TextureCache;
 
 export void bind(gl::TextureRef& tex);

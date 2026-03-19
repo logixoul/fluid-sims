@@ -4,7 +4,7 @@ module;
 
 export module lxlib.Array2D_imageProc;
 
-import lxlib.util;
+import lxlib.Array2D;
 import lxlib.stuff;
 
 export inline ivec2 clampPoint(ivec2 p, int w, int h)
