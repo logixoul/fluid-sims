@@ -35,7 +35,7 @@ Array2D<T> gettexdata(gl::TextureRef tex, GLenum format, GLenum type) {
 	Array2D<T> data(tex->getSize());
 
 	bind(tex);
-	glGetTexImage(GL_TEXTURE_2D, 0, format, type, data.data);
+	glGetTexImage(GL_TEXTURE_2D, 0, format, type, data.data());
 
 	return data;
 }
@@ -147,7 +147,7 @@ gl::TextureRef gtex(Array2D<float> a)
 {
 	gl::TextureRef tex = maketex(a.w, a.h, GL_R16F);
 	bind(tex);
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RED, GL_FLOAT, a.data);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RED, GL_FLOAT, a.data());
 	return tex;
 }
 
@@ -155,7 +155,7 @@ gl::TextureRef gtex(Array2D<vec2> a)
 {
 	gl::TextureRef tex = maketex(a.w, a.h, GL_RG16F);
 	bind(tex);
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RG, GL_FLOAT, a.data);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RG, GL_FLOAT, a.data());
 	return tex;
 }
 
@@ -163,14 +163,14 @@ gl::TextureRef gtex(Array2D<vec3> a)
 {
 	gl::TextureRef tex = maketex(a.w, a.h, GL_RGB16F);
 	bind(tex);
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RGB, GL_FLOAT, a.data);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RGB, GL_FLOAT, a.data());
 	return tex;
 }
 gl::TextureRef gtex(Array2D<bytevec3> a)
 {
 	gl::TextureRef tex = maketex(a.w, a.h, GL_RGB8);
 	bind(tex);
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RGB, GL_UNSIGNED_BYTE, a.data);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RGB, GL_UNSIGNED_BYTE, a.data());
 	return tex;
 }
 
@@ -178,7 +178,7 @@ gl::TextureRef gtex(Array2D<vec4> a)
 {
 	gl::TextureRef tex = maketex(a.w, a.h, GL_RGBA16F);
 	bind(tex);
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RGBA, GL_FLOAT, a.data);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RGBA, GL_FLOAT, a.data());
 	return tex;
 }
 
@@ -186,7 +186,7 @@ gl::TextureRef gtex(Array2D<uvec4> a)
 {
 	gl::TextureRef tex = maketex(a.w, a.h, GL_RGBA32UI);
 	bind(tex);
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RGBA_INTEGER, GL_UNSIGNED_INT, a.data);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RGBA_INTEGER, GL_UNSIGNED_INT, a.data());
 	return tex;
 }
 

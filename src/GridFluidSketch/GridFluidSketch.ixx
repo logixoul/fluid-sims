@@ -107,14 +107,7 @@ export struct GridFluidSketch : public SketchBase {
 		direction = vec2(pos) - lastm;
 		lastm = pos;
 	}
-	gl::TextureRef gtexF32(Array2D<float> a)
-	{
-		gl::TextureRef tex = maketex(a.w, a.h, GL_R32F);
-		bind(tex);
-		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RED, GL_FLOAT, a.data);
-		return tex;
-	}
-
+	
 	gl::TextureRef gauss3texScaled(gl::TextureRef src, float scale) {
 		auto state = shade2(src,
 			"vec3 sum = vec3(0.0);"

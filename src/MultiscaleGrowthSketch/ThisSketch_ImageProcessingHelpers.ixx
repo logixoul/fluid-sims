@@ -68,7 +68,7 @@ return vec2(-v.y, v.x);
 Img subtract(Img const& a, Img const& b) {
 Img result = a.clone();
 for (int i = 0; i < result.area; i++) {
-result.data[i] -= b.data[i];
+result.data()[i] -= b.data()[i];
 }
 return result;
 }
@@ -76,7 +76,7 @@ return result;
 Img add(Img const& a, Img const& b) {
 Img result = a.clone();
 for (int i = 0; i < result.area; i++) {
-result.data[i] += b.data[i];
+result.data()[i] += b.data()[i];
 }
 return result;
 }
@@ -84,7 +84,7 @@ return result;
 Img multiply(Img const& a, Img const& b) {
 Img result = a.clone();
 for (int i = 0; i < result.area; i++) {
-result.data[i] *= b.data[i];
+result.data()[i] *= b.data()[i];
 }
 return result;
 }
@@ -92,7 +92,7 @@ return result;
 Img multiply(Img const& a, float scalar) {
 Img result = a.clone();
 for (int i = 0; i < result.area; i++) {
-result.data[i] *= scalar;
+result.data()[i] *= scalar;
 }
 return result;
 }
@@ -169,11 +169,11 @@ float sum = 0.0f;
 for (int i = start; i < end; ++i) {
 float d = (i + 0.5f - center) / filterScaleX;
 float w = filter(d);
-sum += w * src.data[dstY * srcW + i];
+sum += w * src.data()[dstY * srcW + i];
 den += w;
 }
 
-tmp.data[dstY * dstW + dstX] = sum / den;
+tmp.data()[dstY * dstW + dstX] = sum / den;
 }
 }
 
@@ -191,11 +191,11 @@ float den = 0.0f;
 for (int i = start; i < end; ++i) {
 float d = (i + 0.5f - center) / filterScaleY;
 float w = filter(d);
-sum += w * tmp.data[i * dstW + dstX];
+sum += w * tmp.data()[i * dstW + dstX];
 den += w;
 }
 
-out.data[dstY * dstW + dstX] = sum / den;
+out.data()[dstY * dstW + dstX] = sum / den;
 }
 }
 

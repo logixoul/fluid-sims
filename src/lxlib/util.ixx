@@ -2,60 +2,13 @@ module;
 #include "precompiled.h"
 
 export module lxlib.util;
-
-export template<class T>
-class ArrayDeleter
-{
-public:
-	ArrayDeleter(T* arrayPtr)
-	{
-		refcountPtr = new int(0);
-		(*refcountPtr)++;
-
-		this->arrayPtr = arrayPtr;
-	}
-
-	ArrayDeleter(ArrayDeleter const& other)
-	{
-		arrayPtr = other.arrayPtr;
-		refcountPtr = other.refcountPtr;
-		(*refcountPtr)++;
-	}
-
-	ArrayDeleter const& operator=(ArrayDeleter const& other)
-	{
-		reduceRefcount();
-
-		arrayPtr = other.arrayPtr;
-		refcountPtr = other.refcountPtr;
-		(*refcountPtr)++;
-
-		return *this;
-	}
-
-	~ArrayDeleter()
-	{
-		reduceRefcount();
-	}
-
-private:
-	void reduceRefcount()
-	{
-		(*refcountPtr)--;
-		if (*refcountPtr == 0)
-		{
-			delete refcountPtr;
+/*
 #ifdef FFTW3_H
 			fftwf_free(arrayPtr);
 #else
 			delete[] arrayPtr;
 #endif
-		}
-	}
-
-	int* refcountPtr;
-	T* arrayPtr;
-};
+*/
 
 export enum nofill {};
 
@@ -64,7 +17,11 @@ export typedef glm::tvec3<unsigned char> bytevec3;
 export template<class T>
 struct Array2D
 {
-	T* data;
+private:
+	std::shared_ptr<T[]> dataSharedPtr;
+public:
+	T* data() { return dataSharedPtr.get(); }
+	T const* data() const { return dataSharedPtr.get(); }
 	typedef T value_type;
 	int area;
 	int w, h;
@@ -72,13 +29,24 @@ struct Array2D
 		return area * sizeof(T);
 	}
 	ivec2 Size() const { return ivec2(w, h); }
-	ArrayDeleter<T> deleter;
-
-	Array2D(int w, int h, nofill) : deleter(Init(w, h)) { }
-	Array2D(ivec2 s, nofill) : deleter(Init(s.x, s.y)) { }
-	Array2D(int w, int h, T const& defaultValue = T()) : deleter(Init(w, h)) { fill(defaultValue); }
-	Array2D(ivec2 s, T const& defaultValue = T()) : deleter(Init(s.x, s.y)) { fill(defaultValue); }
-	Array2D() : deleter(Init(0, 0)) { }
+	
+	Array2D(int w, int h, nofill) {
+		Init(w, h);
+	}
+	Array2D(ivec2 s, nofill) {
+		Init(s.x, s.y);
+	}
+	Array2D(int w, int h, T const& defaultValue = T()) {
+		Init(w, h);
+		fill(defaultValue);
+	}
+	Array2D(ivec2 s, T const& defaultValue = T()) {
+		Init(s.x, s.y);
+		fill(defaultValue);
+	}
+	Array2D() {
+		Init(0, 0);
+	}
 
 #ifdef OPENCV_CORE_HPP
 	template<class TSrc>
@@ -88,16 +56,16 @@ struct Array2D
 	}
 #endif
 
-	T* begin() { return data; }
-	T* end() { return data+w*h; }
-	T const* begin() const { return data; }
-	T const* end() const { return data+w*h; }
+	T* begin() { return data(); }
+	T* end() { return data()+w*h; }
+	T const* begin() const { return data(); }
+	T const* end() const { return data()+w*h; }
 	
-	T& operator()(int x, int y) { return data[offsetOf(x, y)]; }
+	T& operator()(int x, int y) { return data()[offsetOf(x, y)]; }
 	T const& operator()(int x, int y) const { return data[offsetOf(x, y)]; }
 
-	T& operator()(ivec2 const& v) { return data[offsetOf(v.x, v.y)]; }
-	T const& operator()(ivec2 const& v) const { return data[offsetOf(v.x, v.y)]; }
+	T& operator()(ivec2 const& v) { return data()[offsetOf(v.x, v.y)]; }
+	T const& operator()(ivec2 const& v) const { return data()[offsetOf(v.x, v.y)]; }
 	
 	ivec2 wrapPoint(ivec2 p)
 	{
@@ -127,17 +95,16 @@ private:
 	{
 		std::fill(begin(), end(), value);
 	}
-	T* Init(int w, int h) {
+	void Init(int w, int h) {
 #ifdef FFTW3_H
-		auto data = (T*)fftwf_malloc(w * h * sizeof(T));
+		auto dataPtr = (T*)fftwf_malloc(w * h * sizeof(T));
 #else
-		auto data = new T[w * h];
+		auto dataPtr = new T[w * h];
 #endif
-		Init(w, h, data);
-		return data;
+		Init(w, h, dataPtr);
 	}
-	void Init(int w, int h, T* data) {
-		this->data = data;
+	void Init(int w, int h, T* dataPtr) {
+		this->dataSharedPtr.reset(dataPtr);
 		area = w * h;
 		this->w = w;
 		this->h = h;
