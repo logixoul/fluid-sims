@@ -62,7 +62,7 @@ public:
 	T const* end() const { return data()+w*h; }
 	
 	T& operator()(int x, int y) { return data()[offsetOf(x, y)]; }
-	T const& operator()(int x, int y) const { return data[offsetOf(x, y)]; }
+	T const& operator()(int x, int y) const { return data()[offsetOf(x, y)]; }
 
 	T& operator()(ivec2 const& v) { return data()[offsetOf(v.x, v.y)]; }
 	T const& operator()(ivec2 const& v) const { return data()[offsetOf(v.x, v.y)]; }

@@ -55,6 +55,8 @@ set(CXX_MODULE_SOURCES
     src/ParticleFluidSketch.ixx
     src/GridFluidSketch/GridFluidSketch.ixx
     src/ParticleTraces2DSketch/ParticleTraces2DSketch.ixx
+    src/VarianceAddSketch/VarianceAddSketch.ixx
+    src/FftRaysSketch/FftRaysSketch.ixx
 )
 
 # ── Target ────────────────────────────────────────────────────────────────────
@@ -123,4 +125,7 @@ add_custom_command(TARGET App POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         ${CMAKE_CURRENT_SOURCE_DIR}/src/MultiscaleGrowthSketch/multiscaleGrowthConfig.toml
         $<TARGET_FILE_DIR:App>/multiscaleGrowthConfig.toml
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/FftRaysSketch/FftRaysConfig.toml
+        $<TARGET_FILE_DIR:App>/FftRaysConfig.toml
 )

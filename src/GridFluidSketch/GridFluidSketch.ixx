@@ -531,3 +531,5 @@ export struct GridFluidSketch : public SketchBase {
 		return dst2;
 	}
 };
+
+export using StartupSketch = GridFluidSketch;

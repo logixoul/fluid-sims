@@ -5,10 +5,7 @@
 
 import lxlib.SketchScaffold;
 
-import MultiscaleGrowthSketch;
-import ParticleFluidSketch;
-import ParticleTraces2DSketch;
-import GridFluidSketch;
+import FftRaysSketch;
 
 int WINAPI WinMain(
 	HINSTANCE hInstance,
@@ -16,11 +13,7 @@ int WINAPI WinMain(
 	LPSTR     lpCmdLine,
 	int       nCmdShow
 ) {
-	//ParticleFluidSketch sketch;
-	GridFluidSketch sketch;
-	//ParticleTraces2DSketch sketch;
-
-	//MultiscaleGrowthSketch sketch;
+	StartupSketch sketch;
 	SketchScaffold sketchScaffold(&sketch);
 	sketchScaffold.setup();
 	sketchScaffold.mainLoop();
