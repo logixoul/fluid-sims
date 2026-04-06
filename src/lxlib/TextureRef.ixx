@@ -6,6 +6,7 @@ export module lxlib.TextureRef;
 
 import lxlib.GlslProg;
 import lxlib.VaoVbo;
+import lxlib.AreaRectf;
 
 extern void drawRect();
 extern glm::ivec2 windowSize;
@@ -143,15 +144,15 @@ export inline const std::string genericFragmentShaderSource =
 "\tgl_FragColor = texture2D(uTex, tc);"
 "}";
 
-export inline void lxDraw(TextureRef const& tex) {
+export void lxDraw(TextureRef const& tex, Rect<float> const& destRect) {
 	glActiveTexture(GL_TEXTURE0);
 	tex->bind();
 
 	static const auto glsl = std::make_shared<GlslProg>(genericFragmentShaderSource, genericVertexShaderSource);
 	glsl->bind();
 	glsl->uniform("uTex", 0);
-	glsl->uniform("uPositionOffset", glm::vec2(0, 0));
-	glsl->uniform("uPositionScale", tex->getSize());
+	glsl->uniform("uPositionOffset", destRect.topLeft());
+	glsl->uniform("uPositionScale", destRect.size());
 	glsl->uniform("uTexCoordOffset", glm::vec2(0.0f, 1.0f));
 	glsl->uniform("uTexCoordScale", glm::vec2(1.0f, -1.0f));
 
@@ -161,7 +162,13 @@ export inline void lxDraw(TextureRef const& tex) {
 	VAO::unbind();
 }
 
-export inline void lxClear() {
+export void lxDraw(TextureRef const& tex) {
+	auto upperLeft = glm::vec2(0, 0);
+	auto bottomRight = tex->getSize();
+	lxDraw(tex, Rect<float>::fromBounds(upperLeft, bottomRight));
+}
+
+export void lxClear() {
 	glClearColor(0, 0, 0, 0);
 	glClear(GL_COLOR_BUFFER_BIT);
 }

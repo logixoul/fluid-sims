@@ -32,6 +32,12 @@
             "displayName": "Release",
             "configurePreset": "default",
             "configuration": "Release"
+        },
+        {
+            "name": "relwithdebinfo",
+            "displayName": "RelWithDebInfo",
+            "configurePreset": "default",
+            "configuration": "RelWithDebInfo"
         }
     ]
 }

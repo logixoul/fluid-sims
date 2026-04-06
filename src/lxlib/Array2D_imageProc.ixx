@@ -109,21 +109,6 @@ T& zero() {
 }
 
 export template<class T>
-Array2D<T> empty_like(Array2D<T> a) {
-	return Array2D<T>(a.Size(), nofill());
-}
-
-export template<class T>
-Array2D<T> ones_like(Array2D<T> a) {
-	return Array2D<T>(a.Size(), 1.0f);
-}
-
-export template<class T>
-Array2D<T> zeros_like(Array2D<T> a) {
-	return Array2D<T>(a.Size(), ::zero<T>());
-}
-
-export template<class T>
 Array2D<T> gauss3(Array2D<T> src) {
 	T zero = ::zero<T>();
 	Array2D<T> dst1(src.w, src.h);

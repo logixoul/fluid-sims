@@ -13,6 +13,11 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 find_package(OpenGL REQUIRED)
 find_package(glfw3  CONFIG REQUIRED)
 find_package(glm    CONFIG REQUIRED)
+# Workaround for vcpkg's kissfft config calling cmake_minimum_required(VERSION 3.3)
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
+find_package(kissfft CONFIG REQUIRED)
+
+find_path(VKFFT_INCLUDE_DIRS "VkFFT/vkFFT.h")
 
 # ── Source lists ──────────────────────────────────────────────────────────────
 set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/third-party/imgui)
@@ -49,6 +54,7 @@ set(CXX_MODULE_SOURCES
     src/lxlib/TextureRef.ixx
     src/lxlib/Array2D.ixx
     src/lxlib/VaoVbo.ixx
+    src/lxlib/KissFFTWrapper.ixx
     src/MultiscaleGrowthSketch/gpuBlurClaude.ixx
     src/MultiscaleGrowthSketch/ThisSketch_ImageProcessingHelpers.ixx
     src/MultiscaleGrowthSketch/MultiscaleGrowthSketch.ixx
@@ -76,6 +82,7 @@ target_sources(App
 target_include_directories(App PRIVATE
     src
     ${IMGUI_DIR}
+    ${VKFFT_INCLUDE_DIRS}
     src/third-party/include
 )
 
@@ -96,13 +103,14 @@ target_compile_definitions(App PRIVATE
     WIN32
     _WINDOWS
     $<$<CONFIG:Debug>:_DEBUG>
-    $<$<CONFIG:Release>:NDEBUG>
+    $<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>:NDEBUG>
 )
 
 target_compile_options(App PRIVATE
     /W0
     /Zm200
-    $<$<CONFIG:Release>:/O2 /fp:fast /arch:SSE2 /openmp /GS->
+    $<$<CONFIG:Release>:/O2 /fp:fast /arch:SSE2 /openmp /GS- /Zi>
+    $<$<CONFIG:RelWithDebInfo>:/O2 /fp:fast /arch:SSE2 /openmp /GS- /Zi>
     $<$<CONFIG:Debug>:/RTC1 /Od>
 )
 
@@ -115,7 +123,9 @@ target_link_libraries(App PRIVATE
     OpenGL::GL
     glfw
     glm::glm
+    kissfft::kissfft-float
 )
+
 
 # ── Post-build: copy runtime config files next to the executable ──────────────
 add_custom_command(TARGET App POST_BUILD
@@ -129,3 +139,4 @@ add_custom_command(TARGET App POST_BUILD
         ${CMAKE_CURRENT_SOURCE_DIR}/src/FftRaysSketch/FftRaysConfig.toml
         $<TARGET_FILE_DIR:App>/FftRaysConfig.toml
 )
+

@@ -39,6 +39,48 @@ export struct HslF
 
 };
 
+export struct HsvF
+{
+    float h, s, v;
+
+    HsvF(float h, float s, float v)
+    {
+        this->h = h;
+        this->s = s;
+        this->v = v;
+    }
+
+    HsvF(glm::vec3 const& rgb)
+    {
+        float r = rgb.x, g = rgb.y, b = rgb.z;
+        float max = std::max(r, std::max(g, b)), min = std::min(r, std::min(g, b));
+        v = max;
+
+        float d = max - min;
+        s = max == 0.0f ? 0.0f : d / max;
+
+        if (d == 0.0f)
+        {
+            h = 0.0f;
+        }
+        else if (max == r)
+        {
+            h = (g - b) / d + (g < b ? 6.0f : 0.0f);
+            h /= 6.0f;
+        }
+        else if (max == g)
+        {
+            h = (b - r) / d + 2.0f;
+            h /= 6.0f;
+        }
+        else
+        {
+            h = (r - g) / d + 4.0f;
+            h /= 6.0f;
+        }
+    }
+};
+
 export vec3 FromHSL(HslF const& hsl)
 {
     float v;
@@ -100,4 +142,35 @@ export vec3 FromHSL(HslF const& hsl)
         }
     }
     return vec3(r, g, b);
+}
+
+export vec3 FromHSV(HsvF const& hsv)
+{
+    float H = hsv.h;
+    float S = hsv.s;
+    float V = hsv.v;
+
+    if (S == 0.0f)
+        return vec3(V, V, V);
+
+    H = std::fmod(H, 1.0f);
+    if (H < 0.0f)
+        H += 1.0f;
+
+    float h = H * 6.0f;
+    int i = static_cast<int>(h);
+    float f = h - i;
+    float p = V * (1.0f - S);
+    float q = V * (1.0f - S * f);
+    float t = V * (1.0f - S * (1.0f - f));
+
+    switch (i % 6)
+    {
+        case 0: return vec3(V, t, p);
+        case 1: return vec3(q, V, p);
+        case 2: return vec3(p, V, t);
+        case 3: return vec3(p, q, V);
+        case 4: return vec3(t, p, V);
+        default: return vec3(V, p, q);
+    }
 }

@@ -302,19 +302,18 @@ export struct GridFluidSketch : public SketchBase {
 		} // if ! pause
 		auto material = keys['g'] ? &red : &green;
 
-		vec2 mousePos = this->lastm;
-		mousePos /= scale;
+		ivec2 mousePos = ivec2(this->lastm / float(scale));
+		Rect<int> a = Rect<int>::fromBounds(mousePos, mousePos);
 		if (mouseDown_[0])
 		{
 			
-			Area a = Area(ivec2(mousePos), ivec2(mousePos));
 			int r = 80 / pow(2, scale);
 			a.expand(r, r);
 			for (int x = a.x1; x <= a.x2; x++)
 			{
 				for (int y = a.y1; y <= a.y2; y++)
 				{
-					vec2 v = vec2(x, y) - mousePos;
+					vec2 v = ivec2(x, y) - mousePos;
 					float w = std::max(0.0f, 1.0f - length(v) / r);
 					w = 3 * w * w - 2 * w * w * w;
 					material->density.wr(x, y) += 1.f * w * 100.0;
@@ -323,14 +322,13 @@ export struct GridFluidSketch : public SketchBase {
 		}
 		else if (mouseDown_[2]) {
 			//mm();
-			Area a(mousePos, mousePos);
 			int r = 15;
 			a.expand(r, r);
 			for (int x = a.x1; x <= a.x2; x++)
 			{
 				for (int y = a.y1; y <= a.y2; y++)
 				{
-					vec2 v = vec2(x, y) - mousePos;
+					vec2 v = ivec2(x, y) - mousePos;
 					float w = std::max(0.0f, 1.0f - length(v) / r);
 					w = 3 * w * w - 2 * w * w * w;
 					if (material->density.wr(x, y) != 0.0f)

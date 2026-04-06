@@ -1,6 +1,7 @@
 #include "precompiled.h"
 
 #define WIN32_LEAN_AND_MEAN
+#include <fstream>
 #include <Windows.h>
 
 import lxlib.SketchScaffold;
@@ -13,8 +14,17 @@ int WINAPI WinMain(
 	LPSTR     lpCmdLine,
 	int       nCmdShow
 ) {
-	StartupSketch sketch;
-	SketchScaffold sketchScaffold(&sketch);
-	sketchScaffold.setup();
-	sketchScaffold.mainLoop();
+	try {
+		StartupSketch sketch;
+		SketchScaffold sketchScaffold(&sketch);
+		sketchScaffold.setup();
+		sketchScaffold.mainLoop();
+	} catch (std::exception& e) {
+      std::ofstream("log.txt") << e.what() << '\n';
+		return -1;
+	}
+	catch (...) {
+       std::ofstream("log.txt") << "Unknown exception\n";
+		return -1;
+	}
 }
