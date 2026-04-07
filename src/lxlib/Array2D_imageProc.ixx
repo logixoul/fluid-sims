@@ -60,19 +60,14 @@ export namespace WrapModes {
 	typedef GetWrapped DefaultImpl;
 };
 export template<class T, class FetchFunc>
-void splatBilinearPoint(Array2D<T>& dst, vec2 p, T value)
+void splatBilinearPoint(Array2D<T>& dst, glm::vec2 const& p, T const& value)
 {
-	splatBilinearPoint<T, FetchFunc>(dst, p.x, p.y, value);
-}
-export template<class T, class FetchFunc>
-void splatBilinearPoint(Array2D<T>& dst, float x, float y, T value)
-{
-	int ix = x, iy = y;
+	int ix = p.x, iy = p.y;
 	float fx = ix, fy = iy;
-	if (x < 0.0f && fx != x) { fx--; ix--; }
-	if (y < 0.0f && fy != y) { fy--; iy--; }
-	float fractx = x - fx;
-	float fracty = y - fy;
+	if (p.x < 0.0f && fx != p.x) { fx--; ix--; }
+	if (p.y < 0.0f && fy != p.y) { fy--; iy--; }
+	float fractx = p.x - fx;
+	float fracty = p.y - fy;
 	float fractx1 = 1.0 - fractx;
 	float fracty1 = 1.0 - fracty;
 	FetchFunc::fetch(dst, ix, iy) += (fractx1 * fracty1) * value;
@@ -81,31 +76,24 @@ void splatBilinearPoint(Array2D<T>& dst, float x, float y, T value)
 	FetchFunc::fetch(dst, ix + 1, iy + 1) += (fractx * fracty) * value;
 }
 export template<class T, class FetchFunc>
-T getBilinear(Array2D<T> src, vec2 p)
+T getBilinear(Array2D<T> const& src, glm::vec2 const& p)
 {
-	return getBilinear<T, FetchFunc>(src, p.x, p.y);
-}
-export template<class T, class FetchFunc>
-T getBilinear(Array2D<T> src, float x, float y)
-{
-	int ix = x, iy = y;
+	int ix = p.x, iy = p.y;
 	float fx = ix, fy = iy;
-	if (x < 0.0f && fx != x) { fx--; ix--; }
-	if (y < 0.0f && fy != y) { fy--; iy--; }
-	float fractx = x - fx;
-	float fracty = y - fy;
+	if (p.x < 0.0f && fx != p.x) { fx--; ix--; }
+	if (p.y < 0.0f && fy != p.y) { fy--; iy--; }
+	float fractx = p.x - fx;
+	float fracty = p.y - fy;
 	return lerp(
 		lerp(FetchFunc::fetch(src, ix, iy), FetchFunc::fetch(src, ix + 1, iy), fractx),
 		lerp(FetchFunc::fetch(src, ix, iy + 1), FetchFunc::fetch(src, ix + 1, iy + 1), fractx),
 		fracty);
 }
 
-export Array2D<float> to01(Array2D<float> a);
-export Array2D<vec3> to01(Array2D<vec3> a, float min, float max);
 export template<class T>
 T& zero() {
 	static T val = T()*0.0f;
-	val = T()*0.0f;
+	val = T(0.0f);
 	return val;
 }
 
@@ -129,7 +117,7 @@ vec2 gradient_i(Array2D<T>& src, ivec2 const& p)
 	gradient.y = (FetchFunc::fetch(src, p.x, p.y + 1) - FetchFunc::fetch(src, p.x, p.y - 1)) / 2.0f;
 	return gradient;
 }
-export template<class T, class FetchFunc>
+template<class T, class FetchFunc>
 vec2 gradient_i_nodiv(Array2D<T>& src, ivec2 const& p)
 {
 	vec2 gradient(
@@ -161,24 +149,9 @@ Array2D<vec2> get_gradients(Array2D<T>& src)
 	}
 	return gradients;
 }
-export template<class T>
-Array2D<vec2> get_gradients(Array2D<T> src)
-{
-	return get_gradients<T, WrapModes::DefaultImpl>(src);
-}
-
-export void mm(string desc, Array2D<float> arr);
-export void mm(string desc, Array2D<vec3> arr);
-export void mm(string desc, Array2D<vec2> arr);
-
-export vector<float> getGaussianKernel(int ksize, float sigma); // ksize must be odd
-
-export float sigmaFromKsize(float ksize);
-
-export float ksizeFromSigma(float sigma);
 
 export template<class T, class FetchFunc>
-Array2D<T> separableConvolve(Array2D<T> src, vector<float>& kernel) {
+Array2D<T> separableConvolve(Array2D<T> const& src, vector<float> const& kernel) {
 	int ksize = kernel.size();
 	int r = ksize / 2;
 
@@ -254,27 +227,17 @@ Array2D<T> gaussianBlur(Array2D<T> src, int ksize) {
 	auto kernel = getGaussianKernel(ksize, sigmaFromKsize(ksize));
 	return separableConvolve<T, FetchFunc>(src, kernel);
 }
-export template<class T>
-Array2D<T> gaussianBlur(Array2D<T> src, int ksize) {
-	return gaussianBlur<T, WrapModes::DefaultImpl>(src, ksize);
-}
-
-export Array2D<vec3> merge(vector<Array2D<float> > channels);
-
-export Array2D<float> div(Array2D<vec2> a);
-
-export vector<Array2D<float>> split(Array2D<vec3> arr);
 
 // --- Implementations from Array2D_imageProc.cpp ---
 
-void mm(string desc, Array2D<float> arr) {
+export void mm(string desc, Array2D<float> arr) {
 	if (desc != "") {
 		cout << "[" << desc << "] ";
 	}
 	cout << "min: " << *std::min_element(arr.begin(), arr.end()) << ", "
 		<< "max: " << *std::max_element(arr.begin(), arr.end()) << endl;
 }
-void mm(string desc, Array2D<vec3> arr) {
+export void mm(string desc, Array2D<vec3> arr) {
 	if (desc != "") {
 		cout << "[" << desc << "] ";
 	}
@@ -282,7 +245,7 @@ void mm(string desc, Array2D<vec3> arr) {
 	cout << "min: " << *std::min_element(data, data + arr.area * 3) << ", "
 		<< "max: " << *std::max_element(data, data + arr.area * 3) << endl;
 }
-void mm(string desc, Array2D<vec2> arr) {
+export void mm(string desc, Array2D<vec2> arr) {
 	if (desc != "") {
 		cout << "[" << desc << "] ";
 	}
@@ -291,7 +254,7 @@ void mm(string desc, Array2D<vec2> arr) {
 		<< "max: " << *std::max_element(data, data + arr.area * 2) << endl;
 }
 
-vector<float> getGaussianKernel(int ksize, float sigma) {
+export vector<float> getGaussianKernel(int ksize, float sigma) {
 	vector<float> result;
 	int r = ksize / 2;
 	float sum = 0.0f;
@@ -307,50 +270,25 @@ vector<float> getGaussianKernel(int ksize, float sigma) {
 	return result;
 }
 
-float sigmaFromKsize(float ksize) {
+// This is a common heuristic for choosing sigma based on kernel size, used in
+// OpenCV and elsewhere.
+export float sigmaFromKsize(float ksize) {
 	float sigma = 0.3*((ksize - 1)*0.5 - 1) + 0.8;
 	return sigma;
 }
 
-float ksizeFromSigma(float sigma) {
+// This is the inverse of the above heuristic, which is useful for choosing
+// kernel size based on a desired sigma.
+export float ksizeFromSigma(float sigma) {
 	int ksize = ceil(((sigma - 0.8) / 0.3 + 1) / 0.5 + 1);
 	if (ksize % 2 == 0)
 		ksize++;
 	return ksize;
 }
 
-vector<Array2D<float>> split(Array2D<vec3> arr) {
-	Array2D<float> r(arr.w, arr.h);
-	Array2D<float> g(arr.w, arr.h);
-	Array2D<float> b(arr.w, arr.h);
-	forxy(arr) {
-		r(p) = arr(p).x;
-		g(p) = arr(p).y;
-		b(p) = arr(p).z;
-	}
-	vector<Array2D<float>> result;
-	result.push_back(r);
-	result.push_back(g);
-	result.push_back(b);
-	return result;
-}
-
-Array2D<vec3> merge(vector<Array2D<float>> channels) {
-	Array2D<float>& r = channels[0];
-	Array2D<float>& g = channels[1];
-	Array2D<float>& b = channels[2];
-	Array2D<vec3> result(r.w, r.h);
-	forxy(result) {
-		result(p) = vec3(r(p), g(p), b(p));
-	}
-	return result;
-}
-
-Array2D<float> div(Array2D<vec2> a) {
-	throw 0;
-}
-
-Array2D<float> to01(Array2D<float> a) {
+// Linearly remaps the values in the array to be between 0 and 1, based
+// on the min and max values in the array.
+export Array2D<float> to01(Array2D<float> a) {
 	auto minn = *std::min_element(a.begin(), a.end());
 	auto maxx = *std::max_element(a.begin(), a.end());
 	auto b = a.clone();
@@ -361,11 +299,3 @@ Array2D<float> to01(Array2D<float> a) {
 	return b;
 }
 
-Array2D<vec3> to01(Array2D<vec3> a, float min, float max) {
-	auto b = a.clone();
-	forxy(b) {
-		b(p) -= vec3(min);
-		b(p) /= vec3(max - min);
-	}
-	return b;
-}
