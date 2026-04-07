@@ -126,22 +126,22 @@ export inline const std::string genericVertexShaderSource =
 "#version 150\n"
 "in vec4 ciPosition;"
 "in vec2 ciTexCoord0;"
-"out highp vec2 tc;"
+"out highp vec2 texCoord;"
 "uniform vec2 uTexCoordOffset, uTexCoordScale;"
 "void main()"
 "{"
 "\tgl_Position = ciPosition * 2 - 1;"
-"\ttc = ciTexCoord0;"
-"\ttc = uTexCoordOffset + uTexCoordScale * tc;"
+"\ttexCoord = ciTexCoord0;"
+"\ttexCoord = uTexCoordOffset + uTexCoordScale * texCoord;"
 "}";
 
 export inline const std::string genericFragmentShaderSource =
 "#version 150\n"
-"in highp vec2 tc;"
+"in highp vec2 texCoord;"
 "uniform sampler2D uTex;"
 "void main()"
 "{"
-"\tgl_FragColor = texture2D(uTex, tc);"
+"\tgl_FragColor = texture2D(uTex, texCoord);"
 "}";
 
 export void lxDraw(TextureRef const& tex, Rect<float> const& destRect) {

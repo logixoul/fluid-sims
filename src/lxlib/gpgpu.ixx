@@ -55,10 +55,10 @@ gl::TextureRef get_gradients_tex(gl::TextureRef src, GLuint wrap) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
 	return shade(src,
-		"	float srcL=texture(tex,tc+tsize*vec2(-1.0,0.0)).x;"
-		"	float srcR=texture(tex,tc+tsize*vec2(1.0,0.0)).x;"
-		"	float srcT=texture(tex,tc+tsize*vec2(0.0,-1.0)).x;"
-		"	float srcB=texture(tex,tc+tsize*vec2(0.0,1.0)).x;"
+         "	float srcL=texture(tex,texCoord+tsize*vec2(-1.0,0.0)).x;"
+			"	float srcR=texture(tex,texCoord+tsize*vec2(1.0,0.0)).x;"
+			"	float srcT=texture(tex,texCoord+tsize*vec2(0.0,-1.0)).x;"
+			"	float srcB=texture(tex,texCoord+tsize*vec2(0.0,1.0)).x;"
 		"	float dx=(srcR-srcL)/2.0;"
 		"	float dy=(srcB-srcT)/2.0;"
 		"	_out.xy=vec2(dx,dy);"
@@ -70,17 +70,17 @@ gl::TextureRef get_gradients_tex(gl::TextureRef src, GLuint wrap) {
 gl::TextureRef gauss3tex(gl::TextureRef src) {
 	auto state = shade(src,
 		"vec4 sum = vec4(0.0);"
-		"sum += texture(tex, tc + tsize * vec2(-1.0, -1.0)) / 16.0;"
-		"sum += texture(tex, tc + tsize * vec2(-1.0, 0.0)) / 8.0;"
-		"sum += texture(tex, tc + tsize * vec2(-1.0, +1.0)) / 16.0;"
+            "sum += texture(tex, texCoord + tsize * vec2(-1.0, -1.0)) / 16.0;"
+			"sum += texture(tex, texCoord + tsize * vec2(-1.0, 0.0)) / 8.0;"
+			"sum += texture(tex, texCoord + tsize * vec2(-1.0, +1.0)) / 16.0;"
 
-		"sum += texture(tex, tc + tsize * vec2(0.0, -1.0)) / 8.0;"
-		"sum += texture(tex, tc + tsize * vec2(0.0, 0.0)) / 4.0;"
-		"sum += texture(tex, tc + tsize * vec2(0.0, +1.0)) / 8.0;"
+          "sum += texture(tex, texCoord + tsize * vec2(0.0, -1.0)) / 8.0;"
+			"sum += texture(tex, texCoord + tsize * vec2(0.0, 0.0)) / 4.0;"
+			"sum += texture(tex, texCoord + tsize * vec2(0.0, +1.0)) / 8.0;"
 
-		"sum += texture(tex, tc + tsize * vec2(+1.0, -1.0)) / 16.0;"
-		"sum += texture(tex, tc + tsize * vec2(+1.0, 0.0)) / 8.0;"
-		"sum += texture(tex, tc + tsize * vec2(+1.0, +1.0)) / 16.0;"
+            "sum += texture(tex, texCoord + tsize * vec2(+1.0, -1.0)) / 16.0;"
+			"sum += texture(tex, texCoord + tsize * vec2(+1.0, 0.0)) / 8.0;"
+			"sum += texture(tex, texCoord + tsize * vec2(+1.0, +1.0)) / 16.0;"
 		"_out = sum;"
 		);
 	return state;
@@ -93,11 +93,11 @@ gl::TextureRef get_laplace_tex(gl::TextureRef src, GLuint wrap) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
 	auto state = shade(src,
 		"vec4 sum = vec4(0.0);"
-		"sum += texture(tex, tc + tsize * vec2(-1.0, 0.0)) * -1.0;"
-		"sum += texture(tex, tc + tsize * vec2(0.0, -1.0)) * -1.0;"
-		"sum += texture(tex, tc + tsize * vec2(0.0, +1.0)) * -1.0;"
-		"sum += texture(tex, tc + tsize * vec2(+1.0, 0.0)) * -1.0;"
-		"sum += texture(tex, tc + tsize * vec2(0.0, 0.0)) * 4.0;"
+     "sum += texture(tex, texCoord + tsize * vec2(-1.0, 0.0)) * -1.0;"
+		"sum += texture(tex, texCoord + tsize * vec2(0.0, -1.0)) * -1.0;"
+		"sum += texture(tex, texCoord + tsize * vec2(0.0, +1.0)) * -1.0;"
+		"sum += texture(tex, texCoord + tsize * vec2(+1.0, 0.0)) * -1.0;"
+		"sum += texture(tex, texCoord + tsize * vec2(0.0, 0.0)) * 4.0;"
 		"_out = -sum;"
 		);
 	return state;

@@ -147,13 +147,13 @@ std::string getCompleteFshader(vector<gl::TextureRef> const& texv, vector<Unifor
 		<< "#extension GL_ARB_explicit_uniform_location : enable"
 		<< "#extension GL_ARB_texture_gather : enable"
 		<< uniformDeclarations.str()
-		<< "in vec2 tc;"
+        << "in vec2 texCoord;"
 		<< "out vec4 _out;"
 		<< "vec4 texture(sampler2D tex_) {"
-		<< "	return texture(tex_, tc);"
+      << "	return texture(tex_, texCoord);"
 		<< "}"
 		<< "vec4 texture() {"
-		<< "	return texture(tex, tc);"
+       << "	return texture(tex, texCoord);"
 		<< "}"
 		<< functions
 		<< "void main() {"
@@ -182,13 +182,13 @@ export gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string cons
 			//<< "#extension GL_ARB_shader_image_load_store : enable"
 			<< "layout(location = 0) in vec4 ciPosition;"
 			<< "layout(location = 1) in vec2 ciTexCoord0;"
-			<< "out highp vec2 tc;"
+         << "out highp vec2 texCoord;"
 			<< uniformDeclarations
 
 			<< "void main()"
 			<< "{"
 			<< "	gl_Position = ciPosition * 2 - 1;"
-			<< "	tc = ciTexCoord0;"
+          << "	texCoord = ciTexCoord0;"
 			<< opts._vshaderExtra
 			<< "}";
 		try{

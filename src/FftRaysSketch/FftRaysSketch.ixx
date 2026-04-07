@@ -155,10 +155,10 @@ export struct FftRaysSketch : public SketchBase {
 			, ShadeOpts().dstRectSize(vec2(windowSize)));
 
 		tex = shade(tex,
-			"vec2 localTc = tc - 0.5;"
+          "vec2 localTc = texCoord - 0.5;"
 			"localTc *= 2.0; /* look from 'up high' */"
 			"vec3 col = vec3(0.0);"
-			"const int NUM_STEPS = 70;"
+			"const int NUM_STEPS = 300;"
 			"float sumWeights = 0.0f;"
 			"for(int i = 0; i < NUM_STEPS; i++) {"
 			"	float weight = pow(0.95, float(i));" // exponential weight falloff

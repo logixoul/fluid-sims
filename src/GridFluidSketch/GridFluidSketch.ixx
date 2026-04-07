@@ -111,17 +111,17 @@ export struct GridFluidSketch : public SketchBase {
 	gl::TextureRef gauss3texScaled(gl::TextureRef src, float scale) {
 		auto state = shade(src,
 			"vec4 sum = vec4(0.0);"
-			"sum += texture(tex, tc + tsize * vec2(-1.0, -1.0)) / 16.0;"
-			"sum += texture(tex, tc + tsize * vec2(-1.0, 0.0)) / 8.0;"
-			"sum += texture(tex, tc + tsize * vec2(-1.0, +1.0)) / 16.0;"
+            "sum += texture(tex, texCoord + tsize * vec2(-1.0, -1.0)) / 16.0;"
+			"sum += texture(tex, texCoord + tsize * vec2(-1.0, 0.0)) / 8.0;"
+			"sum += texture(tex, texCoord + tsize * vec2(-1.0, +1.0)) / 16.0;"
 
-			"sum += texture(tex, tc + tsize * vec2(0.0, -1.0)) / 8.0;"
-			"sum += texture(tex, tc + tsize * vec2(0.0, 0.0)) / 4.0;"
-			"sum += texture(tex, tc + tsize * vec2(0.0, +1.0)) / 8.0;"
+          "sum += texture(tex, texCoord + tsize * vec2(0.0, -1.0)) / 8.0;"
+			"sum += texture(tex, texCoord + tsize * vec2(0.0, 0.0)) / 4.0;"
+			"sum += texture(tex, texCoord + tsize * vec2(0.0, +1.0)) / 8.0;"
 
-			"sum += texture(tex, tc + tsize * vec2(+1.0, -1.0)) / 16.0;"
-			"sum += texture(tex, tc + tsize * vec2(+1.0, 0.0)) / 8.0;"
-			"sum += texture(tex, tc + tsize * vec2(+1.0, +1.0)) / 16.0;"
+            "sum += texture(tex, texCoord + tsize * vec2(+1.0, -1.0)) / 16.0;"
+			"sum += texture(tex, texCoord + tsize * vec2(+1.0, 0.0)) / 8.0;"
+			"sum += texture(tex, texCoord + tsize * vec2(+1.0, +1.0)) / 16.0;"
 			"_out = sum;",
 			ShadeOpts().scale(scale)
 		);
@@ -239,7 +239,7 @@ export struct GridFluidSketch : public SketchBase {
 			"vec3 refr=refract(viewDir, normal, eta);"
 			"float z = max(abs(refr.z), 1e-3);"
 			"vec2 refractOffset = refr.xy / z;"
-			"vec2 refractUv = tc + refractOffset * .1;"
+         "vec2 refractUv = texCoord + refractOffset * .1;"
 			//"float lod = manualLod(refractUv, textureSize(tex3, 0), refractOffset) + lodBias;"
 			//"vec3 c = textureLod(tex3, refractUv, lod*0.0).rgb;"
 			"vec2 dPdx = dFdx(refractUv);"
