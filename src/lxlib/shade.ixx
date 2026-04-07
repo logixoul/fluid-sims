@@ -86,6 +86,10 @@ export struct ShadeOpts
 		_vshaderExtra = val;
 		return *this;
 	}
+	ShadeOpts& functions(string val) {
+		_functions = val;
+		return *this;
+	}
 
 	optional<GLenum> _ifmt;
 	float _scaleX, _scaleY;
@@ -97,6 +101,7 @@ export struct ShadeOpts
 	bool _enableResult = true;
 	vector<Uniform> _uniforms;
 	string _vshaderExtra;
+	std::string _functions;
 };
 
 export gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string const& fshader, ShadeOpts const& opts=ShadeOpts());
@@ -119,7 +124,7 @@ auto samplerName = [&](int i) -> string {
 	return "tex" + samplerSuffix(i);
 };
 
-std::string getCompleteFshader(vector<gl::TextureRef> const& texv, vector<Uniform> const& uniforms, std::string const& fshader, string* uniformDeclarationsRet) {
+std::string getCompleteFshader(vector<gl::TextureRef> const& texv, vector<Uniform> const& uniforms, std::string const& fshader, std::string const& functions, string* uniformDeclarationsRet) {
 	auto texIndex = [&](gl::TextureRef t) {
 		return std::to_string(
 			1 + (std::find(texv.begin(), texv.end(), t) - texv.begin())
@@ -199,6 +204,7 @@ std::string getCompleteFshader(vector<gl::TextureRef> const& texv, vector<Unifor
 		<< "vec2 safeNormalized(vec2 v) { return length(v)==0.0 ? v : normalize(v); }"
 		<< "vec3 safeNormalized(vec3 v) { return length(v)==0.0 ? v : normalize(v); }"
 		<< "vec4 safeNormalized(vec4 v) { return length(v)==0.0 ? v : normalize(v); }"
+		<< functions
 		<< "#line 0\n\n" // the \n\n is needed only on Intel gpus. Probably a driver bug.
 		;
 	string outro =
@@ -222,7 +228,7 @@ gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string const& fsha
 	if(shaders.find(fshader) == shaders.end())
 	{
 		string uniformDeclarations;
-		std::string completeFshader = getCompleteFshader(texv, opts._uniforms, fshader, &uniformDeclarations);
+		std::string completeFshader = getCompleteFshader(texv, opts._uniforms, fshader, opts._functions, &uniformDeclarations);
 		string completeVshader = Str()
 			<< "#version 150"
 			<< "#extension GL_ARB_explicit_attrib_location : enable"

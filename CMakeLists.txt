@@ -127,16 +127,16 @@ target_link_libraries(App PRIVATE
 )
 
 
-# ── Post-build: copy runtime config files next to the executable ──────────────
-add_custom_command(TARGET App POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+# ── Runtime config copies: always checked, only copied when source is newer ───
+add_custom_target(AppRuntimeConfigs
+    COMMAND ${CMAKE_COMMAND} -E copy_if_newer
         ${CMAKE_CURRENT_SOURCE_DIR}/src/GridFluidSketch/gridFluidConfig.toml
         $<TARGET_FILE_DIR:App>/gridFluidConfig.toml
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    COMMAND ${CMAKE_COMMAND} -E copy_if_newer
         ${CMAKE_CURRENT_SOURCE_DIR}/src/MultiscaleGrowthSketch/multiscaleGrowthConfig.toml
         $<TARGET_FILE_DIR:App>/multiscaleGrowthConfig.toml
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    COMMAND ${CMAKE_COMMAND} -E copy_if_newer
         ${CMAKE_CURRENT_SOURCE_DIR}/src/FftRaysSketch/FftRaysConfig.toml
         $<TARGET_FILE_DIR:App>/FftRaysConfig.toml
 )
-
+add_dependencies(App AppRuntimeConfigs)

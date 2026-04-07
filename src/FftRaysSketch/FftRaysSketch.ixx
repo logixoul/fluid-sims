@@ -133,12 +133,13 @@ export struct FftRaysSketch : public SketchBase {
 		glDisable(GL_BLEND);
 
 		auto spatialDomainState = FFT::inverseFftC2C(freqDomainState);
-		Array2D<FFT::Complex> normalized = 0.05f * spatialDomainState / std::sqrt((float)(spatialDomainState.area));
+		Array2D<FFT::Complex> normalized = spatialDomainState / std::sqrt((float)(spatialDomainState.area));
 		forxy(normalized) {
 			const float len = std::abs(normalized(p));
-			const float expArg = (len - 1.5f) * 3.0f;
+			/*const float expArg = (len - 1.5f) * 3.0f;
 			const float expMin = (0 - 1.5f) * 3.0f;
-			const float newLen = exp(expArg) - exp(expMin); // ensure zero maps to zero
+			const float newLen = exp(expArg) - exp(expMin); // ensure zero maps to zero*/
+			const float newLen = std::pow(len, 4.0f); // boost dim colors more than bright ones
 			normalized(p) *= newLen / len;
 		}
 
@@ -156,26 +157,41 @@ export struct FftRaysSketch : public SketchBase {
 			"vec2 localTc = tc - 0.5;"
 			"localTc *= 2.0; /* look from 'up high' */"
 			"vec3 col = vec3(0.0);"
-			"const int NUM_STEPS = 50;"
+			"const int NUM_STEPS = 70;"
 			"float sumWeights = 0.0f;"
 			"for(int i = 0; i < NUM_STEPS; i++) {"
-			"	float weight = pow(0.6, float(i));" // exponential weight falloff
-			"	if(i == 0) weight = 3.0f;" // boost center sample
+			"	float weight = pow(0.95, float(i));" // exponential weight falloff
+			"	if(i == 0) weight = 35.0f;" // boost center sample
 			"	col += fetch4(tex, localTc + 0.5).rgb * weight;"
-			"	localTc -= localTc * 0.03;" // "zoom blur" effect
+			"	localTc -= localTc * 0.005;" // "zoom blur" effect
 			"	sumWeights += weight;"
 			"}"
 			"_out.rgb = col / sumWeights;");
 
-		auto texb = gpuBlur2_5::run(tex, 2);
-		tex = op(tex) + op(texb) * 1.0f;
+		auto texb = gpuBlur2_5::run(tex, 3);
+		tex = op(tex) + op(texb) * 2.0f;
 		//tex = shade2(tex, "_out.rgb = fetch4().rgb * .1;");
 		tex = shade2(tex,
 			"_out.rgb = fetch4().rgb*gain;"
-			"_out.rgb /= _out.rgb + vec3(1.0);" // reinhard-ish tonemapping
+			"_out.rgb = Uncharted2Tonemap(_out.rgb);" // filmic tonemapping
+			//"_out.rgb /= _out.rgb + vec3(1.0);" // reinhard-ish tonemapping
 			//"_out.rgb = smoothstep(vec3(0.0), vec3(1.0), _out.rgb);" // contrast enhancement
 			//"_out.rgb = pow(_out.rgb, vec3(1.0/2.2));" // gamma correction
 			, ShadeOpts().uniform("gain", options.gain)
+				.functions(R"(
+					const float whitePoint = 11.2;
+					// http://filmicworlds.com/blog/filmic-tonemapping-operators/
+					vec3 Uncharted2Tonemap(vec3 color) {
+						// Filmic tonemapping curve (from Uncharted 2)
+						const float A = 0.15;
+						const float B = 0.50;
+						const float C = 0.10;
+						const float D = 0.20;
+						const float E = 0.02;
+						const float F = 0.30;
+						return (color * (A * color + C * B) + D * E) / (color * (A * color + B) + D * F);
+					}
+				)")
 		);
 		lxDraw(tex);
 	}
