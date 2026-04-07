@@ -7,15 +7,6 @@ export module lxlib.Array2D_imageProc;
 import lxlib.Array2D;
 import lxlib.stuff;
 
-export inline ivec2 clampPoint(ivec2 p, int w, int h)
-{
-	ivec2 wp = p;
-	if (wp.x < 0) wp.x = 0;
-	if (wp.x > w - 1) wp.x = w - 1;
-	if (wp.y < 0) wp.y = 0;
-	if (wp.y > h - 1) wp.y = h - 1;
-	return wp;
-}
 export namespace WrapModes {
 	struct GetMirrorWrapped {
 		template<class T>
@@ -39,7 +30,12 @@ export namespace WrapModes {
 		template<class T>
 		static T& fetch(Array2D<T>& src, int x, int y)
 		{
-			return ::get_wrapZeros(src, x, y);
+			if (x < 0 || y < 0 || x >= src.w || y >= src.h)
+			{
+				static T zeroRef = ::zero<T>();
+				return zeroRef;
+			}
+			return src(x, y);
 		}
 	};
 	struct NoWrap {
@@ -53,18 +49,23 @@ export namespace WrapModes {
 		template<class T>
 		static T& fetch(Array2D<T>& src, int x, int y)
 		{
-			return src(clampPoint(ivec2(x, y), src.w, src.h));
+			if (x < 0) x = 0;
+			if (x > src.w - 1) x = src.w - 1;
+			if (y < 0) y = 0;
+			if (y > src.h - 1) y = src.h - 1;
+			
+			return src(x, y);
 		}
 	};
 	typedef GetWrapped DefaultImpl;
 };
 export template<class T, class FetchFunc>
-void aaPoint(Array2D<T>& dst, vec2 p, T value)
+void splatBilinearPoint(Array2D<T>& dst, vec2 p, T value)
 {
-	aaPoint<T, FetchFunc>(dst, p.x, p.y, value);
+	splatBilinearPoint<T, FetchFunc>(dst, p.x, p.y, value);
 }
 export template<class T, class FetchFunc>
-void aaPoint(Array2D<T>& dst, float x, float y, T value)
+void splatBilinearPoint(Array2D<T>& dst, float x, float y, T value)
 {
 	int ix = x, iy = y;
 	float fx = ix, fy = iy;
@@ -120,24 +121,6 @@ Array2D<T> gauss3(Array2D<T> src) {
 	return dst2;
 }
 
-export template<class T>
-T& get_wrapZeros(Array2D<T>& src, int x, int y)
-{
-	if (x < 0 || y < 0 || x >= src.w || y >= src.h)
-	{
-		return ::zero<T>();
-	}
-	return src(x, y);
-}
-export template<class T>
-T const& get_wrapZeros(Array2D<T> const& src, int x, int y)
-{
-	if (x < 0 || y < 0 || x >= src.w || y >= src.h)
-	{
-		return zero<T>();
-	}
-	return src(x, y);
-}
 export template<class T, class FetchFunc = WrapModes::DefaultImpl>
 vec2 gradient_i(Array2D<T>& src, ivec2 const& p)
 {

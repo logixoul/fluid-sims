@@ -85,7 +85,7 @@ export struct ParticleFluidSketch : public SketchBase {
 
 		auto img = Array2D<float>(sz);
 		for (auto& particle : particles) {
-			aaPoint<float, WrapModes::GetClamped>(img, particle.pos, 1);
+			splatBilinearPoint<float, WrapModes::GetClamped>(img, particle.pos, 1);
 		}
 		auto accum = Array2D<float>(sz);
 		for (int i = 3; i < 3 + blurIters; i++) {

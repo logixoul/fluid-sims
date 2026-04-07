@@ -139,7 +139,7 @@ export struct GridFluidSketch : public SketchBase {
 		static float matterThreshold = 1.0f;
 		ImGui::DragFloat("matterThreshold", &matterThreshold, 1.0f, 0.01, 8.0, "%.3f", ImGuiSliderFlags_Logarithmic);
 
-		auto density = empty_like(red.density);
+		auto density = uninitializedArrayLike(red.density);
 		forxy(density) {
 			density(p) = red.density(p) + green.density(p);
 		}
@@ -453,7 +453,7 @@ export struct GridFluidSketch : public SketchBase {
 				//aaPoint<float, WrapModes::WrapModes::GetWrapped>(density2, dst, density(p));
 			}*/
 			//density = density2;
-			auto offsets = empty_like(momentum);
+			auto offsets = uninitializedArrayLike(momentum);
 			forxy(offsets) {
 				offsets(p) = momentum(p) / density(p);
 			}
@@ -500,8 +500,8 @@ export struct GridFluidSketch : public SketchBase {
 				count++;
 			//if(bounced)
 			//	aaPoint<float, WrapModes::NoWrap>(bounces_dbg, dst, 1);
-			aaPoint<float, WrapModes::GetMirrorWrapped>(density3, dst, density(p));
-			aaPoint<vec2, WrapModes::GetMirrorWrapped>(momentum3, dst, newEnergy);
+			splatBilinearPoint<float, WrapModes::GetMirrorWrapped>(density3, dst, density(p));
+			splatBilinearPoint<vec2, WrapModes::GetMirrorWrapped>(momentum3, dst, newEnergy);
 		}
 		//cout << "bugged=" << count << endl;
 		//cout << "sumOffsetY=" << sumOffsetY/div << endl;

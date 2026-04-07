@@ -85,7 +85,7 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 			vec2 const& gradN = safeNormalized(grad);
 			vec2 const& gradNPerp = perpLeft(gradN);
 			float add = -hessianDirectionalSecondDeriv<float, WrapModes::GetClamped>(img, p, gradNPerp);
-			aaPoint<float, WrapModes::GetClamped>(img2, pf - gradN * add, add * options.morphogenesisStrength);
+			splatBilinearPoint<float, WrapModes::GetClamped>(img2, pf - gradN * add, add * options.morphogenesisStrength);
 		}
 		auto kernel = getGaussianKernel(3, sigmaFromKsize(3));
 		//auto blurredImg2 = ::separableConvolve<float, WrapModes::GetClamped>(img2, kernel);
@@ -96,7 +96,7 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 		return img;
 	}
 	Img applyVerticalGradient(Img const& img) {
-		Img result = ::zeros_like(img);
+		Img result = ::uninitializedArrayLike(img);
 		forxy(result) {
 			float floatY = p.y / (float)result.h;
 			floatY = glm::mix(options.blendWeaken, 1.0f - options.blendWeaken, floatY);

@@ -122,7 +122,7 @@ export struct FftRaysSketch : public SketchBase {
 
 			FFT::Complex const contribution(randFloat(-1, 1) * 5.0f, randFloat(-1, 1) * 5.0f);
 			//cout << "Adding contribution " << contribution << " at " << walker.pos << endl;
-			aaPoint<FFT::Complex, WrapModes::GetWrapped>(freqDomainState, walker.pos, contribution);
+			splatBilinearPoint<FFT::Complex, WrapModes::GetWrapped>(freqDomainState, walker.pos, contribution);
 		}
 		freqDomainState(0, 0) = FFT::Complex(0, 0); // remove DC component to prevent it from dominating the image
 	}

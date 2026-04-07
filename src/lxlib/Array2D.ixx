@@ -116,17 +116,17 @@ private:
 };
 
 export template<class T>
-Array2D<T> empty_like(Array2D<T> a) {
+Array2D<T> uninitializedArrayLike(Array2D<T> a) {
 	return Array2D<T>(a.Size(), nofill());
 }
 
 export template<class T>
-Array2D<T> ones_like(Array2D<T> a) {
+Array2D<T> onesLike(Array2D<T> a) {
 	return Array2D<T>(a.Size(), 1.0f);
 }
 
 export template<class T>
-Array2D<T> zeros_like(Array2D<T> a) {
+Array2D<T> zerosLike(Array2D<T> a) {
 	return Array2D<T>(a.Size(), ::zero<T>());
 }
 
@@ -161,7 +161,7 @@ Array2D<T1>& applyArrayArrayOpInPlace(Array2D<T1>& arr1, Array2D<T2> const& arr2
 template<class T, class TOp>
 Array2D<T> applyOpOutOfPlace(Array2D<T> const& arr, T const& secondArg, TOp const& op)
 {
-	auto resultArr = empty_like(arr);
+	auto resultArr = uninitializedArrayLike(arr);
 	forxy(arr) {
 		resultArr(p) = op(arr(p), secondArg);
 	}
@@ -171,7 +171,7 @@ Array2D<T> applyOpOutOfPlace(Array2D<T> const& arr, T const& secondArg, TOp cons
 template<class T, class TOp>
 Array2D<T> applyOpOutOfPlace(T const& firstArg, Array2D<T> const& arr, TOp const& op)
 {
-	auto resultArr = empty_like(arr);
+	auto resultArr = uninitializedArrayLike(arr);
 	forxy(arr) {
 		resultArr(p) = op(firstArg, arr(p));
 	}
@@ -182,7 +182,7 @@ template<class T1, class T2, class TOp>
 Array2D<T1> applyArrayArrayOpOutOfPlace(Array2D<T1> const& arr1, Array2D<T2> const& arr2, TOp const& op)
 {
 	assert(arr1.w == arr2.w && arr1.h == arr2.h);
-	auto resultArr = empty_like(arr1);
+	auto resultArr = uninitializedArrayLike(arr1);
 	forxy(arr1) {
 		resultArr(p) = op(arr1(p), broadcastTo<T1>(arr2(p)));
 	}
