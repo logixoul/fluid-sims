@@ -1,7 +1,7 @@
 module;
 #include "precompiled.h"
 
-export module lxlib.AreaRectf;
+export module lxlib.Rect;
 
 export template<class T>
 class Rect {

@@ -38,7 +38,7 @@ set(THIRD_PARTY_SOURCES
 )
 
 set(CXX_MODULE_SOURCES
-    src/lxlib/AreaRectf.ixx
+    "src/lxlib/Rect.ixx"
     src/lxlib/Array2D_imageProc.ixx
     src/lxlib/colorspaces.ixx
     src/lxlib/ConfigManager3.ixx
@@ -86,13 +86,13 @@ target_include_directories(App PRIVATE
     src/third-party/include
 )
 
-# Precompiled header for regular .cpp sources
+# Precompiled header – shared by .cpp and .ixx sources.
+# With VS 2022 17.5+ / VS 2026, /FI works with named modules:
+# the force-included PCH content is placed in the global module fragment.
 target_precompile_headers(App PRIVATE src/precompiled.h)
 
-# Module files handle their own includes in the global module fragment,
-# and third-party sources don't use our PCH.
+# Third-party sources don't use our PCH.
 set_source_files_properties(
-    ${CXX_MODULE_SOURCES}
     ${IMGUI_SOURCES}
     src/third-party/src/glad.c
     src/third-party/src/stb_image.cpp

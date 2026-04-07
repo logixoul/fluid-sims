@@ -6,7 +6,7 @@ export module lxlib.TextureRef;
 
 import lxlib.GlslProg;
 import lxlib.VaoVbo;
-import lxlib.AreaRectf;
+import lxlib.Rect;
 
 extern void drawRect();
 extern glm::ivec2 windowSize;

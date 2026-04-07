@@ -9,7 +9,7 @@ import lxlib.stuff;
 import lxlib.gpuBlur2_5;
 import lxlib.ConfigManager3;
 #include <lxlib/macros.h>
-import lxlib.AreaRectf;
+import lxlib.Rect;
 import lxlib.SketchBase;
 import lxlib.TextureRef;
 

@@ -84,6 +84,7 @@ export struct FftRaysSketch : public SketchBase {
 				amplitude * std::sin(phase));
 		}
 
+
 		walkers = std::vector<Walker>(100);
 		for(auto& walker : walkers) {
 			walker.pos = glm::vec2(randFloat(), randFloat()) * vec2(freqDomainState.Size());

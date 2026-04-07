@@ -1,4 +1,6 @@
+module;
 #include "precompiled.h"
+
 export module lxlib.colorspaces;
 
 export struct HslF
