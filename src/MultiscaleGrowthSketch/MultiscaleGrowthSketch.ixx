@@ -173,8 +173,8 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 	static gl::TextureRef gpuHighpass(gl::TextureRef in, float strength) {
 		auto blurred = gpuBlurClaude::blurWithInvKernel(in);
 		auto highpassed = shade({ in, blurred }, MULTILINE(
-			float f = fetch1();
-		float fBlurred = fetch1(tex2);
+			float f = texture().x;
+		float fBlurred = texture(tex2).x;
 		float highPassed = f - fBlurred * highPassStrength;
 		_out.r = highPassed;
 			), ShadeOpts().uniform("highPassStrength", strength)
@@ -187,7 +187,7 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 
 		auto imgTex = gtex(imgClamped);
 		auto imgTexCentered = shade(imgTex,
-			"float f = fetch1();"
+			"float f = texture().x;"
 			"_out.r = f - .5;"
 		);
 
@@ -201,7 +201,7 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 			auto& thisLevel = pyramid[i];
 			auto thisLevelTex = gtex(thisLevel);
 			auto thisLevelTexContrastized = shade(thisLevelTex,
-				"float f = fetch1();"
+				"float f = texture().x;"
 				"float fw = fwidth(f);"
 				"f = smoothstep(-fw/2.0, fw/2.0, f);"
 				"_out.r = f;", ShadeOpts().dstRectSize(ivec2(wsx, wsy)));
@@ -210,7 +210,7 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 		stateTex = op(stateTex) / float(pyramid.size());
 		//stateTex = (op(stateTex) + op(gpuBlur2_5::run(stateTex, 3))*2.0f) / 2;
 		stateTex = shade(stateTex, MULTILINE(
-			float val = fetch1();
+			float val = texture().x;
 		vec3 fire = vec3(min(val * 1.5, 1.), pow(val, 2.5), pow(val, 12.));
 		_out.rgb = fire;
 			),

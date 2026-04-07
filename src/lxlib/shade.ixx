@@ -123,13 +123,13 @@ std::string getCompleteFshader(vector<gl::TextureRef> const& texv, vector<Unifor
 	auto texIndex = [&](gl::TextureRef t) {
 		return std::to_string(
 			1 + (std::find(texv.begin(), texv.end(), t) - texv.begin())
-			);
-	};
+		);
+		};
 	stringstream uniformDeclarations;
 	int location = 0;
 	uniformDeclarations << "uniform ivec2 viewportSize;\n";
 	uniformDeclarations << "uniform vec2 mouse;\n";
-	for(int i = 0; i < texv.size(); i++)
+	for (int i = 0; i < texv.size(); i++)
 	{
 		string samplerType = "sampler2D";
 		uniformDeclarations << "uniform " + samplerType + " " + samplerName(i) + ";\n";
@@ -149,41 +149,11 @@ std::string getCompleteFshader(vector<gl::TextureRef> const& texv, vector<Unifor
 		<< uniformDeclarations.str()
 		<< "in vec2 tc;"
 		<< "out vec4 _out;"
-		<< "vec4 fetch4(sampler2D tex_, vec2 tc_) {"
-		<< "	return texture2D(tex_, tc_).rgba;"
+		<< "vec4 texture(sampler2D tex_) {"
+		<< "	return texture(tex_, tc);"
 		<< "}"
-		<< "vec3 fetch3(sampler2D tex_, vec2 tc_) {"
-		<< "	return texture2D(tex_, tc_).rgb;"
-		<< "}"
-		<< "vec2 fetch2(sampler2D tex_, vec2 tc_) {"
-		<< "	return texture2D(tex_, tc_).rg;"
-		<< "}"
-		<< "float fetch1(sampler2D tex_, vec2 tc_) {"
-		<< "	return texture2D(tex_, tc_).r;"
-		<< "}"
-		<< "vec4 fetch4(sampler2D tex_) {"
-		<< "	return texture2D(tex_, tc).rgba;"
-		<< "}"
-		<< "vec3 fetch3(sampler2D tex_) {"
-		<< "	return texture2D(tex_, tc).rgb;"
-		<< "}"
-		<< "vec2 fetch2(sampler2D tex_) {"
-		<< "	return texture2D(tex_, tc).rg;"
-		<< "}"
-		<< "float fetch1(sampler2D tex_) {"
-		<< "	return texture2D(tex_, tc).r;"
-		<< "}"
-		<< "vec4 fetch4() {"
-		<< "	return texture2D(tex, tc).rgba;"
-		<< "}"
-		<< "vec3 fetch3() {"
-		<< "	return texture2D(tex, tc).rgb;"
-		<< "}"
-		<< "vec2 fetch2() {"
-		<< "	return texture2D(tex, tc).rg;"
-		<< "}"
-		<< "float fetch1() {"
-		<< "	return texture2D(tex, tc).r;"
+		<< "vec4 texture() {"
+		<< "	return texture(tex, tc);"
 		<< "}"
 		<< functions
 		<< "void main() {"

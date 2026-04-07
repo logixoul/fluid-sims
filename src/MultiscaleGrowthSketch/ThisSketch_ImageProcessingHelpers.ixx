@@ -204,7 +204,7 @@ return out;
 
 gl::TextureRef redToLuminance(gl::TextureRef const& in) {
 return shade(in,
-"_out.rgb = vec3(fetch1());",
+"_out.rgb = vec3(texture().x);",
 ShadeOpts().ifmt(GL_RGBA16F)
 );
 }

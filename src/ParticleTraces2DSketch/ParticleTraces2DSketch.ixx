@@ -177,7 +177,7 @@ export struct ParticleTraces2DSketch : public SketchBase {
 		static auto sizeSourceTex = gtex(sizeSource);
 		static auto walkerTex = shade(sizeSourceTex, "_out.rgb = vec3(0.0);");
 		if (!pause) {
-			walkerTex = shade(walkerTex, "_out.rgb = fetch3() * 0.993;");
+			walkerTex = shade(walkerTex, "_out.rgb = texture().xyz * 0.993;");
 
 			glPointSize(2.5);
 			std::vector<vec4> color;
@@ -211,7 +211,7 @@ export struct ParticleTraces2DSketch : public SketchBase {
 			}
 		}
 		auto walkerTexThres = shade(walkerTex,
-			"vec3 c = fetch3();"
+			"vec3 c = texture().xyz;"
 			"float avg = dot(c, vec3(1)/3.0f);"
 			"if(avg < .25)"
 			"	 c = vec3(0);"
@@ -219,13 +219,13 @@ export struct ParticleTraces2DSketch : public SketchBase {
 		);
 		auto walkerTexB = gpuBlur2_5::run(walkerTexThres, 4);
 		auto walkerTex2 = shade({ walkerTex, walkerTexB },
-			"vec3 c = fetch3();"
+			"vec3 c = texture().xyz;"
 			"vec3 hsl = rgb2hsl(c);"
 			"hsl.z /= .5;"
 			"hsl.z = min(hsl.z, 1.0);"
 			"hsl.z = pow(hsl.z, 3.0);"
 			"c = hsl2rgb(hsl);"
-			"c += fetch3(tex2);"
+			"c += texture(tex2).xyz;"
 			"_out.rgb = c;",
 			ShadeOpts()
 				.ifmt(GL_RGB32F)

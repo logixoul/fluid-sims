@@ -151,7 +151,7 @@ export struct FftRaysSketch : public SketchBase {
 		}
 		auto tex = gtex(img);
 		tex = shade(tex, // upscale
-			"_out.rgb = fetch4().rgb;"
+			"_out = texture();"
 			, ShadeOpts().dstRectSize(vec2(windowSize)));
 
 		tex = shade(tex,
@@ -163,7 +163,7 @@ export struct FftRaysSketch : public SketchBase {
 			"for(int i = 0; i < NUM_STEPS; i++) {"
 			"	float weight = pow(0.95, float(i));" // exponential weight falloff
 			"	if(i == 0) weight = 35.0f;" // boost center sample
-			"	col += fetch4(tex, localTc + 0.5).rgb * weight;"
+			"	col += texture(tex, localTc + 0.5).rgb * weight;"
 			"	localTc -= localTc * 0.005;" // "zoom blur" effect
 			"	sumWeights += weight;"
 			"}"
@@ -171,9 +171,9 @@ export struct FftRaysSketch : public SketchBase {
 
 		auto texb = gpuBlur2_5::run(tex, 3);
 		tex = op(tex) + op(texb) * 2.0f;
-		//tex = shade(tex, "_out.rgb = fetch4().rgb * .1;");
+		//tex = shade(tex, "_out.rgb = texture().rgb * .1;");
 		tex = shade(tex,
-			"_out.rgb = fetch4().rgb*gain;"
+			"_out.rgb = texture().rgb*gain;"
 			"_out.rgb = Uncharted2Tonemap(_out.rgb);" // filmic tonemapping
 			//"_out.rgb /= _out.rgb + vec3(1.0);" // reinhard-ish tonemapping
 			//"_out.rgb = smoothstep(vec3(0.0), vec3(1.0), _out.rgb);" // contrast enhancement

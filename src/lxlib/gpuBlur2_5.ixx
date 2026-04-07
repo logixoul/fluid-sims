@@ -31,7 +31,7 @@ namespace gpuBlur2_5 {
 	}
 
 	gl::TextureRef run(gl::TextureRef src, int lvls) {
-		auto state = shade(src, "_out.rgb = fetch3();");
+		auto state = shade(src, "_out = texture();");
 
 		for (int i = 0; i < lvls; i++) {
 			state = singleblur(state, .5, .5);
@@ -59,7 +59,7 @@ namespace gpuBlur2_5 {
 		vector<gl::TextureRef> zoomstates;
 		zoomstates.push_back(src);
 		zoomstates[0] = shade(zoomstates[0],
-			"_out.rgb = fetch3() * _mul;",
+			"_out = texture().xyz * _mul;",
 			ShadeOpts().uniform("_mul", 1.0f / sumw));
 		for (int i = 0; i < lvls; i++) {
 			auto newZoomstate = singleblur(zoomstates[i], hscale, vscale);
@@ -70,10 +70,10 @@ namespace gpuBlur2_5 {
 			auto upscaled = upscale(zoomstates[i], zoomstates[i - 1]->getSize());
 			float w = pow(lvlmul, float(i)); // tmp copypaste
 			zoomstates[i - 1] = shade({ zoomstates[i - 1], upscaled },
-				"vec3 acc = fetch3(tex);"
-				"vec3 nextzoom = fetch3(tex2);"
-				"vec3 c = acc + nextzoom * _mul;"
-				"_out.rgb = c;"
+				"vec4 acc = texture(tex);"
+				"vec4 nextzoom = texture(tex2);"
+				"vec4 c = acc + nextzoom * _mul;"
+				"_out = c;"
 				, ShadeOpts().uniform("_mul", w)
 			);
 		}
@@ -109,9 +109,9 @@ namespace gpuBlur2_5 {
 			// frXY is in PIXEL SPACE. its x and y go from -.5 to .5
 			"	vec2 frXY = (tc - tc2) * texSize;"
 			"	float fr = (GB2_offsetX == 1.0) ? frXY.x : frXY.y;"
-			"	vec3 aM1 = fetch3(tex, tc2 + (-1.0) * offset * tsize);"
-			"	vec3 a0 = fetch3(tex, tc2 + (0.0) * offset * tsize);"
-			"	vec3 aP1 = fetch3(tex, tc2 + (+1.0) * offset * tsize);"
+			"	vec4 aM1 = texture(tex, tc2 + (-1.0) * offset * tsize);"
+			"	vec4 a0 = texture(tex, tc2 + (0.0) * offset * tsize);"
+			"	vec4 aP1 = texture(tex, tc2 + (+1.0) * offset * tsize);"
 			"	"
 			"	float wM1=gauss(-1.0-fr, gaussW);"
 			"	float w0=gauss(-fr, gaussW);"
@@ -120,7 +120,7 @@ namespace gpuBlur2_5 {
 			"	wM1/=sum;"
 			"	w0/=sum;"
 			"	wP1/=sum;"
-			"	_out.rgb = wM1*aM1 + w0*a0 + wP1*aP1;";
+			"	_out = wM1*aM1 + w0*a0 + wP1*aP1;";
 		setWrapBlack(src);
 		auto hscaled = shade(src, shader,
 			ShadeOpts()
@@ -154,14 +154,14 @@ namespace gpuBlur2_5 {
 		weights << fixed << "float w0=" << w0 << ", w1=" << w1 << ", w2=" << w2 << ";" << endl;
 		string shader =
 			"vec2 offset = vec2(GB2_offsetX, GB2_offsetY);"
-			"vec3 aM2 = fetch3(tex, tc + (-2.0) * offset * tsize);"
-			"vec3 aM1 = fetch3(tex, tc + (-1.0) * offset * tsize);"
-			"vec3 a0 = fetch3(tex, tc + (0.0) * offset * tsize);"
-			"vec3 aP1 = fetch3(tex, tc + (+1.0) * offset * tsize);"
-			"vec3 aP2 = fetch3(tex, tc + (+2.0) * offset * tsize);"
+			"vec4 aM2 = texture(tex, tc + (-2.0) * offset * tsize);"
+			"vec4 aM1 = texture(tex, tc + (-1.0) * offset * tsize);"
+			"vec4 a0 = texture(tex, tc + (0.0) * offset * tsize);"
+			"vec4 aP1 = texture(tex, tc + (+1.0) * offset * tsize);"
+			"vec4 aP2 = texture(tex, tc + (+2.0) * offset * tsize);"
 			""
 			+ weights.str() +
-			"_out.rgb = w2 * (aM2 + aP2) + w1 * (aM1 + aP1) + w0 * a0;";
+			"_out = w2 * (aM2 + aP2) + w1 * (aM1 + aP1) + w0 * a0;";
 
 		setWrap(src, wrap);
 		auto hscaled = shade(src, shader,

@@ -110,19 +110,19 @@ export struct GridFluidSketch : public SketchBase {
 	
 	gl::TextureRef gauss3texScaled(gl::TextureRef src, float scale) {
 		auto state = shade(src,
-			"vec3 sum = vec3(0.0);"
-			"sum += fetch3(tex, tc + tsize * vec2(-1.0, -1.0)) / 16.0;"
-			"sum += fetch3(tex, tc + tsize * vec2(-1.0, 0.0)) / 8.0;"
-			"sum += fetch3(tex, tc + tsize * vec2(-1.0, +1.0)) / 16.0;"
+			"vec4 sum = vec4(0.0);"
+			"sum += texture(tex, tc + tsize * vec2(-1.0, -1.0)) / 16.0;"
+			"sum += texture(tex, tc + tsize * vec2(-1.0, 0.0)) / 8.0;"
+			"sum += texture(tex, tc + tsize * vec2(-1.0, +1.0)) / 16.0;"
 
-			"sum += fetch3(tex, tc + tsize * vec2(0.0, -1.0)) / 8.0;"
-			"sum += fetch3(tex, tc + tsize * vec2(0.0, 0.0)) / 4.0;"
-			"sum += fetch3(tex, tc + tsize * vec2(0.0, +1.0)) / 8.0;"
+			"sum += texture(tex, tc + tsize * vec2(0.0, -1.0)) / 8.0;"
+			"sum += texture(tex, tc + tsize * vec2(0.0, 0.0)) / 4.0;"
+			"sum += texture(tex, tc + tsize * vec2(0.0, +1.0)) / 8.0;"
 
-			"sum += fetch3(tex, tc + tsize * vec2(+1.0, -1.0)) / 16.0;"
-			"sum += fetch3(tex, tc + tsize * vec2(+1.0, 0.0)) / 8.0;"
-			"sum += fetch3(tex, tc + tsize * vec2(+1.0, +1.0)) / 16.0;"
-			"_out.rgb = sum;",
+			"sum += texture(tex, tc + tsize * vec2(+1.0, -1.0)) / 16.0;"
+			"sum += texture(tex, tc + tsize * vec2(+1.0, 0.0)) / 8.0;"
+			"sum += texture(tex, tc + tsize * vec2(+1.0, +1.0)) / 16.0;"
+			"_out = sum;",
 			ShadeOpts().scale(scale)
 		);
 		return state;
@@ -151,7 +151,7 @@ export struct GridFluidSketch : public SketchBase {
 		sumTex = gauss3texScaled(sumTex, 1.0); // reduce upscale artefacts
 		sumTex = gauss3texScaled(sumTex, 1.0); // reduce upscale artefacts
 		sumTex = shade(sumTex,
-			"float f = fetch1();"
+			"float f = texture().x;"
 			"float fw = fwidth(f);"
 			"_out.r = f * smoothstep(matterThreshold-fw/2, matterThreshold+fw/2, f);"
 			, ShadeOpts().uniform("matterThreshold", matterThreshold).scale(scale)
@@ -162,7 +162,7 @@ export struct GridFluidSketch : public SketchBase {
 
 		auto momentumTex = gtex(red.momentum);
 		auto hsvTex = shade(momentumTex, MULTILINE(
-			vec2 momentum = fetch2();
+			vec2 momentum = texture().xy;
 			float angle = atan(momentum.y, momentum.x) / (2 * pi) + .5;
 			//angle *= pi;
 			float len = length(momentum);
@@ -187,14 +187,14 @@ export struct GridFluidSketch : public SketchBase {
 		greenTex = op(greenTex) * 0.16;
 
 		hsvTex = shade({ hsvTex, hsvTexB }, MULTILINE(
-			_out.rgb = (fetch3() + fetch3(tex2) * 1.0) * bloomIntensity;
+			_out = (texture() + texture(tex2) * 1.0) * bloomIntensity;
 		),
 			ShadeOpts().uniform("bloomIntensity", bloomIntensity)
 		);
 		static const auto format = gl::Texture::Format().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR).magFilter(GL_LINEAR).loadTopDown(true).wrap(GL_MIRRORED_REPEAT).internalFormat(GL_RGBA8);
 		static auto envMap = gl::Texture::create("milkyway.png", format);
 		static auto envMap2 = shade(envMap, MULTILINE(
-			vec3 c = fetch3();
+			vec3 c = texture().xyz;
 		c /= vec3(1.0) - c * 0.99;
 		_out.rgb = c;
 			),
@@ -207,7 +207,7 @@ export struct GridFluidSketch : public SketchBase {
 			"	return vec2(atan(refl.z, refl.x) / (2.0 * PI) + 0.5, asin(clamp(refl.y, -1.0, 1.0)) / PI + 0.5);"
 			"}\n"
 			"vec3 getEnv(vec3 v) {\n"
-			"	vec3 c = fetch3(tex3, latlong(v));\n"
+			"	vec3 c = texture(tex3, latlong(v)).xyz;\n"
 			//"	c = pow(c, vec3(2.2));" // gamma correction
 			"	return c;"
 			"}\n"
@@ -227,8 +227,8 @@ export struct GridFluidSketch : public SketchBase {
 		auto tex2 = shade({ sumTex, grads, envMap2, redTex, greenTex, hsvTex },
 
 
-			"vec3 hsv = fetch3(tex6);"
-			"vec2 d = fetch2(tex2);"
+			"vec3 hsv = texture(tex6).xyz;"
+			"vec2 d = texture(tex2).xy;"
 
 			"vec3 normal = normalize(vec3(d.x, d.y, 1.0));"
 			"vec3 viewDir = normalize(vec3(0.0, 0.0, 1.0));"
@@ -245,8 +245,8 @@ export struct GridFluidSketch : public SketchBase {
 			"vec2 dPdx = dFdx(refractUv);"
 			"vec2 dPdy = dFdy(refractUv);"
 			"vec3 c = textureGrad(tex3, refractUv, dPdx, dPdy).rgb;"
-			"float redVal = fetch1(tex4);"
-			"float greenVal = fetch1(tex5);"
+			"float redVal = texture(tex4).x;"
+			"float greenVal = texture(tex5).x;"
 			//"redVal = 1.0-exp(-redVal);"
 			//"greenVal = 1.0-exp(-greenVal);"
 			// this is taken from https://www.shadertoy.com/view/Mld3Rn
@@ -256,7 +256,7 @@ export struct GridFluidSketch : public SketchBase {
 			//"vec3 greenColor = vec3(min(greenVal * 1.5, 1.), pow(greenVal, 2.5), pow(greenVal, 12.)).zyx; "
 			"c *= exp(-greenColor * 10.0);"
 			//"c += redColor;"
-			/*"if(fetch1(tex) > surfTensionThres) {"
+			/*"if(texture(tex).x > surfTensionThres) {"
 			"	vec3 refl = reflect(-viewDir, normal);"
 			"	float fresnel = pow(1.0 - max(dot(normal, viewDir), 0.0), 5.0);"
 			"	float fresnelWeight = mix(0.1, 1.0, fresnel);"
@@ -278,12 +278,12 @@ export struct GridFluidSketch : public SketchBase {
 			
 		);
 
-		const auto tex2Thres = shade(tex2, "vec3 c=fetch3(); c *= step(vec3(1.0), c); _out.rgb=c;");
+		const auto tex2Thres = shade(tex2, "vec3 c=texture().xyz; c *= step(vec3(1.0), c); _out.rgb=c;");
 		auto tex2b = gpuBlur2_5::run_longtail(tex2Thres, bloomIters, bloomSize);
 		tex2 = op(tex2) + op(tex2b) * bloomIntensity;
 
 		tex2 = shade(tex2,
-			"vec3 c = fetch3(tex);"
+			"vec3 c = texture(tex).xyz;"
 			"if(c.r<0.0||c.g<0.0||c.b<0.0) { _out.rgb = vec3(1.0, 0.0, 0.0); }" // eases debugging
 			"c /= c + vec3(1.0);"
 			"c = pow(c, vec3(1.0/2.2));"
