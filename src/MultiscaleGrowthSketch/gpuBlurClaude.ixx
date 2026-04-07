@@ -84,13 +84,13 @@ namespace gpuBlurClaude {
 			"_out.r = sum / wsum;"
 			;
 
-		auto hscaled = shade2(src, shaderH,
+		auto hscaled = shade(src, shaderH,
 			ShadeOpts()
 			.dstRectSize(ivec2(dstSize.x, src->getHeight()))
 			.scale(hscale, 1.0f)
 			.uniform("scaleX", hscale)
 		);
-		auto vscaled = shade2(hscaled, shaderV,
+		auto vscaled = shade(hscaled, shaderV,
 			ShadeOpts()
 			.dstRectSize(dstSize)
 			.uniform("scaleY", vscale)
@@ -124,13 +124,13 @@ namespace gpuBlurClaude {
 		float weight = 1.0f / numLevels;
 		ivec2 dstSize = ivec2(src->getWidth(), src->getHeight());
 
-		auto result = shade2(levels[0],
+		auto result = shade(levels[0],
 			"_out.rgb = fetch3() * _w;",
 			ShadeOpts().uniform("_w", weight).dstRectSize(dstSize));
 
 		for (int i = 1; i < numLevels; i++) {
 			auto upscaled = gpuBlur2_5::upscale(levels[i], dstSize);
-			result = shade2(result, upscaled,
+			result = shade({ result, upscaled },
 				"_out.rgb = fetch3() + fetch3(tex2) * _w;",
 				ShadeOpts().uniform("_w", weight));
 		}

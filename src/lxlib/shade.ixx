@@ -104,11 +104,6 @@ export struct ShadeOpts
 	std::string _functions;
 };
 
-export gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string const& fshader, ShadeOpts const& opts=ShadeOpts());
-export inline gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string const& fshader, float resScale);
-
-// --- Implementations ---
-
 void drawRect() {
 	static std::shared_ptr<QuadGpu> quad = createQuadVAO_VBOs();
 	quad->vao.bind();
@@ -134,14 +129,9 @@ std::string getCompleteFshader(vector<gl::TextureRef> const& texv, vector<Unifor
 	int location = 0;
 	uniformDeclarations << "uniform ivec2 viewportSize;\n";
 	uniformDeclarations << "uniform vec2 mouse;\n";
-	//uniformDeclarations << "uniform vec2 resultSize;\n";
-	//uniformDeclarations << "vec2 my_FragCoord;\n";
 	for(int i = 0; i < texv.size(); i++)
 	{
 		string samplerType = "sampler2D";
-		//GLenum fmt, type;
-		//gl::Texture::getInternalFormatInfo(texv[i]->getInternalFormat(), &fmt, &type);
-		//if (type == GL_UNSIGNED_INT) samplerType = "usampler2D";
 		uniformDeclarations << "uniform " + samplerType + " " + samplerName(i) + ";\n";
 		uniformDeclarations << "uniform vec2 " + samplerName(i) + "Size;\n";
 		uniformDeclarations << "uniform vec2 tsize" + samplerSuffix(i) + ";\n";
@@ -150,21 +140,15 @@ std::string getCompleteFshader(vector<gl::TextureRef> const& texv, vector<Unifor
 	{
 		uniformDeclarations << "uniform " + p.shortDecl + ";\n";
 	}
-	//uniformDeclarations << "layout(binding=0, r32f) uniform coherent image2D image;";
 	*uniformDeclarationsRet = uniformDeclarations.str();
-	string intro =
+	string const fullText =
 		Str()
 		<< "#version 150"
 		<< "#extension GL_ARB_explicit_uniform_location : enable"
 		<< "#extension GL_ARB_texture_gather : enable"
-		//<< "#extension GL_ARB_shader_image_load_store : enable"
 		<< uniformDeclarations.str()
 		<< "in vec2 tc;"
-		<< "in highp vec2 relOutTc;"
-		<< "/*precise*/ out vec4 _out;"
-		//<< "layout(origin_upper_left) in vec4 gl_FragCoord;"
-		;
-	intro += Str()
+		<< "out vec4 _out;"
 		<< "vec4 fetch4(sampler2D tex_, vec2 tc_) {"
 		<< "	return texture2D(tex_, tc_).rgba;"
 		<< "}"
@@ -201,23 +185,16 @@ std::string getCompleteFshader(vector<gl::TextureRef> const& texv, vector<Unifor
 		<< "float fetch1() {"
 		<< "	return texture2D(tex, tc).r;"
 		<< "}"
-		<< "vec2 safeNormalized(vec2 v) { return length(v)==0.0 ? v : normalize(v); }"
-		<< "vec3 safeNormalized(vec3 v) { return length(v)==0.0 ? v : normalize(v); }"
-		<< "vec4 safeNormalized(vec4 v) { return length(v)==0.0 ? v : normalize(v); }"
 		<< functions
+		<< "void main() {"
 		<< "#line 0\n\n" // the \n\n is needed only on Intel gpus. Probably a driver bug.
+		<< fshader
+		<< "}"
 		;
-	string outro =
-		Str()
-		<< "void main()"
-		<< "{"
-		<< "	_out = vec4(0.0f, 0.0f, 0.0f, 1.0f);"
-		<< "	shade();"
-		<< "}";
-	return intro + fshader + outro;
+	return fullText;
 }
 
-gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string const& fshader, ShadeOpts const& opts)
+export gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string const& fshader, ShadeOpts const& opts = ShadeOpts())
 {
 	shared_ptr<GpuScope> gpuScope;
 	if (opts._scopeName != "") {
@@ -236,14 +213,12 @@ gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string const& fsha
 			<< "layout(location = 0) in vec4 ciPosition;"
 			<< "layout(location = 1) in vec2 ciTexCoord0;"
 			<< "out highp vec2 tc;"
-			<< "out highp vec2 relOutTc;" // relative out texcoord
 			<< uniformDeclarations
 
 			<< "void main()"
 			<< "{"
 			<< "	gl_Position = ciPosition * 2 - 1;"
 			<< "	tc = ciTexCoord0;"
-			<< "	relOutTc = tc;"
 			<< opts._vshaderExtra
 			<< "}";
 		try{
@@ -324,9 +299,8 @@ gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string const& fsha
 	return results[0];
 }
 
-inline gl::TextureRef shade(vector<gl::TextureRef> const & texv, std::string const & fshader, float resScale)
-{
-	return shade(texv, fshader, ShadeOpts().scale(resScale));
+export gl::TextureRef shade(gl::TextureRef const& tex, std::string const& fshader, ShadeOpts const& opts = ShadeOpts()) {
+	return shade(std::vector<gl::TextureRef>{ tex }, fshader, opts);
 }
 
 GpuScope::GpuScope(string name) {

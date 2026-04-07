@@ -31,7 +31,7 @@ namespace gpuBlur2_5 {
 	}
 
 	gl::TextureRef run(gl::TextureRef src, int lvls) {
-		auto state = shade2(src, "_out.rgb = fetch3();");
+		auto state = shade(src, "_out.rgb = fetch3();");
 
 		for (int i = 0; i < lvls; i++) {
 			state = singleblur(state, .5, .5);
@@ -58,7 +58,7 @@ namespace gpuBlur2_5 {
 		}
 		vector<gl::TextureRef> zoomstates;
 		zoomstates.push_back(src);
-		zoomstates[0] = shade2(zoomstates[0],
+		zoomstates[0] = shade(zoomstates[0],
 			"_out.rgb = fetch3() * _mul;",
 			ShadeOpts().uniform("_mul", 1.0f / sumw));
 		for (int i = 0; i < lvls; i++) {
@@ -69,7 +69,7 @@ namespace gpuBlur2_5 {
 		for (int i = lvls - 1; i > 0; i--) {
 			auto upscaled = upscale(zoomstates[i], zoomstates[i - 1]->getSize());
 			float w = pow(lvlmul, float(i)); // tmp copypaste
-			zoomstates[i - 1] = shade2(zoomstates[i - 1], upscaled,
+			zoomstates[i - 1] = shade({ zoomstates[i - 1], upscaled },
 				"vec3 acc = fetch3(tex);"
 				"vec3 nextzoom = fetch3(tex2);"
 				"vec3 c = acc + nextzoom * _mul;"
@@ -122,19 +122,21 @@ namespace gpuBlur2_5 {
 			"	wP1/=sum;"
 			"	_out.rgb = wM1*aM1 + w0*a0 + wP1*aP1;";
 		setWrapBlack(src);
-		auto hscaled = shade2(src, shader,
+		auto hscaled = shade(src, shader,
 			ShadeOpts()
 				.scale(hscale, 1.0f)
 				.uniform("GB2_offsetX", 1.0f)
 				.uniform("GB2_offsetY", 0.0f)
-			, lib);
+				.functions(lib)
+			);
 		setWrapBlack(hscaled);
-		auto vscaled = shade2(hscaled, shader,
+		auto vscaled = shade(hscaled, shader,
 			ShadeOpts()
 				.scale(1.0f, vscale)
 				.uniform("GB2_offsetX", 0.0f)
 				.uniform("GB2_offsetY", 1.0f)
-			, lib);
+				.functions(lib)
+			);
 		return vscaled;
 	}
 
@@ -162,14 +164,14 @@ namespace gpuBlur2_5 {
 			"_out.rgb = w2 * (aM2 + aP2) + w1 * (aM1 + aP1) + w0 * a0;";
 
 		setWrap(src, wrap);
-		auto hscaled = shade2(src, shader,
+		auto hscaled = shade(src, shader,
 			ShadeOpts()
 				.scale(hscale, 1.0f)
 				.uniform("GB2_offsetX", 1.0f)
 				.uniform("GB2_offsetY", 0.0f)
 			);
 		setWrap(hscaled, wrap);
-		auto vscaled = shade2(hscaled, shader,
+		auto vscaled = shade(hscaled, shader,
 			ShadeOpts()
 			.uniform("GB2_offsetX", 0.0f)
 			.uniform("GB2_offsetY", 1.0f)

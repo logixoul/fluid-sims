@@ -85,11 +85,11 @@ export struct ParticleFluidSketch : public SketchBase {
 
 		auto img = Array2D<float>(sz);
 		for (auto& particle : particles) {
-			splatBilinearPoint<float, WrapModes::GetClamped>(img, particle.pos, 1);
+			splatBilinearPoint<float, WrapModes::Clamp>(img, particle.pos, 1);
 		}
 		auto accum = Array2D<float>(sz);
 		for (int i = 3; i < 3 + blurIters; i++) {
-			auto imgb = gaussianBlur(img, 1 + pow(2, i));
+			auto imgb = gaussianBlur<float, WrapModes::Wrap>(img, 1 + pow(2, i));
 			forxy(img) {
 				accum(p) += imgb(p);
 			}
@@ -99,7 +99,7 @@ export struct ParticleFluidSketch : public SketchBase {
 		auto tex = gtex(img);
 		//auto tex2 = gpuBlur2_5::run(tex, blurSize);
 		auto tex2 = tex;
-		tex2 = shade2(tex2,
+		tex2 = shade(tex2,
 			"float f = fetch1();"
 			"float fw = fwidth(f);"
 			"f = smoothstep(renderThreshold-fw/2, renderThreshold+fw/2, f);"

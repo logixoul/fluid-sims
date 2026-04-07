@@ -109,7 +109,7 @@ export struct GridFluidSketch : public SketchBase {
 	}
 	
 	gl::TextureRef gauss3texScaled(gl::TextureRef src, float scale) {
-		auto state = shade2(src,
+		auto state = shade(src,
 			"vec3 sum = vec3(0.0);"
 			"sum += fetch3(tex, tc + tsize * vec2(-1.0, -1.0)) / 16.0;"
 			"sum += fetch3(tex, tc + tsize * vec2(-1.0, 0.0)) / 8.0;"
@@ -150,7 +150,7 @@ export struct GridFluidSketch : public SketchBase {
 		sumTex = gauss3texScaled(sumTex, 1.0); // reduce upscale artefacts
 		sumTex = gauss3texScaled(sumTex, 1.0); // reduce upscale artefacts
 		sumTex = gauss3texScaled(sumTex, 1.0); // reduce upscale artefacts
-		sumTex = shade2(sumTex,
+		sumTex = shade(sumTex,
 			"float f = fetch1();"
 			"float fw = fwidth(f);"
 			"_out.r = f * smoothstep(matterThreshold-fw/2, matterThreshold+fw/2, f);"
@@ -161,16 +161,18 @@ export struct GridFluidSketch : public SketchBase {
 		greenTex = Operable(greenTex) * colorAmount;
 
 		auto momentumTex = gtex(red.momentum);
-		auto hsvTex = shade2(momentumTex, MULTILINE(
+		auto hsvTex = shade(momentumTex, MULTILINE(
 			vec2 momentum = fetch2();
-		float angle = atan(momentum.y, momentum.x) / (2 * pi) + .5;
-		//angle *= pi;
-		float len = length(momentum);
-		len /= len + 1.0;
-		_out.rgb = hsl2rgb(vec3(angle, 1.0, .5)) * pow(len, 3.0) * 3.0;
+			float angle = atan(momentum.y, momentum.x) / (2 * pi) + .5;
+			//angle *= pi;
+			float len = length(momentum);
+			len /= len + 1.0;
+			_out.rgb = hsl2rgb(vec3(angle, 1.0, .5)) * pow(len, 3.0) * 3.0;
 			),
-			ShadeOpts().ifmt(GL_RGB16F),
-			FileCache::get("stuff.fs"));
+			ShadeOpts()
+				.ifmt(GL_RGB16F)
+				.functions(FileCache::get("stuff.fs"))
+		);
 
 		static float bloomSize = 1.5f;
 		static int bloomIters = 6.0f;
@@ -184,14 +186,14 @@ export struct GridFluidSketch : public SketchBase {
 
 		greenTex = op(greenTex) * 0.16;
 
-		hsvTex = shade2(hsvTex, hsvTexB, MULTILINE(
+		hsvTex = shade({ hsvTex, hsvTexB }, MULTILINE(
 			_out.rgb = (fetch3() + fetch3(tex2) * 1.0) * bloomIntensity;
 		),
 			ShadeOpts().uniform("bloomIntensity", bloomIntensity)
 		);
 		static const auto format = gl::Texture::Format().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR).magFilter(GL_LINEAR).loadTopDown(true).wrap(GL_MIRRORED_REPEAT).internalFormat(GL_RGBA8);
 		static auto envMap = gl::Texture::create("milkyway.png", format);
-		static auto envMap2 = shade2(envMap, MULTILINE(
+		static auto envMap2 = shade(envMap, MULTILINE(
 			vec3 c = fetch3();
 		c /= vec3(1.0) - c * 0.99;
 		_out.rgb = c;
@@ -200,8 +202,29 @@ export struct GridFluidSketch : public SketchBase {
 		//static auto envMap = gl::TextureCubeMap::create(loadImage(loadAsset("envmap_cube.jpg")), gl::TextureCubeMap::Format().mipmap());
 
 		auto grads = get_gradients_tex(sumTex);
-
-		auto tex2 = shade2(sumTex, grads, envMap2, redTex, greenTex, hsvTex,
+		std::string const shaderFunctions = "float PI = 3.14159265358979323846264;\n"
+			"vec2 latlong(vec3 refl) {\n"
+			"	return vec2(atan(refl.z, refl.x) / (2.0 * PI) + 0.5, asin(clamp(refl.y, -1.0, 1.0)) / PI + 0.5);"
+			"}\n"
+			"vec3 getEnv(vec3 v) {\n"
+			"	vec3 c = fetch3(tex3, latlong(v));\n"
+			//"	c = pow(c, vec3(2.2));" // gamma correction
+			"	return c;"
+			"}\n"
+			MULTILINE(
+				float manualLod(vec2 uv, vec2 texSize, vec2 refractOffset) {
+			vec2 uvPixels = uv * texSize;
+			vec2 dx = dFdx(uvPixels);
+			vec2 dy = dFdy(uvPixels);
+			float rho = max(dot(dx, dx), dot(dy, dy));
+			rho = max(rho, 1e-8);
+			float lod = 0.5 * log2(rho);
+			float refractMetric = length(dFdx(refractOffset)) + length(dFdy(refractOffset));
+			lod += log2(1.0 + refractMetric * refractLodScale);
+			float maxLod = floor(log2(max(texSize.x, texSize.y)));
+			return clamp(lod, 0.0, maxLod);
+		});
+		auto tex2 = shade({ sumTex, grads, envMap2, redTex, greenTex, hsvTex },
 
 
 			"vec3 hsv = fetch3(tex6);"
@@ -251,36 +274,15 @@ export struct GridFluidSketch : public SketchBase {
 			.uniform("lodMax", 3.0f)
 			.uniform("refractLodScale", 5.0f)
 			//.scale(::scale)
-			,
-			"float PI = 3.14159265358979323846264;\n"
-			"vec2 latlong(vec3 refl) {\n"
-			"	return vec2(atan(refl.z, refl.x) / (2.0 * PI) + 0.5, asin(clamp(refl.y, -1.0, 1.0)) / PI + 0.5);"
-			"}\n"
-			"vec3 getEnv(vec3 v) {\n"
-			"	vec3 c = fetch3(tex3, latlong(v));\n"
-			//"	c = pow(c, vec3(2.2));" // gamma correction
-			"	return c;"
-			"}\n"
-			MULTILINE(
-				float manualLod(vec2 uv, vec2 texSize, vec2 refractOffset) {
-			vec2 uvPixels = uv * texSize;
-			vec2 dx = dFdx(uvPixels);
-			vec2 dy = dFdy(uvPixels);
-			float rho = max(dot(dx, dx), dot(dy, dy));
-			rho = max(rho, 1e-8);
-			float lod = 0.5 * log2(rho);
-			float refractMetric = length(dFdx(refractOffset)) + length(dFdy(refractOffset));
-			lod += log2(1.0 + refractMetric * refractLodScale);
-			float maxLod = floor(log2(max(texSize.x, texSize.y)));
-			return clamp(lod, 0.0, maxLod);
-		})
+			.functions(shaderFunctions)
+			
 		);
 
-		const auto tex2Thres = shade2(tex2, "vec3 c=fetch3(); c *= step(vec3(1.0), c); _out.rgb=c;");
+		const auto tex2Thres = shade(tex2, "vec3 c=fetch3(); c *= step(vec3(1.0), c); _out.rgb=c;");
 		auto tex2b = gpuBlur2_5::run_longtail(tex2Thres, bloomIters, bloomSize);
 		tex2 = op(tex2) + op(tex2b) * bloomIntensity;
 
-		tex2 = shade2(tex2,
+		tex2 = shade(tex2,
 			"vec3 c = fetch3(tex);"
 			"if(c.r<0.0||c.g<0.0||c.b<0.0) { _out.rgb = vec3(1.0, 0.0, 0.0); }" // eases debugging
 			"c /= c + vec3(1.0);"
@@ -338,7 +340,7 @@ export struct GridFluidSketch : public SketchBase {
 		}
 	}
 
-	template<class T, class FetchFunc>
+	template<class T, class WrapPolicy>
 	static Array2D<T> convolve(Array2D<T> in, Array2D<float> kernel) {
 		int r = kernel.w / 2;
 		auto out = ::empty_like(in);
@@ -346,7 +348,7 @@ export struct GridFluidSketch : public SketchBase {
 			float sum = 0.0f;
 			for (int kx = -r; kx < r; kx++) {
 				for (int ky = -r; ky < r; ky++) {
-					sum += kernel(kx + r, ky + r) * FetchFunc::template fetch<T>(in, p.x + kx, p.y + ky);
+					sum += kernel(kx + r, ky + r) * WrapPolicy::template fetch<T>(in, p.x + kx, p.y + ky);
 				}
 			}
 			out(p) = sum;
@@ -371,8 +373,8 @@ export struct GridFluidSketch : public SketchBase {
 		forxy(kernel) {
 			kernel(p) /= kernelSum;
 		}
-		//auto guidance = convolve<float, WrapModes::GetClamped>(actingMaterial.density, kernel);
-		//auto guidance = gaussianBlur<float, WrapModes::GetClamped>(actingMaterial.density, 3 * 2 + 1);
+		//auto guidance = convolve<float, WrapModes::Clamp>(actingMaterial.density, kernel);
+		//auto guidance = gaussianBlur<float, WrapModes::Clamp>(actingMaterial.density, 3 * 2 + 1);
 		auto guidance = actingMaterial.density;
 
 		static float intermaterialRepelCoef = 0.5f;
@@ -380,7 +382,7 @@ export struct GridFluidSketch : public SketchBase {
 
 		forxy(affectedMaterial.density)
 		{
-			auto g = gradient_i<float, WrapModes::Get_WrapZeros>(guidance, p);
+			auto g = gradient_i<float, WrapModes::ZeroesOutside>(guidance, p);
 			//if(length(g) != 0.0f) g = glm::normalize(g);
 
 			affectedMaterial.momentum(p) += -g * affectedMaterial.density(p) * intermaterialRepelCoef;
@@ -402,21 +404,21 @@ export struct GridFluidSketch : public SketchBase {
 				momentum(p) += vec2(0.0f, gravity) * density(p);
 			}
 
-			density = gauss3_forwardMapping<float, WrapModes::GetMirrorWrapped>(density);
-			density = gauss3_forwardMapping<float, WrapModes::GetMirrorWrapped>(density);
-			momentum = gauss3_forwardMapping<vec2, WrapModes::GetMirrorWrapped>(momentum);
-			momentum = gauss3_forwardMapping<vec2, WrapModes::GetMirrorWrapped>(momentum);
+			density = gauss3_forwardMapping<float, WrapModes::MirrorWrap>(density);
+			density = gauss3_forwardMapping<float, WrapModes::MirrorWrap>(density);
+			momentum = gauss3_forwardMapping<vec2, WrapModes::MirrorWrap>(momentum);
+			momentum = gauss3_forwardMapping<vec2, WrapModes::MirrorWrap>(momentum);
 
 			//auto density_b = density.clone();
 			//for(int i < 0
-			//density_b = gaussianBlur<float, WrapModes::GetClamped>(density_b, 3 * 2 + 1);
+			//density_b = gaussianBlur<float, WrapModes::Clamp>(density_b, 3 * 2 + 1);
 			auto& guidance = density;
 			float surfTensionThres = cfg.getFloat("surfTensionThres");
 			float surfTension = cfg.getFloat("surfTension");
 			float incompressibilityCoef = cfg.getFloat("incompressibilityCoef");
 			forxy(momentum)
 			{
-				auto g = gradient_i<float, WrapModes::Get_WrapZeros>(guidance, p);
+				auto g = gradient_i<float, WrapModes::ZeroesOutside>(guidance, p);
 				if (guidance(p) < surfTensionThres)
 				{
 					g = g * surfTension * density(p);
@@ -450,7 +452,7 @@ export struct GridFluidSketch : public SketchBase {
 						break;
 				} while (true);
 				momentum(p) = offset * hereMono;
-				//aaPoint<float, WrapModes::WrapModes::GetWrapped>(density2, dst, density(p));
+				//aaPoint<float, WrapModes::WrapModes::Wrap>(density2, dst, density(p));
 			}*/
 			//density = density2;
 			auto offsets = uninitializedArrayLike(momentum);
@@ -500,30 +502,30 @@ export struct GridFluidSketch : public SketchBase {
 				count++;
 			//if(bounced)
 			//	aaPoint<float, WrapModes::NoWrap>(bounces_dbg, dst, 1);
-			splatBilinearPoint<float, WrapModes::GetMirrorWrapped>(density3, dst, density(p));
-			splatBilinearPoint<vec2, WrapModes::GetMirrorWrapped>(momentum3, dst, newEnergy);
+			splatBilinearPoint<float, WrapModes::MirrorWrap>(density3, dst, density(p));
+			splatBilinearPoint<vec2, WrapModes::MirrorWrap>(momentum3, dst, newEnergy);
 		}
 		//cout << "bugged=" << count << endl;
 		//cout << "sumOffsetY=" << sumOffsetY/div << endl;
 		density = density3;
 		momentum = momentum3;
 	}
-	template<class T, class FetchFunc>
+	template<class T, class WrapPolicy>
 	static Array2D<T> gauss3_forwardMapping(Array2D<T> src) {
 		T zero = ::zero<T>();
 		Array2D<T> dst1(src.w, src.h);
 		Array2D<T> dst2(src.w, src.h);
 		forxy(dst1) {
-			FetchFunc::fetch(dst1, p.x - 1, p.y) += .25f * src(p);
-			FetchFunc::fetch(dst1, p.x, p.y) += .5f * src(p);
-			FetchFunc::fetch(dst1, p.x + 1, p.y) += .25f * src(p);
+			WrapPolicy::fetch(dst1, p.x - 1, p.y) += .25f * src(p);
+			WrapPolicy::fetch(dst1, p.x, p.y) += .5f * src(p);
+			WrapPolicy::fetch(dst1, p.x + 1, p.y) += .25f * src(p);
 		}
 		forxy(dst1) {
 			//vector<float> weights = { .25, .5, .25 };
 			//auto one = T(1);
-			FetchFunc::fetch(dst2, p.x, p.y - 1) += .25f * dst1(p);
-			FetchFunc::fetch(dst2, p.x, p.y) += .5f * dst1(p);
-			FetchFunc::fetch(dst2, p.x, p.y + 1) += .25f * dst1(p);
+			WrapPolicy::fetch(dst2, p.x, p.y - 1) += .25f * dst1(p);
+			WrapPolicy::fetch(dst2, p.x, p.y) += .5f * dst1(p);
+			WrapPolicy::fetch(dst2, p.x, p.y + 1) += .25f * dst1(p);
 
 		}
 		return dst2;

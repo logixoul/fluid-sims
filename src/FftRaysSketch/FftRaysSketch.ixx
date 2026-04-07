@@ -122,7 +122,7 @@ export struct FftRaysSketch : public SketchBase {
 
 			FFT::Complex const contribution(randFloat(-1, 1) * 5.0f, randFloat(-1, 1) * 5.0f);
 			//cout << "Adding contribution " << contribution << " at " << walker.pos << endl;
-			splatBilinearPoint<FFT::Complex, WrapModes::GetWrapped>(freqDomainState, walker.pos, contribution);
+			splatBilinearPoint<FFT::Complex, WrapModes::Wrap>(freqDomainState, walker.pos, contribution);
 		}
 		freqDomainState(0, 0) = FFT::Complex(0, 0); // remove DC component to prevent it from dominating the image
 	}
@@ -150,11 +150,11 @@ export struct FftRaysSketch : public SketchBase {
 			img(p) = complexToColor_HSV(vec2);
 		}
 		auto tex = gtex(img);
-		tex = shade2(tex, // upscale
+		tex = shade(tex, // upscale
 			"_out.rgb = fetch4().rgb;"
 			, ShadeOpts().dstRectSize(vec2(windowSize)));
 
-		tex = shade2(tex,
+		tex = shade(tex,
 			"vec2 localTc = tc - 0.5;"
 			"localTc *= 2.0; /* look from 'up high' */"
 			"vec3 col = vec3(0.0);"
@@ -171,8 +171,8 @@ export struct FftRaysSketch : public SketchBase {
 
 		auto texb = gpuBlur2_5::run(tex, 3);
 		tex = op(tex) + op(texb) * 2.0f;
-		//tex = shade2(tex, "_out.rgb = fetch4().rgb * .1;");
-		tex = shade2(tex,
+		//tex = shade(tex, "_out.rgb = fetch4().rgb * .1;");
+		tex = shade(tex,
 			"_out.rgb = fetch4().rgb*gain;"
 			"_out.rgb = Uncharted2Tonemap(_out.rgb);" // filmic tonemapping
 			//"_out.rgb /= _out.rgb + vec3(1.0);" // reinhard-ish tonemapping

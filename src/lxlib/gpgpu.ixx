@@ -11,25 +11,6 @@ import lxlib.stuff;
 
 export gl::TextureRef get_gradients_tex(gl::TextureRef src, GLuint wrap = GL_REPEAT);
 
-export gl::TextureRef baseshade2(vector<gl::TextureRef> texv, string const& src, ShadeOpts const& opts = ShadeOpts(), string const& lib = "");
-export gl::TextureRef shade2(
-	gl::TextureRef tex,
-	string const& src, ShadeOpts const& opts = ShadeOpts(), string const& lib = "");
-export gl::TextureRef shade2(
-	gl::TextureRef tex, gl::TextureRef tex2,
-	string const& src, ShadeOpts const& opts = ShadeOpts(), string const& lib = "");
-export gl::TextureRef shade2(
-	gl::TextureRef tex, gl::TextureRef tex2, gl::TextureRef tex3,
-	string const& src, ShadeOpts const& opts = ShadeOpts(), string const& lib = "");
-export gl::TextureRef shade2(
-	gl::TextureRef tex, gl::TextureRef tex2, gl::TextureRef tex3, gl::TextureRef tex4,
-	string const& src, ShadeOpts const& opts = ShadeOpts(), string const& lib = "");
-export gl::TextureRef shade2(
-	gl::TextureRef tex, gl::TextureRef tex2, gl::TextureRef tex3, gl::TextureRef tex4, gl::TextureRef tex5,
-	string const& src, ShadeOpts const& opts = ShadeOpts(), string const& lib = "");
-export gl::TextureRef shade2(
-	gl::TextureRef tex, gl::TextureRef tex2, gl::TextureRef tex3, gl::TextureRef tex4, gl::TextureRef tex5, gl::TextureRef tex6,
-	string const& src, ShadeOpts const& opts = ShadeOpts(), string const& lib = "");
 export gl::TextureRef gauss3tex(gl::TextureRef src);
 
 export gl::TextureRef get_laplace_tex(gl::TextureRef src, GLuint wrap);
@@ -41,16 +22,16 @@ export struct Operable {
 	Operable operator*(gl::TextureRef other);
 	Operable operator/(gl::TextureRef other);
 	Operable operator+(float scalar) {
-		return Operable(shade2(tex, "_out = fetch4() + scalar;", ShadeOpts().uniform("scalar", scalar)));
+		return Operable(shade(tex, "_out = fetch4() + scalar;", ShadeOpts().uniform("scalar", scalar)));
 	}
 	Operable operator-(float scalar) {
-		return Operable(shade2(tex, "_out = fetch4() - scalar;", ShadeOpts().uniform("scalar", scalar)));
+		return Operable(shade(tex, "_out = fetch4() - scalar;", ShadeOpts().uniform("scalar", scalar)));
 	}
 	Operable operator*(float scalar) {
-		return Operable(shade2(tex, "_out = fetch4() * scalar;", ShadeOpts().uniform("scalar", scalar)));
+		return Operable(shade(tex, "_out = fetch4() * scalar;", ShadeOpts().uniform("scalar", scalar)));
 	}
 	Operable operator/(float scalar) {
-		return Operable(shade2(tex, "_out = fetch4() / scalar;", ShadeOpts().uniform("scalar", scalar)));
+		return Operable(shade(tex, "_out = fetch4() / scalar;", ShadeOpts().uniform("scalar", scalar)));
 	}
 	void operator+=(gl::TextureRef other);
 	void operator-=(gl::TextureRef other);
@@ -73,7 +54,7 @@ gl::TextureRef get_gradients_tex(gl::TextureRef src, GLuint wrap) {
 	::bindTexture(src);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
-	return shade2(src,
+	return shade(src,
 		"	float srcL=fetch1(tex,tc+tsize*vec2(-1.0,0.0));"
 		"	float srcR=fetch1(tex,tc+tsize*vec2(1.0,0.0));"
 		"	float srcT=fetch1(tex,tc+tsize*vec2(0.0,-1.0));"
@@ -86,43 +67,8 @@ gl::TextureRef get_gradients_tex(gl::TextureRef src, GLuint wrap) {
 	);
 }
 
-inline gl::TextureRef baseshade2(vector<gl::TextureRef> texv, string const& src, ShadeOpts const& opts, string const& lib)
-{
-	return shade(texv, lib + "void shade() {" + src + "}", opts);
-}
-
-gl::TextureRef shade2(gl::TextureRef tex, string const& src, ShadeOpts const& opts, string const& lib)
-{
-	return baseshade2({ tex }, src, opts, lib);
-}
-
-gl::TextureRef shade2(gl::TextureRef tex, gl::TextureRef tex2, string const& src, ShadeOpts const& opts, string const& lib)
-{
-	return baseshade2({ tex,tex2 }, src, opts, lib);
-}
-
-gl::TextureRef shade2(gl::TextureRef tex, gl::TextureRef tex2, gl::TextureRef tex3, string const& src, ShadeOpts const& opts, string const& lib)
-{
-	return baseshade2({ tex, tex2, tex3 }, src, opts, lib);
-}
-
-gl::TextureRef shade2(gl::TextureRef tex, gl::TextureRef tex2, gl::TextureRef tex3, gl::TextureRef tex4, string const& src, ShadeOpts const& opts, string const& lib)
-{
-	return baseshade2({ tex, tex2, tex3, tex4 }, src, opts, lib);
-}
-
-gl::TextureRef shade2(gl::TextureRef tex, gl::TextureRef tex2, gl::TextureRef tex3, gl::TextureRef tex4, gl::TextureRef tex5, string const& src, ShadeOpts const& opts, string const& lib)
-{
-	return baseshade2({ tex, tex2, tex3, tex4, tex5 }, src, opts, lib);
-}
-
-gl::TextureRef shade2(gl::TextureRef tex, gl::TextureRef tex2, gl::TextureRef tex3, gl::TextureRef tex4, gl::TextureRef tex5, gl::TextureRef tex6, string const& src, ShadeOpts const& opts, string const& lib)
-{
-	return baseshade2({ tex, tex2, tex3, tex4, tex5, tex6 }, src, opts, lib);
-}
-
 gl::TextureRef gauss3tex(gl::TextureRef src) {
-	auto state = shade2(src,
+	auto state = shade(src,
 		"vec3 sum = vec3(0.0);"
 		"sum += fetch3(tex, tc + tsize * vec2(-1.0, -1.0)) / 16.0;"
 		"sum += fetch3(tex, tc + tsize * vec2(-1.0, 0.0)) / 8.0;"
@@ -145,7 +91,7 @@ gl::TextureRef get_laplace_tex(gl::TextureRef src, GLuint wrap) {
 	::bindTexture(src);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
-	auto state = shade2(src,
+	auto state = shade(src,
 		"vec3 sum = vec3(0.0);"
 		"sum += fetch3(tex, tc + tsize * vec2(-1.0, 0.0)) * -1.0;"
 		"sum += fetch3(tex, tc + tsize * vec2(0.0, -1.0)) * -1.0;"
@@ -166,29 +112,29 @@ inline Operable::Operable(gl::TextureRef aTex) {
 }
 
 Operable Operable::operator+(gl::TextureRef other) {
-	return Operable(shade2(tex, other, "_out = fetch4() + fetch4(tex2);"));
+	return Operable(shade({ tex, other }, "_out = fetch4() + fetch4(tex2);"));
 }
 Operable Operable::operator-(gl::TextureRef other) {
-	return Operable(shade2(tex, other, "_out = fetch4() - fetch4(tex2);"));
+	return Operable(shade({ tex, other }, "_out = fetch4() - fetch4(tex2);"));
 }
 Operable Operable::operator*(gl::TextureRef other) {
-	return Operable(shade2(tex, other, "_out = fetch4() * fetch4(tex2);"));
+	return Operable(shade({ tex, other }, "_out = fetch4() * fetch4(tex2);"));
 }
 Operable Operable::operator/(gl::TextureRef other) {
-	return Operable(shade2(tex, other, "_out = fetch4() / fetch4(tex2);"));
+	return Operable(shade({ tex, other }, "_out = fetch4() / fetch4(tex2);"));
 }
 
 void Operable::operator+=(gl::TextureRef other) {
-	tex = shade2(tex, other, "_out = fetch4() + fetch4(tex2);");
+	tex = shade({ tex, other }, "_out = fetch4() + fetch4(tex2);");
 }
 void Operable::operator-=(gl::TextureRef other) {
-	tex = shade2(tex, other, "_out = fetch4() - fetch4(tex2);");
+	tex = shade({ tex, other }, "_out = fetch4() - fetch4(tex2);");
 }
 void Operable::operator*=(gl::TextureRef other) {
-	tex = shade2(tex, other, "_out = fetch4() * fetch4(tex2);");
+	tex = shade({ tex, other }, "_out = fetch4() * fetch4(tex2);");
 }
 void Operable::operator/=(gl::TextureRef other) {
-	tex = shade2(tex, other, "_out = fetch4() / fetch4(tex2);");
+	tex = shade({ tex, other }, "_out = fetch4() / fetch4(tex2);");
 }
 
 Operable::operator gl::TextureRef() {

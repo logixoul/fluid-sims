@@ -77,19 +77,19 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 	{
 		auto img = aImg.clone();
 
-		auto gradients = ::get_gradients<float, WrapModes::GetClamped>(img);
+		auto gradients = ::get_gradients<float, WrapModes::Clamp>(img);
 		auto img2 = img.clone();
 		forxy(img) {
 			vec2 const& pf = vec2(p);
 			vec2 const& grad = gradients(p);
 			vec2 const& gradN = safeNormalized(grad);
 			vec2 const& gradNPerp = perpLeft(gradN);
-			float add = -hessianDirectionalSecondDeriv<float, WrapModes::GetClamped>(img, p, gradNPerp);
-			splatBilinearPoint<float, WrapModes::GetClamped>(img2, pf - gradN * add, add * options.morphogenesisStrength);
+			float add = -hessianDirectionalSecondDeriv<float, WrapModes::Clamp>(img, p, gradNPerp);
+			splatBilinearPoint<float, WrapModes::Clamp>(img2, pf - gradN * add, add * options.morphogenesisStrength);
 		}
 		auto kernel = getGaussianKernel(3, sigmaFromKsize(3));
-		//auto blurredImg2 = ::separableConvolve<float, WrapModes::GetClamped>(img2, kernel);
-		auto blurredImg2 = ThisSketch::gaussianBlur3x3<float, WrapModes::GetClamped>(img2);
+		//auto blurredImg2 = ::separableConvolve<float, WrapModes::Clamp>(img2, kernel);
+		auto blurredImg2 = ThisSketch::gaussianBlur3x3<float, WrapModes::Clamp>(img2);
 		img = blurredImg2;
 		img = applyVerticalGradient(img);
 
@@ -172,7 +172,7 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 
 	static gl::TextureRef gpuHighpass(gl::TextureRef in, float strength) {
 		auto blurred = gpuBlurClaude::blurWithInvKernel(in);
-		auto highpassed = shade2(in, blurred, MULTILINE(
+		auto highpassed = shade({ in, blurred }, MULTILINE(
 			float f = fetch1();
 		float fBlurred = fetch1(tex2);
 		float highPassed = f - fBlurred * highPassStrength;
@@ -186,7 +186,7 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 		forxy(imgClamped) imgClamped(p) = glm::clamp(imgClamped(p), 0.0f, 1.0f);
 
 		auto imgTex = gtex(imgClamped);
-		auto imgTexCentered = shade2(imgTex,
+		auto imgTexCentered = shade(imgTex,
 			"float f = fetch1();"
 			"_out.r = f - .5;"
 		);
@@ -200,7 +200,7 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 		for (int i = pyramid.size() - 1; i >= 0; i--) {
 			auto& thisLevel = pyramid[i];
 			auto thisLevelTex = gtex(thisLevel);
-			auto thisLevelTexContrastized = shade2(thisLevelTex,
+			auto thisLevelTexContrastized = shade(thisLevelTex,
 				"float f = fetch1();"
 				"float fw = fwidth(f);"
 				"f = smoothstep(-fw/2.0, fw/2.0, f);"
@@ -209,7 +209,7 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 		}
 		stateTex = op(stateTex) / float(pyramid.size());
 		//stateTex = (op(stateTex) + op(gpuBlur2_5::run(stateTex, 3))*2.0f) / 2;
-		stateTex = shade2(stateTex, MULTILINE(
+		stateTex = shade(stateTex, MULTILINE(
 			float val = fetch1();
 		vec3 fire = vec3(min(val * 1.5, 1.), pow(val, 2.5), pow(val, 12.));
 		_out.rgb = fire;

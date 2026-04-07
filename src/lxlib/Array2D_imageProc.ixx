@@ -8,7 +8,7 @@ import lxlib.Array2D;
 import lxlib.stuff;
 
 export namespace WrapModes {
-	struct GetMirrorWrapped {
+	struct MirrorWrap {
 		template<class T>
 		static T& fetch(Array2D<T>& src, int x, int y)
 		{
@@ -19,14 +19,14 @@ export namespace WrapModes {
 			return src(x, y);
 		}
 	};
-	struct GetWrapped {
+	struct Wrap {
 		template<class T>
 		static T& fetch(Array2D<T>& src, int x, int y)
 		{
 			return src.wr(x, y);
 		}
 	};
-	struct Get_WrapZeros {
+	struct ZeroesOutside {
 		template<class T>
 		static T& fetch(Array2D<T>& src, int x, int y)
 		{
@@ -45,7 +45,7 @@ export namespace WrapModes {
 			return src(x, y);
 		}
 	};
-	struct GetClamped {
+	struct Clamp {
 		template<class T>
 		static T& fetch(Array2D<T>& src, int x, int y)
 		{
@@ -57,9 +57,9 @@ export namespace WrapModes {
 			return src(x, y);
 		}
 	};
-	typedef GetWrapped DefaultImpl;
 };
-export template<class T, class FetchFunc>
+
+export template<class T, class WrapPolicy>
 void splatBilinearPoint(Array2D<T>& dst, glm::vec2 const& p, T const& value)
 {
 	int ix = p.x, iy = p.y;
@@ -70,12 +70,12 @@ void splatBilinearPoint(Array2D<T>& dst, glm::vec2 const& p, T const& value)
 	float fracty = p.y - fy;
 	float fractx1 = 1.0 - fractx;
 	float fracty1 = 1.0 - fracty;
-	FetchFunc::fetch(dst, ix, iy) += (fractx1 * fracty1) * value;
-	FetchFunc::fetch(dst, ix, iy + 1) += (fractx1 * fracty) * value;
-	FetchFunc::fetch(dst, ix + 1, iy) += (fractx * fracty1) * value;
-	FetchFunc::fetch(dst, ix + 1, iy + 1) += (fractx * fracty) * value;
+	WrapPolicy::fetch(dst, ix, iy) += (fractx1 * fracty1) * value;
+	WrapPolicy::fetch(dst, ix, iy + 1) += (fractx1 * fracty) * value;
+	WrapPolicy::fetch(dst, ix + 1, iy) += (fractx * fracty1) * value;
+	WrapPolicy::fetch(dst, ix + 1, iy + 1) += (fractx * fracty) * value;
 }
-export template<class T, class FetchFunc>
+export template<class T, class WrapPolicy>
 T getBilinear(Array2D<T> const& src, glm::vec2 const& p)
 {
 	int ix = p.x, iy = p.y;
@@ -85,8 +85,8 @@ T getBilinear(Array2D<T> const& src, glm::vec2 const& p)
 	float fractx = p.x - fx;
 	float fracty = p.y - fy;
 	return lerp(
-		lerp(FetchFunc::fetch(src, ix, iy), FetchFunc::fetch(src, ix + 1, iy), fractx),
-		lerp(FetchFunc::fetch(src, ix, iy + 1), FetchFunc::fetch(src, ix + 1, iy + 1), fractx),
+		lerp(WrapPolicy::fetch(src, ix, iy), WrapPolicy::fetch(src, ix + 1, iy), fractx),
+		lerp(WrapPolicy::fetch(src, ix, iy + 1), WrapPolicy::fetch(src, ix + 1, iy + 1), fractx),
 		fracty);
 }
 
@@ -109,23 +109,23 @@ Array2D<T> gauss3(Array2D<T> src) {
 	return dst2;
 }
 
-export template<class T, class FetchFunc = WrapModes::DefaultImpl>
+export template<class T, class WrapPolicy = WrapModes::DefaultImpl>
 vec2 gradient_i(Array2D<T>& src, ivec2 const& p)
 {
 	vec2 gradient;
-	gradient.x = (FetchFunc::fetch(src, p.x + 1, p.y) - FetchFunc::fetch(src, p.x - 1, p.y)) / 2.0f;
-	gradient.y = (FetchFunc::fetch(src, p.x, p.y + 1) - FetchFunc::fetch(src, p.x, p.y - 1)) / 2.0f;
+	gradient.x = (WrapPolicy::fetch(src, p.x + 1, p.y) - WrapPolicy::fetch(src, p.x - 1, p.y)) / 2.0f;
+	gradient.y = (WrapPolicy::fetch(src, p.x, p.y + 1) - WrapPolicy::fetch(src, p.x, p.y - 1)) / 2.0f;
 	return gradient;
 }
-template<class T, class FetchFunc>
+template<class T, class WrapPolicy>
 vec2 gradient_i_nodiv(Array2D<T>& src, ivec2 const& p)
 {
 	vec2 gradient(
-		FetchFunc::fetch(src, p.x + 1, p.y) - FetchFunc::fetch(src, p.x - 1, p.y),
-		FetchFunc::fetch(src, p.x, p.y + 1) - FetchFunc::fetch(src, p.x, p.y - 1));
+		WrapPolicy::fetch(src, p.x + 1, p.y) - WrapPolicy::fetch(src, p.x - 1, p.y),
+		WrapPolicy::fetch(src, p.x, p.y + 1) - WrapPolicy::fetch(src, p.x, p.y - 1));
 	return gradient;
 }
-export template<class T, class FetchFunc>
+export template<class T, class WrapPolicy>
 Array2D<vec2> get_gradients(Array2D<T>& src)
 {
 	auto src2 = src.clone();
@@ -134,13 +134,13 @@ Array2D<vec2> get_gradients(Array2D<T>& src)
 	Array2D<vec2> gradients(src.w, src.h);
 	for (int x = 0; x < src.w; x++)
 	{
-		gradients(x, 0) = gradient_i_nodiv<T, FetchFunc>(src2, ivec2(x, 0));
-		gradients(x, src.h - 1) = gradient_i_nodiv<T, FetchFunc>(src2, ivec2(x, src.h - 1));
+		gradients(x, 0) = gradient_i_nodiv<T, WrapPolicy>(src2, ivec2(x, 0));
+		gradients(x, src.h - 1) = gradient_i_nodiv<T, WrapPolicy>(src2, ivec2(x, src.h - 1));
 	}
 	for (int y = 1; y < src.h - 1; y++)
 	{
-		gradients(0, y) = gradient_i_nodiv<T, FetchFunc>(src2, ivec2(0, y));
-		gradients(src.w - 1, y) = gradient_i_nodiv<T, FetchFunc>(src2, ivec2(src.w - 1, y));
+		gradients(0, y) = gradient_i_nodiv<T, WrapPolicy>(src2, ivec2(0, y));
+		gradients(src.w - 1, y) = gradient_i_nodiv<T, WrapPolicy>(src2, ivec2(src.w - 1, y));
 	}
 	for (int y = 1; y < src.h - 1; y++) {
 		for (int x = 1; x < src.w - 1; x++) {
@@ -150,8 +150,8 @@ Array2D<vec2> get_gradients(Array2D<T>& src)
 	return gradients;
 }
 
-export template<class T, class FetchFunc>
-Array2D<T> separableConvolve(Array2D<T> const& src, vector<float> const& kernel) {
+export template<class T, class WrapPolicy>
+Array2D<T> separableConvolve(Array2D<T>& src, vector<float> const& kernel) {
 	int ksize = kernel.size();
 	int r = ksize / 2;
 
@@ -172,7 +172,7 @@ Array2D<T> separableConvolve(Array2D<T> const& src, vector<float> const& kernel)
 				T sum = zero;
 				for (int xadd = -r; xadd <= r; xadd++)
 				{
-					sum += kernel[xadd + r] * (FetchFunc::fetch(src, x + xadd, y));
+					sum += kernel[xadd + r] * (WrapPolicy::fetch(src, x + xadd, y));
 				}
 				dst1(x, y) = sum;
 			}
@@ -201,7 +201,7 @@ Array2D<T> separableConvolve(Array2D<T> const& src, vector<float> const& kernel)
 				T sum = zero;
 				for (int yadd = -r; yadd <= r; yadd++)
 				{
-					sum += kernel[yadd + r] * FetchFunc::fetch(dst1, x, y + yadd);
+					sum += kernel[yadd + r] * WrapPolicy::fetch(dst1, x, y + yadd);
 				}
 				dst2(x, y) = sum;
 			}
@@ -222,13 +222,43 @@ Array2D<T> separableConvolve(Array2D<T> const& src, vector<float> const& kernel)
 	return dst2;
 }
 
-export template<class T, class FetchFunc>
-Array2D<T> gaussianBlur(Array2D<T> src, int ksize) {
-	auto kernel = getGaussianKernel(ksize, sigmaFromKsize(ksize));
-	return separableConvolve<T, FetchFunc>(src, kernel);
+// This is a common heuristic for choosing sigma based on kernel size, used in
+// OpenCV and elsewhere.
+export float sigmaFromKsize(float ksize) {
+	float sigma = 0.3 * ((ksize - 1) * 0.5 - 1) + 0.8;
+	return sigma;
 }
 
-// --- Implementations from Array2D_imageProc.cpp ---
+// This is the inverse of the above heuristic, which is useful for choosing
+// kernel size based on a desired sigma.
+export float ksizeFromSigma(float sigma) {
+	int ksize = ceil(((sigma - 0.8) / 0.3 + 1) / 0.5 + 1);
+	if (ksize % 2 == 0)
+		ksize++;
+	return ksize;
+}
+
+export vector<float> getGaussianKernel(int ksize, float sigma) {
+	vector<float> result;
+	int r = ksize / 2;
+	float sum = 0.0f;
+	for (int i = -r; i <= r; i++) {
+		float exponent = -(i * i / sq(2 * sigma));
+		float val = exp(exponent);
+		sum += val;
+		result.push_back(val);
+	}
+	for (int i = 0; i < result.size(); i++) {
+		result[i] /= sum;
+	}
+	return result;
+}
+
+export template<class T, class WrapPolicy>
+Array2D<T> gaussianBlur(Array2D<T> src, int ksize) {
+	auto kernel = getGaussianKernel(ksize, sigmaFromKsize(ksize));
+	return separableConvolve<T, WrapPolicy>(src, kernel);
+}
 
 export void mm(string desc, Array2D<float> arr) {
 	if (desc != "") {
@@ -252,38 +282,6 @@ export void mm(string desc, Array2D<vec2> arr) {
 	auto data = (float*)arr.data();
 	cout << "min: " << *std::min_element(data, data + arr.area * 2) << ", "
 		<< "max: " << *std::max_element(data, data + arr.area * 2) << endl;
-}
-
-export vector<float> getGaussianKernel(int ksize, float sigma) {
-	vector<float> result;
-	int r = ksize / 2;
-	float sum = 0.0f;
-	for (int i = -r; i <= r; i++) {
-		float exponent = -(i*i / sq(2 * sigma));
-		float val = exp(exponent);
-		sum += val;
-		result.push_back(val);
-	}
-	for (int i = 0; i < result.size(); i++) {
-		result[i] /= sum;
-	}
-	return result;
-}
-
-// This is a common heuristic for choosing sigma based on kernel size, used in
-// OpenCV and elsewhere.
-export float sigmaFromKsize(float ksize) {
-	float sigma = 0.3*((ksize - 1)*0.5 - 1) + 0.8;
-	return sigma;
-}
-
-// This is the inverse of the above heuristic, which is useful for choosing
-// kernel size based on a desired sigma.
-export float ksizeFromSigma(float sigma) {
-	int ksize = ceil(((sigma - 0.8) / 0.3 + 1) / 0.5 + 1);
-	if (ksize % 2 == 0)
-		ksize++;
-	return ksize;
 }
 
 // Linearly remaps the values in the array to be between 0 and 1, based
