@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Use static MSVC runtime (/MT or /MTd) to match the vcpkg triplet
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 
 # ── Packages ──────────────────────────────────────────────────────────────────
 find_package(OpenGL REQUIRED)
@@ -116,7 +116,6 @@ target_compile_options(App PRIVATE
 
 target_link_options(App PRIVATE
     /DEBUG
-    $<$<CONFIG:Debug>:/NODEFAULTLIB:LIBCMT>
 )
 
 target_link_libraries(App PRIVATE
