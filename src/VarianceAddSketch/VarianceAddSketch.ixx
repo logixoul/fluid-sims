@@ -8,7 +8,7 @@ import lxlib.Array2D_imageProc;
 import lxlib.stuff;
 import lxlib.TextureRef;
 import lxlib.gpgpu;
-import lxlib.gpuBlur2_5;
+import lxlib.gpuBlur;
 import lxlib.SketchBase;
 import lxlib.shade;
 import lxlib.colorspaces;

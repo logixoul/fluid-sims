@@ -6,7 +6,7 @@ import lxlib.gpgpu;
 import lxlib.Array2D_imageProc;
 import lxlib.Array2D;
 import lxlib.stuff;
-import lxlib.gpuBlur2_5;
+import lxlib.gpuBlur;
 import lxlib.ConfigManager3;
 #include <lxlib/macros.h>
 import lxlib.Rect;
@@ -180,9 +180,9 @@ export struct GridFluidSketch : public SketchBase {
 		ImGui::DragFloat("bloomSize", &bloomSize, 1.0f, 0.1, 100, "%.3f", ImGuiSliderFlags_Logarithmic);
 		ImGui::DragInt("bloomIters", &bloomIters, 1.0f, 1, 16, "%d", ImGuiSliderFlags_None);
 		ImGui::DragFloat("bloomIntensity", &bloomIntensity, 1.0f, 0.0001, 2000, "%.3f", ImGuiSliderFlags_Logarithmic);
-		auto redTexB = gpuBlur2_5::run_longtail(redTex, bloomIters, bloomSize);
-		auto greenTexB = gpuBlur2_5::run_longtail(greenTex, bloomIters, bloomSize);
-		auto hsvTexB = gpuBlur2_5::run_longtail(hsvTex, bloomIters, bloomSize);
+		auto redTexB = gpuBlur::run_longtail(redTex, bloomIters, bloomSize);
+		auto greenTexB = gpuBlur::run_longtail(greenTex, bloomIters, bloomSize);
+		auto hsvTexB = gpuBlur::run_longtail(hsvTex, bloomIters, bloomSize);
 
 		greenTex = op(greenTex) * 0.16;
 
@@ -279,7 +279,7 @@ export struct GridFluidSketch : public SketchBase {
 		);
 
 		const auto tex2Thres = shade(tex2, "vec3 c=texture().xyz; c *= step(vec3(1.0), c); _out.rgb=c;");
-		auto tex2b = gpuBlur2_5::run_longtail(tex2Thres, bloomIters, bloomSize);
+		auto tex2b = gpuBlur::run_longtail(tex2Thres, bloomIters, bloomSize);
 		tex2 = op(tex2) + op(tex2b) * bloomIntensity;
 
 		tex2 = shade(tex2,

@@ -2,7 +2,7 @@ module;
 #include "precompiled.h"
 #include "macros.h"
 
-export module lxlib.gpuBlur2_5;
+export module lxlib.gpuBlur;
 
 import lxlib.shade;
 import lxlib.TextureRef;
@@ -10,7 +10,7 @@ import lxlib.stuff;
 import lxlib.gpgpu;
 
 // Forward declarations (exported interface)
-export namespace gpuBlur2_5 {
+export namespace gpuBlur {
 	gl::TextureRef run(gl::TextureRef src, int lvls);
 	gl::TextureRef run_longtail(gl::TextureRef src, int lvls, float lvlmul, float hscale = .5f, float vscale = .5f);
 	float getGaussW();
@@ -21,10 +21,8 @@ export namespace gpuBlur2_5 {
 	std::vector<gl::TextureRef> buildGaussianPyramid(gl::TextureRef const& src, float scalePerLevel);
 }
 
-export namespace gpuBlur = gpuBlur2_5;
-
 // Implementations
-namespace gpuBlur2_5 {
+namespace gpuBlur {
 
 	static float logAB(float a, float b) {
 		return log(b) / log(a);
@@ -194,4 +192,4 @@ namespace gpuBlur2_5 {
 		return result;
 	}
 
-} // namespace gpuBlur2_5
+} // namespace gpuBlur

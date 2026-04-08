@@ -7,7 +7,7 @@ export module gpuBlurClaude;
 import lxlib.shade;
 import lxlib.TextureRef;
 import lxlib.Array2D;
-import lxlib.gpuBlur2_5;
+import lxlib.gpuBlur;
 import lxlib.gpgpu;
 import lxlib.stuff;
 
@@ -19,7 +19,7 @@ export namespace gpuBlurClaude {
 }
 
 namespace gpuBlurClaude {
-	// todo: move this to stuff.cpp/h. Copy-pasted in gpuBlur2_5.cpp as well.
+	// todo: move this to stuff.cpp/h. Copy-pasted in gpuBlur.cpp as well.
 	void setTextureBorderColor(gl::TextureRef tex, float r, float g, float b, float a) {
 		bind(tex);
 		float color[] = { r, g, b, a };
@@ -108,7 +108,7 @@ namespace gpuBlurClaude {
 				break;
 			ivec2 dstSize = ivec2(state->getWidth() * scalePerLevel, state->getHeight() * scalePerLevel);
 			//state = singleblurLikeCinder(state, dstSize);
-			state = gpuBlur2_5::singleblur(state, scalePerLevel, scalePerLevel, GL_CLAMP_TO_BORDER);
+			state = gpuBlur::singleblur(state, scalePerLevel, scalePerLevel, GL_CLAMP_TO_BORDER);
 			result.push_back(state);
 		}
 		return result;
@@ -116,7 +116,7 @@ namespace gpuBlurClaude {
 
 	gl::TextureRef blurWithInvKernel(gl::TextureRef const& src) {
 		// Build Gaussian pyramid. Each level is half the resolution of the previous.
-		std::vector<gl::TextureRef> levels = gpuBlur2_5::buildGaussianPyramid(src, .5f);
+		std::vector<gl::TextureRef> levels = gpuBlur::buildGaussianPyramid(src, .5f);
 		
 		// 1/r kernel in 2D: each octave contributes equal weight,
 		// so each pyramid level gets equal weight.
@@ -129,7 +129,7 @@ namespace gpuBlurClaude {
 			ShadeOpts().uniform("_w", weight).dstRectSize(dstSize));
 
 		for (int i = 1; i < numLevels; i++) {
-			auto upscaled = gpuBlur2_5::upscale(levels[i], dstSize);
+			auto upscaled = gpuBlur::upscale(levels[i], dstSize);
 			result = shade({ result, upscaled },
 				"_out = texture() + texture(tex2) * _w;",
 				ShadeOpts().uniform("_w", weight));

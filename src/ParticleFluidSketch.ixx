@@ -97,7 +97,7 @@ export struct ParticleFluidSketch : public SketchBase {
 		//img = gaussianBlur(img, blurSize);
 		img = accum;
 		auto tex = gtex(img);
-		//auto tex2 = gpuBlur2_5::run(tex, blurSize);
+		//auto tex2 = gpuBlur::run(tex, blurSize);
 		auto tex2 = tex;
 		tex2 = shade(tex2,
 			"float f = texture().x;"

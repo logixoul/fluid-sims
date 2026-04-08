@@ -208,7 +208,7 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 			stateTex = op(stateTex) + thisLevelTexContrastized;
 		}
 		stateTex = op(stateTex) / float(pyramid.size());
-		//stateTex = (op(stateTex) + op(gpuBlur2_5::run(stateTex, 3))*2.0f) / 2;
+		//stateTex = (op(stateTex) + op(gpuBlur::run(stateTex, 3))*2.0f) / 2;
 		stateTex = shade(stateTex, MULTILINE(
 			float val = texture().x;
 		vec3 fire = vec3(min(val * 1.5, 1.), pow(val, 2.5), pow(val, 12.));

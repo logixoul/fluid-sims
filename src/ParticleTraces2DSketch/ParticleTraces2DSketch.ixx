@@ -6,7 +6,7 @@ import lxlib.Array2D;
 import lxlib.stuff;
 import lxlib.TextureRef;
 import lxlib.gpgpu;
-import lxlib.gpuBlur2_5;
+import lxlib.gpuBlur;
 import lxlib.SketchBase;
 import lxlib.shade;
 import lxlib.colorspaces;
@@ -217,7 +217,7 @@ export struct ParticleTraces2DSketch : public SketchBase {
 			"	 c = vec3(0);"
 			"_out.rgb = c;"
 		);
-		auto walkerTexB = gpuBlur2_5::run(walkerTexThres, 4);
+		auto walkerTexB = gpuBlur::run(walkerTexThres, 4);
 		auto walkerTex2 = shade({ walkerTex, walkerTexB },
 			"vec3 c = texture().xyz;"
 			"vec3 hsl = rgb2hsl(c);"

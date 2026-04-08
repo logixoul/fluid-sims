@@ -44,7 +44,7 @@ set(CXX_MODULE_SOURCES
     src/lxlib/ConfigManager3.ixx
     src/lxlib/GlslProg.ixx
     src/lxlib/gpgpu.ixx
-    src/lxlib/gpuBlur2_5.ixx
+    "src/lxlib/gpuBlur.ixx"
     src/lxlib/IntegratedConsole.ixx
     src/lxlib/shade.ixx
     src/lxlib/SketchBase.ixx
