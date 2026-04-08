@@ -222,7 +222,7 @@ export gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string cons
 		}
 		else {
 			GLenum ifmt = opts._ifmt.exists ? opts._ifmt.val : tex0->getInternalFormat();
-			results = { maketex(viewportSize.x, viewportSize.y, ifmt) };
+			results = { getTexFromPool(viewportSize.x, viewportSize.y, ifmt) };
 		}
 	}
 	

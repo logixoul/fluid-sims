@@ -20,10 +20,10 @@ export gl::TextureRef uploadTex(Array2D<uvec4> a);
 export int sign(float f);
 export float expRange(float x, float min, float max);
 
-export gl::TextureRef maketex(int w, int h, GLint ifmt, bool allocateMipmaps = false, bool clear = false);
+export gl::TextureRef getTexFromPool(int w, int h, GLint ifmt, bool allocateMipmaps = false, bool clear = false);
 
 export template<class T>
-Array2D<T> dl(gl::TextureRef tex) {
+Array2D<T> downloadTex(gl::TextureRef tex) {
 	return Array2D<T>(); // tmp.
 }
 
@@ -37,11 +37,11 @@ Array2D<T> gettexdata(gl::TextureRef tex, GLenum format, GLenum type) {
 	return data;
 }
 
-export template<> Array2D<bytevec3> dl<bytevec3>(gl::TextureRef tex);
-export template<> Array2D<float> dl<float>(gl::TextureRef tex);
-export template<> Array2D<vec2> dl<vec2>(gl::TextureRef tex);
-export template<> Array2D<vec3> dl<vec3>(gl::TextureRef tex);
-export template<> Array2D<vec4> dl<vec4>(gl::TextureRef tex);
+export template<> Array2D<bytevec3> downloadTex<bytevec3>(gl::TextureRef tex);
+export template<> Array2D<float> downloadTex<float>(gl::TextureRef tex);
+export template<> Array2D<vec2> downloadTex<vec2>(gl::TextureRef tex);
+export template<> Array2D<vec3> downloadTex<vec3>(gl::TextureRef tex);
+export template<> Array2D<vec4> downloadTex<vec4>(gl::TextureRef tex);
 
 export float sq(float f) {
 	return f * f;
@@ -128,7 +128,7 @@ void enableGlDebugOutput() {
 
 gl::TextureRef uploadTex(Array2D<float> a)
 {
-	gl::TextureRef tex = maketex(a.w, a.h, GL_R16F);
+	gl::TextureRef tex = getTexFromPool(a.w, a.h, GL_R16F);
 	tex->bind();
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RED, GL_FLOAT, a.data());
 	return tex;
@@ -136,7 +136,7 @@ gl::TextureRef uploadTex(Array2D<float> a)
 
 gl::TextureRef uploadTex(Array2D<vec2> a)
 {
-	gl::TextureRef tex = maketex(a.w, a.h, GL_RG16F);
+	gl::TextureRef tex = getTexFromPool(a.w, a.h, GL_RG16F);
 	tex->bind();
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RG, GL_FLOAT, a.data());
 	return tex;
@@ -144,14 +144,14 @@ gl::TextureRef uploadTex(Array2D<vec2> a)
 
 gl::TextureRef uploadTex(Array2D<vec3> a)
 {
-	gl::TextureRef tex = maketex(a.w, a.h, GL_RGB16F);
+	gl::TextureRef tex = getTexFromPool(a.w, a.h, GL_RGB16F);
 	tex->bind();
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RGB, GL_FLOAT, a.data());
 	return tex;
 }
 gl::TextureRef uploadTex(Array2D<bytevec3> a)
 {
-	gl::TextureRef tex = maketex(a.w, a.h, GL_RGB8);
+	gl::TextureRef tex = getTexFromPool(a.w, a.h, GL_RGB8);
 	tex->bind();
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RGB, GL_UNSIGNED_BYTE, a.data());
 	return tex;
@@ -159,7 +159,7 @@ gl::TextureRef uploadTex(Array2D<bytevec3> a)
 
 gl::TextureRef uploadTex(Array2D<vec4> a)
 {
-	gl::TextureRef tex = maketex(a.w, a.h, GL_RGBA16F);
+	gl::TextureRef tex = getTexFromPool(a.w, a.h, GL_RGBA16F);
 	tex->bind();
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RGBA, GL_FLOAT, a.data());
 	return tex;
@@ -167,7 +167,7 @@ gl::TextureRef uploadTex(Array2D<vec4> a)
 
 gl::TextureRef uploadTex(Array2D<uvec4> a)
 {
-	gl::TextureRef tex = maketex(a.w, a.h, GL_RGBA32UI);
+	gl::TextureRef tex = getTexFromPool(a.w, a.h, GL_RGBA32UI);
 	tex->bind();
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RGBA_INTEGER, GL_UNSIGNED_INT, a.data());
 	return tex;
@@ -241,7 +241,7 @@ export void endRTT()
 	fboBound = false;
 }
 
-gl::TextureRef maketex(int w, int h, GLint ifmt, bool allocateMipmaps, bool clear) {
+gl::TextureRef getTexFromPool(int w, int h, GLint ifmt, bool allocateMipmaps, bool clear) {
 	TextureCacheKey key;
 	key.ifmt = ifmt;
 	key.size = ivec2(w, h);
@@ -281,22 +281,22 @@ vec2 compdiv(vec2 const & v1, vec2 const & v2) {
 		(b*c - a * d) / cd);
 }
 
-template<> Array2D<bytevec3> dl<bytevec3>(gl::TextureRef tex) {
+template<> Array2D<bytevec3> downloadTex<bytevec3>(gl::TextureRef tex) {
 	return gettexdata<bytevec3>(tex, GL_RGB, GL_UNSIGNED_BYTE);
 }
 
-template<> Array2D<float> dl<float>(gl::TextureRef tex) {
+template<> Array2D<float> downloadTex<float>(gl::TextureRef tex) {
 	return gettexdata<float>(tex, GL_RED, GL_FLOAT);
 }
 
-template<> Array2D<vec2> dl<vec2>(gl::TextureRef tex) {
+template<> Array2D<vec2> downloadTex<vec2>(gl::TextureRef tex) {
 	return gettexdata<vec2>(tex, GL_RG, GL_FLOAT);
 }
 
-template<> Array2D<vec3> dl<vec3>(gl::TextureRef tex) {
+template<> Array2D<vec3> downloadTex<vec3>(gl::TextureRef tex) {
 	return gettexdata<vec3>(tex, GL_RGB, GL_FLOAT);
 }
 
-template<> Array2D<vec4> dl<vec4>(gl::TextureRef tex) {
+template<> Array2D<vec4> downloadTex<vec4>(gl::TextureRef tex) {
 	return gettexdata<vec4>(tex, GL_RGBA, GL_FLOAT);
 }

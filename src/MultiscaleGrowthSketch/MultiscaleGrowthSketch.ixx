@@ -193,10 +193,10 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 
 		auto imgTexHighpassed = gpuHighpass(imgTexCentered, options.highPassStrength);
 		imgTexHighpassed = gpuHighpass(imgTexHighpassed, options.highPassStrength);
-		auto imgHighpassed = dl<float>(imgTexHighpassed);
+		auto imgHighpassed = downloadTex<float>(imgTexHighpassed);
 
 		auto pyramid = buildGaussianPyramid(imgHighpassed);
-		auto stateTex = maketex(wsx, wsy, GL_R16F, false, true);
+		auto stateTex = shade(imgTex, "_out = vec4(0.0);", ShadeOpts().dstRectSize(windowSize));
 		for (int i = pyramid.size() - 1; i >= 0; i--) {
 			auto& thisLevel = pyramid[i];
 			auto thisLevelTex = uploadTex(thisLevel);
@@ -232,3 +232,5 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 		lxDraw(tex);
 	}
 };
+
+export using StartupSketch = MultiscaleGrowthSketch;
