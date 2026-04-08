@@ -100,16 +100,17 @@ namespace gpuBlur {
 		string shader =
 			"	float gaussW = 0.75f;"
 			"	vec2 offset = vec2(GB2_offsetX, GB2_offsetY);"
+			"	vec2 texSize = vec2(textureSize(tex, 0));"
          // here texCoord2 is half a texel TO THE TOP LEFT of the texel center. IT IS IN UV SPACE.
 			"	vec2 texCoord2 = floor(texCoord * texSize) / texSize;"
 			// here I make texCoord2 be the texel center
-			"	texCoord2 += tsize / 2.0;"
+			"	texCoord2 += texelSize / 2.0;"
 			// frXY is in PIXEL SPACE. its x and y go from -.5 to .5
           "	vec2 frXY = (texCoord - texCoord2) * texSize;"
 			"	float fr = (GB2_offsetX == 1.0) ? frXY.x : frXY.y;"
-            "	vec4 aM1 = texture(tex, texCoord2 + (-1.0) * offset * tsize);"
-			"	vec4 a0 = texture(tex, texCoord2 + (0.0) * offset * tsize);"
-			"	vec4 aP1 = texture(tex, texCoord2 + (+1.0) * offset * tsize);"
+            "	vec4 aM1 = texture(tex, texCoord2 + (-1.0) * offset * texelSize);"
+			"	vec4 a0 = texture(tex, texCoord2 + (0.0) * offset * texelSize);"
+			"	vec4 aP1 = texture(tex, texCoord2 + (+1.0) * offset * texelSize);"
 			"	"
 			"	float wM1=gauss(-1.0-fr, gaussW);"
 			"	float w0=gauss(-fr, gaussW);"
@@ -152,11 +153,11 @@ namespace gpuBlur {
 		weights << fixed << "float w0=" << w0 << ", w1=" << w1 << ", w2=" << w2 << ";" << endl;
 		string shader =
 			"vec2 offset = vec2(GB2_offsetX, GB2_offsetY);"
-            "vec4 aM2 = texture(tex, texCoord + (-2.0) * offset * tsize);"
-			"vec4 aM1 = texture(tex, texCoord + (-1.0) * offset * tsize);"
-			"vec4 a0 = texture(tex, texCoord + (0.0) * offset * tsize);"
-			"vec4 aP1 = texture(tex, texCoord + (+1.0) * offset * tsize);"
-			"vec4 aP2 = texture(tex, texCoord + (+2.0) * offset * tsize);"
+            "vec4 aM2 = texture(tex, texCoord + (-2.0) * offset * texelSize);"
+			"vec4 aM1 = texture(tex, texCoord + (-1.0) * offset * texelSize);"
+			"vec4 a0 = texture(tex, texCoord + (0.0) * offset * texelSize);"
+			"vec4 aP1 = texture(tex, texCoord + (+1.0) * offset * texelSize);"
+			"vec4 aP2 = texture(tex, texCoord + (+2.0) * offset * texelSize);"
 			""
 			+ weights.str() +
 			"_out = w2 * (aM2 + aP2) + w1 * (aM1 + aP1) + w0 * a0;";

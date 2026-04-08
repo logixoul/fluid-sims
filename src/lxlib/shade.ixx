@@ -134,7 +134,7 @@ std::string getCompleteFshader(vector<gl::TextureRef> const& texv, vector<Unifor
 		string samplerType = "sampler2D";
 		uniformDeclarations << "uniform " + samplerType + " " + samplerName(i) + ";\n";
 		uniformDeclarations << "uniform vec2 " + samplerName(i) + "Size;\n";
-		uniformDeclarations << "uniform vec2 tsize" + samplerSuffix(i) + ";\n";
+		uniformDeclarations << "uniform vec2 texelSize" + samplerSuffix(i) + ";\n";
 	}
 	for (auto& p : uniforms)
 	{
@@ -230,12 +230,10 @@ export gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string cons
 	shader->uniform("viewportSize", viewportSize);
 	location++;
 	shader->uniform("tex", 0); tex0->bind(GL_TEXTURE0 + 0);
-	shader->uniform("texSize", vec2(tex0->getSize()));
-	shader->uniform("tsize", vec2(1.0) / vec2(tex0->getSize()));
+	shader->uniform("texelSize", vec2(1.0) / vec2(tex0->getSize()));
 	for (int i = 1; i < texv.size(); i++) {
 		shader->uniform(samplerName(i), i); texv[i]->bind(GL_TEXTURE0 + i);
-		shader->uniform(samplerName(i)+"Size", vec2(texv[i]->getSize()));
-		shader->uniform("tsize" + samplerSuffix(i), vec2(1)/vec2(texv[i]->getSize()));
+		shader->uniform("texelSize" + samplerSuffix(i), vec2(1)/vec2(texv[i]->getSize()));
 	}
 	for (auto& uniform : opts._uniforms)
 	{

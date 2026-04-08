@@ -41,6 +41,7 @@ namespace gpuBlurClaude {
 		float vscale = float(dstSize.y) / src->getHeight();
 		
 		string shaderH =
+			"vec2 texSize = vec2(textureSize(tex, 0));"
 			"int dstX = int(gl_FragCoord.x);"
 			"int dstY = int(gl_FragCoord.y);"
 			"float filterScaleX = max(1.0f, 1.0f / scaleX);"
@@ -63,6 +64,7 @@ namespace gpuBlurClaude {
 			;
 
 		string shaderV =
+			"vec2 texSize = vec2(textureSize(tex, 0));"
 			"int dstX = int(gl_FragCoord.x);"
 			"int dstY = int(gl_FragCoord.y);"
 			"float filterScaleY = max(1.0f, 1.0f / scaleY);"
