@@ -185,7 +185,7 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 		auto imgClamped = img.clone();
 		forxy(imgClamped) imgClamped(p) = glm::clamp(imgClamped(p), 0.0f, 1.0f);
 
-		auto imgTex = gtex(imgClamped);
+		auto imgTex = uploadTex(imgClamped);
 		auto imgTexCentered = shade(imgTex,
 			"float f = texture().x;"
 			"_out.r = f - .5;"
@@ -199,7 +199,7 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 		auto stateTex = maketex(wsx, wsy, GL_R16F, false, true);
 		for (int i = pyramid.size() - 1; i >= 0; i--) {
 			auto& thisLevel = pyramid[i];
-			auto thisLevelTex = gtex(thisLevel);
+			auto thisLevelTex = uploadTex(thisLevel);
 			auto thisLevelTexContrastized = shade(thisLevelTex,
 				"float f = texture().x;"
 				"float fw = fwidth(f);"
@@ -222,7 +222,7 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 		lxClear();
 		options.update();
 
-		gl::TextureRef tex = gtex(img);
+		gl::TextureRef tex = uploadTex(img);
 		if (options.binarizePostprocessing) {
 			tex = postprocess();
 		}

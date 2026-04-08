@@ -77,7 +77,7 @@ export struct VarianceAddSketch : public SketchBase {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glViewport(0, 0, wsx, wsy);
 		glDisable(GL_BLEND);
-		auto tex = gtex(state);
+		auto tex = uploadTex(state);
 		lxDraw(tex);
 	}
 };

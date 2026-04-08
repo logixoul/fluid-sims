@@ -149,7 +149,7 @@ export struct FftRaysSketch : public SketchBase {
 			glm::vec2 vec2(normalized(p).real(), normalized(p).imag());
 			img(p) = complexToColor_HSV(vec2);
 		}
-		auto tex = gtex(img);
+		auto tex = uploadTex(img);
 		tex = shade(tex, // upscale
 			"_out = texture();"
 			, ShadeOpts().dstRectSize(vec2(windowSize)));

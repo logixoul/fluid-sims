@@ -174,7 +174,7 @@ export struct ParticleTraces2DSketch : public SketchBase {
 
 		lxClear();
 		static Array2D<vec3> sizeSource(sx, sy);
-		static auto sizeSourceTex = gtex(sizeSource);
+		static auto sizeSourceTex = uploadTex(sizeSource);
 		static auto walkerTex = shade(sizeSourceTex, "_out.rgb = vec3(0.0);");
 		if (!pause) {
 			walkerTex = shade(walkerTex, "_out.rgb = texture().xyz * 0.993;");

@@ -21,14 +21,14 @@ export namespace gpuBlurClaude {
 namespace gpuBlurClaude {
 	// todo: move this to stuff.cpp/h. Copy-pasted in gpuBlur.cpp as well.
 	void setTextureBorderColor(gl::TextureRef tex, float r, float g, float b, float a) {
-		bind(tex);
+		tex->bind();
 		float color[] = { r, g, b, a };
 		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, color);
 	}
 	gl::TextureRef gtexF32(Array2D<float> a)
 	{
 		gl::TextureRef tex = maketex(a.w, a.h, GL_R32F);
-		bind(tex);
+		tex->bind();
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RED, GL_FLOAT, a.data());
 		return tex;
 	}

@@ -62,6 +62,12 @@ public:
 	void bind() {
 		glBindTexture(GL_TEXTURE_2D, mId);
 	}
+	void bind(GLenum textureUnit)
+	{
+		glActiveTexture(textureUnit);
+		bind();
+		glActiveTexture(GL_TEXTURE0); // todo: is this necessary?
+	}
 	GLint getId() {
 		return mId;
 	}

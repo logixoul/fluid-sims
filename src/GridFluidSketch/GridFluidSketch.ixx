@@ -143,9 +143,9 @@ export struct GridFluidSketch : public SketchBase {
 		forxy(density) {
 			density(p) = red.density(p) + green.density(p);
 		}
-		auto sumTex = gtex(density);
-		auto redTex = gtex(red.density);
-		auto greenTex = gtex(green.density);
+		auto sumTex = uploadTex(density);
+		auto redTex = uploadTex(red.density);
+		auto greenTex = uploadTex(green.density);
 
 		sumTex = gauss3texScaled(sumTex, 1.0); // reduce upscale artefacts
 		sumTex = gauss3texScaled(sumTex, 1.0); // reduce upscale artefacts
@@ -160,7 +160,7 @@ export struct GridFluidSketch : public SketchBase {
 		redTex = Operable(redTex) * colorAmount;
 		greenTex = Operable(greenTex) * colorAmount;
 
-		auto momentumTex = gtex(red.momentum);
+		auto momentumTex = uploadTex(red.momentum);
 		auto hsvTex = shade(momentumTex, MULTILINE(
 			vec2 momentum = texture().xy;
 			float angle = atan(momentum.y, momentum.x) / (2 * pi) + .5;
@@ -201,7 +201,7 @@ export struct GridFluidSketch : public SketchBase {
 			ShadeOpts().ifmt(GL_RGB16F));
 		//static auto envMap = gl::TextureCubeMap::create(loadImage(loadAsset("envmap_cube.jpg")), gl::TextureCubeMap::Format().mipmap());
 
-		auto grads = get_gradients_tex(sumTex);
+		auto grads = getGradients(sumTex);
 		std::string const shaderFunctions = "float PI = 3.14159265358979323846264;\n"
 			"vec2 latlong(vec3 refl) {\n"
 			"	return vec2(atan(refl.z, refl.x) / (2.0 * PI) + 0.5, asin(clamp(refl.y, -1.0, 1.0)) / PI + 0.5);"

@@ -10,15 +10,12 @@ import lxlib.TextureRef;
 import lxlib.Array2D;
 import lxlib.TextureCache;
 
-export void bind(gl::TextureRef& tex);
-export void bindTexture(gl::TextureRef& tex);
-export void bindTexture(gl::TextureRef tex, GLenum textureUnit);
-export gl::TextureRef gtex(Array2D<float> a);
-export gl::TextureRef gtex(Array2D<vec2> a);
-export gl::TextureRef gtex(Array2D<vec3> a);
-export gl::TextureRef gtex(Array2D<bytevec3> a);
-export gl::TextureRef gtex(Array2D<vec4> a);
-export gl::TextureRef gtex(Array2D<uvec4> a);
+export gl::TextureRef uploadTex(Array2D<float> a);
+export gl::TextureRef uploadTex(Array2D<vec2> a);
+export gl::TextureRef uploadTex(Array2D<vec3> a);
+export gl::TextureRef uploadTex(Array2D<bytevec3> a);
+export gl::TextureRef uploadTex(Array2D<vec4> a);
+export gl::TextureRef uploadTex(Array2D<uvec4> a);
 
 export int sign(float f);
 export float expRange(float x, float min, float max);
@@ -34,7 +31,7 @@ export template<class T>
 Array2D<T> gettexdata(gl::TextureRef tex, GLenum format, GLenum type) {
 	Array2D<T> data(tex->getSize());
 
-	bind(tex);
+	tex->bind();
 	glGetTexImage(GL_TEXTURE_2D, 0, format, type, data.data());
 
 	return data;
@@ -129,63 +126,49 @@ void enableGlDebugOutput() {
 	glDebugMessageCallback(messageCallback, 0);
 }
 
-void bind(gl::TextureRef & tex) {
-	glBindTexture(tex->getTarget(), tex->getId());
-}
-void bindTexture(gl::TextureRef & tex) {
-	glBindTexture(tex->getTarget(), tex->getId());
-}
-
-void bindTexture(gl::TextureRef tex, GLenum textureUnit)
-{
-	glActiveTexture(textureUnit);
-	bindTexture(tex);
-	glActiveTexture(GL_TEXTURE0); // todo: is this necessary?
-}
-
-gl::TextureRef gtex(Array2D<float> a)
+gl::TextureRef uploadTex(Array2D<float> a)
 {
 	gl::TextureRef tex = maketex(a.w, a.h, GL_R16F);
-	bind(tex);
+	tex->bind();
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RED, GL_FLOAT, a.data());
 	return tex;
 }
 
-gl::TextureRef gtex(Array2D<vec2> a)
+gl::TextureRef uploadTex(Array2D<vec2> a)
 {
 	gl::TextureRef tex = maketex(a.w, a.h, GL_RG16F);
-	bind(tex);
+	tex->bind();
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RG, GL_FLOAT, a.data());
 	return tex;
 }
 
-gl::TextureRef gtex(Array2D<vec3> a)
+gl::TextureRef uploadTex(Array2D<vec3> a)
 {
 	gl::TextureRef tex = maketex(a.w, a.h, GL_RGB16F);
-	bind(tex);
+	tex->bind();
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RGB, GL_FLOAT, a.data());
 	return tex;
 }
-gl::TextureRef gtex(Array2D<bytevec3> a)
+gl::TextureRef uploadTex(Array2D<bytevec3> a)
 {
 	gl::TextureRef tex = maketex(a.w, a.h, GL_RGB8);
-	bind(tex);
+	tex->bind();
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RGB, GL_UNSIGNED_BYTE, a.data());
 	return tex;
 }
 
-gl::TextureRef gtex(Array2D<vec4> a)
+gl::TextureRef uploadTex(Array2D<vec4> a)
 {
 	gl::TextureRef tex = maketex(a.w, a.h, GL_RGBA16F);
-	bind(tex);
+	tex->bind();
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RGBA, GL_FLOAT, a.data());
 	return tex;
 }
 
-gl::TextureRef gtex(Array2D<uvec4> a)
+gl::TextureRef uploadTex(Array2D<uvec4> a)
 {
 	gl::TextureRef tex = maketex(a.w, a.h, GL_RGBA32UI);
-	bind(tex);
+	tex->bind();
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RGBA_INTEGER, GL_UNSIGNED_INT, a.data());
 	return tex;
 }
@@ -205,7 +188,7 @@ float expRange(float x, float min, float max) {
 
 void setWrapBlack(gl::TextureRef tex) {
 	// I think the border color is transparent black by default. It doesn't hurt that it is transparent.
-	bind(tex);
+	tex->bind();
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	float black[] = { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -213,7 +196,7 @@ void setWrapBlack(gl::TextureRef tex) {
 }
 
 void setWrap(gl::TextureRef tex, GLenum wrap) {
-	bind(tex);
+	tex->bind();
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
 }

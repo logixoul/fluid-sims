@@ -9,11 +9,11 @@ import lxlib.shade;
 import lxlib.TextureRef;
 import lxlib.stuff;
 
-export gl::TextureRef get_gradients_tex(gl::TextureRef src, GLuint wrap = GL_REPEAT);
+export gl::TextureRef getGradients(gl::TextureRef src, GLuint wrap = GL_REPEAT);
 
-export gl::TextureRef gauss3tex(gl::TextureRef src);
+export gl::TextureRef gaussianBlur3x3(gl::TextureRef src);
 
-export gl::TextureRef get_laplace_tex(gl::TextureRef src, GLuint wrap);
+export gl::TextureRef getLaplace(gl::TextureRef src, GLuint wrap);
 
 export struct Operable {
 	explicit Operable(gl::TextureRef aTex);
@@ -46,12 +46,10 @@ private:
 
 export Operable op(gl::TextureRef tex);
 
-// --- Implementations from gpgpu.cpp ---
-
-gl::TextureRef get_gradients_tex(gl::TextureRef src, GLuint wrap) {
-	GPU_SCOPE("get_gradients_tex");
+gl::TextureRef getGradients(gl::TextureRef src, GLuint wrap) {
+	GPU_SCOPE("getGradients");
 	glActiveTexture(GL_TEXTURE0);
-	::bindTexture(src);
+	src->bind();
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
 	return shade(src,
@@ -67,7 +65,7 @@ gl::TextureRef get_gradients_tex(gl::TextureRef src, GLuint wrap) {
 	);
 }
 
-gl::TextureRef gauss3tex(gl::TextureRef src) {
+gl::TextureRef gaussianBlur3x3(gl::TextureRef src) {
 	auto state = shade(src,
 		"vec4 sum = vec4(0.0);"
             "sum += texture(tex, texCoord + tsize * vec2(-1.0, -1.0)) / 16.0;"
@@ -86,9 +84,9 @@ gl::TextureRef gauss3tex(gl::TextureRef src) {
 	return state;
 }
 
-gl::TextureRef get_laplace_tex(gl::TextureRef src, GLuint wrap) {
+gl::TextureRef getLaplace(gl::TextureRef src, GLuint wrap) {
 	glActiveTexture(GL_TEXTURE0);
-	::bindTexture(src);
+	src->bind();
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
 	auto state = shade(src,
