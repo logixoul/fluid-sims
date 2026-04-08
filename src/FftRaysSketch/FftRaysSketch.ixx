@@ -163,7 +163,7 @@ export struct FftRaysSketch : public SketchBase {
 			"for(int i = 0; i < NUM_STEPS; i++) {"
 			"	float weight = pow(0.95, float(i));" // exponential weight falloff
 			"	if(i == 0) weight = 35.0f;" // boost center sample
-			"	col += texture(tex, localTc + 0.5).rgb * weight;"
+           "	col += texture(tex0, localTc + 0.5).rgb * weight;"
 			"	localTc -= localTc * 0.005;" // "zoom blur" effect
 			"	sumWeights += weight;"
 			"}"

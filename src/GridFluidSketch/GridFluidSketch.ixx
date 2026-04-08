@@ -111,17 +111,17 @@ export struct GridFluidSketch : public SketchBase {
 	gl::TextureRef gauss3texScaled(gl::TextureRef src, float scale) {
 		auto state = shade(src,
 			"vec4 sum = vec4(0.0);"
-            "sum += texture(tex, texCoord + texelSize * vec2(-1.0, -1.0)) / 16.0;"
-			"sum += texture(tex, texCoord + texelSize * vec2(-1.0, 0.0)) / 8.0;"
-			"sum += texture(tex, texCoord + texelSize * vec2(-1.0, +1.0)) / 16.0;"
+              "sum += texture(tex0, texCoord + texelSize0 * vec2(-1.0, -1.0)) / 16.0;"
+			"sum += texture(tex0, texCoord + texelSize0 * vec2(-1.0, 0.0)) / 8.0;"
+			"sum += texture(tex0, texCoord + texelSize0 * vec2(-1.0, +1.0)) / 16.0;"
 
-          "sum += texture(tex, texCoord + texelSize * vec2(0.0, -1.0)) / 8.0;"
-			"sum += texture(tex, texCoord + texelSize * vec2(0.0, 0.0)) / 4.0;"
-			"sum += texture(tex, texCoord + texelSize * vec2(0.0, +1.0)) / 8.0;"
+            "sum += texture(tex0, texCoord + texelSize0 * vec2(0.0, -1.0)) / 8.0;"
+			"sum += texture(tex0, texCoord + texelSize0 * vec2(0.0, 0.0)) / 4.0;"
+			"sum += texture(tex0, texCoord + texelSize0 * vec2(0.0, +1.0)) / 8.0;"
 
-            "sum += texture(tex, texCoord + texelSize * vec2(+1.0, -1.0)) / 16.0;"
-			"sum += texture(tex, texCoord + texelSize * vec2(+1.0, 0.0)) / 8.0;"
-			"sum += texture(tex, texCoord + texelSize * vec2(+1.0, +1.0)) / 16.0;"
+              "sum += texture(tex0, texCoord + texelSize0 * vec2(+1.0, -1.0)) / 16.0;"
+			"sum += texture(tex0, texCoord + texelSize0 * vec2(+1.0, 0.0)) / 8.0;"
+			"sum += texture(tex0, texCoord + texelSize0 * vec2(+1.0, +1.0)) / 16.0;"
 			"_out = sum;",
 			ShadeOpts().scale(scale)
 		);
@@ -187,7 +187,7 @@ export struct GridFluidSketch : public SketchBase {
 		greenTex = op(greenTex) * 0.16;
 
 		hsvTex = shade({ hsvTex, hsvTexB }, MULTILINE(
-			_out = (texture() + texture(tex2) * 1.0) * bloomIntensity;
+          _out = (texture() + texture(tex1) * 1.0) * bloomIntensity;
 		),
 			ShadeOpts().uniform("bloomIntensity", bloomIntensity)
 		);
@@ -227,8 +227,8 @@ export struct GridFluidSketch : public SketchBase {
 		auto tex2 = shade({ sumTex, grads, envMap2, redTex, greenTex, hsvTex },
 
 
-			"vec3 hsv = texture(tex6).xyz;"
-			"vec2 d = texture(tex2).xy;"
+         "vec3 hsv = texture(tex5).xyz;"
+			"vec2 d = texture(tex1).xy;"
 
 			"vec3 normal = normalize(vec3(d.x, d.y, 1.0));"
 			"vec3 viewDir = normalize(vec3(0.0, 0.0, 1.0));"
@@ -244,9 +244,9 @@ export struct GridFluidSketch : public SketchBase {
 			//"vec3 c = textureLod(tex3, refractUv, lod*0.0).rgb;"
 			"vec2 dPdx = dFdx(refractUv);"
 			"vec2 dPdy = dFdy(refractUv);"
-			"vec3 c = textureGrad(tex3, refractUv, dPdx, dPdy).rgb;"
-			"float redVal = texture(tex4).x;"
-			"float greenVal = texture(tex5).x;"
+            "vec3 c = textureGrad(tex2, refractUv, dPdx, dPdy).rgb;"
+			"float redVal = texture(tex3).x;"
+			"float greenVal = texture(tex4).x;"
 			//"redVal = 1.0-exp(-redVal);"
 			//"greenVal = 1.0-exp(-greenVal);"
 			// this is taken from https://www.shadertoy.com/view/Mld3Rn
@@ -283,7 +283,7 @@ export struct GridFluidSketch : public SketchBase {
 		tex2 = op(tex2) + op(tex2b) * bloomIntensity;
 
 		tex2 = shade(tex2,
-			"vec3 c = texture(tex).xyz;"
+            "vec3 c = texture(tex0).xyz;"
 			"if(c.r<0.0||c.g<0.0||c.b<0.0) { _out.rgb = vec3(1.0, 0.0, 0.0); }" // eases debugging
 			"c /= c + vec3(1.0);"
 			"c = pow(c, vec3(1.0/2.2));"

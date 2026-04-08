@@ -112,7 +112,7 @@ void drawRect() {
 }
 
 auto samplerSuffix = [&](int i) -> string {
-	return (i == 0) ? "" : std::to_string(1 + i);
+   return std::to_string(i);
 };
 
 auto samplerName = [&](int i) -> string {
@@ -122,7 +122,7 @@ auto samplerName = [&](int i) -> string {
 std::string getCompleteFshader(vector<gl::TextureRef> const& texv, vector<Uniform> const& uniforms, std::string const& fshader, std::string const& functions, string* uniformDeclarationsRet) {
 	auto texIndex = [&](gl::TextureRef t) {
 		return std::to_string(
-			1 + (std::find(texv.begin(), texv.end(), t) - texv.begin())
+         std::find(texv.begin(), texv.end(), t) - texv.begin()
 		);
 		};
 	stringstream uniformDeclarations;
@@ -153,7 +153,7 @@ std::string getCompleteFshader(vector<gl::TextureRef> const& texv, vector<Unifor
       << "	return texture(tex_, texCoord);"
 		<< "}"
 		<< "vec4 texture() {"
-       << "	return texture(tex, texCoord);"
+       << "	return texture(tex0, texCoord);"
 		<< "}"
 		<< functions
 		<< "void main() {"
@@ -229,11 +229,9 @@ export gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string cons
 	int location = 0;
 	shader->uniform("viewportSize", viewportSize);
 	location++;
-	shader->uniform("tex", 0); tex0->bind(GL_TEXTURE0 + 0);
-	shader->uniform("texelSize", vec2(1.0) / vec2(tex0->getSize()));
-	for (int i = 1; i < texv.size(); i++) {
+ for (int i = 0; i < texv.size(); i++) {
 		shader->uniform(samplerName(i), i); texv[i]->bind(GL_TEXTURE0 + i);
-		shader->uniform("texelSize" + samplerSuffix(i), vec2(1)/vec2(texv[i]->getSize()));
+      shader->uniform("texelSize" + samplerSuffix(i), vec2(1.0f) / vec2(texv[i]->getSize()));
 	}
 	for (auto& uniform : opts._uniforms)
 	{

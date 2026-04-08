@@ -41,7 +41,7 @@ namespace gpuBlurClaude {
 		float vscale = float(dstSize.y) / src->getHeight();
 		
 		string shaderH =
-			"vec2 texSize = vec2(textureSize(tex, 0));"
+         "vec2 texSize = vec2(textureSize(tex0, 0));"
 			"int dstX = int(gl_FragCoord.x);"
 			"int dstY = int(gl_FragCoord.y);"
 			"float filterScaleX = max(1.0f, 1.0f / scaleX);"
@@ -57,14 +57,14 @@ namespace gpuBlurClaude {
 			"	 float d = (float(i) + 0.5f - cen) / filterScaleX;"
 			"	 float w = exp(-2.0f * d * d);"
 			"    ivec2 pos = ivec2(i, dstY);"
-			"    sum += w * texelFetch(tex, pos, 0).r;"
+         "    sum += w * texelFetch(tex0, pos, 0).r;"
 			"    wsum += w;"
 			"}"
 			"_out.r = sum / wsum;"
 			;
 
 		string shaderV =
-			"vec2 texSize = vec2(textureSize(tex, 0));"
+         "vec2 texSize = vec2(textureSize(tex0, 0));"
 			"int dstX = int(gl_FragCoord.x);"
 			"int dstY = int(gl_FragCoord.y);"
 			"float filterScaleY = max(1.0f, 1.0f / scaleY);"
@@ -80,7 +80,7 @@ namespace gpuBlurClaude {
 			"	 float d = (float(i) + 0.5f - cen) / filterScaleY;"
 			"	 float w = exp(-2.0f * d * d);"
 			"    ivec2 pos = ivec2(dstX, i);"
-			"    sum += w * texelFetch(tex, pos, 0).r;"
+         "    sum += w * texelFetch(tex0, pos, 0).r;"
 			"    wsum += w;"
 			"}"
 			"_out.r = sum / wsum;"
@@ -133,7 +133,7 @@ namespace gpuBlurClaude {
 		for (int i = 1; i < numLevels; i++) {
 			auto upscaled = gpuBlur::upscale(levels[i], dstSize);
 			result = shade({ result, upscaled },
-				"_out = texture() + texture(tex2) * _w;",
+               "_out = texture() + texture(tex1) * _w;",
 				ShadeOpts().uniform("_w", weight));
 		}
 

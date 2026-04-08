@@ -225,7 +225,7 @@ export struct ParticleTraces2DSketch : public SketchBase {
 			"hsl.z = min(hsl.z, 1.0);"
 			"hsl.z = pow(hsl.z, 3.0);"
 			"c = hsl2rgb(hsl);"
-			"c += texture(tex2).xyz;"
+           "c += texture(tex1).xyz;"
 			"_out.rgb = c;",
 			ShadeOpts()
 				.ifmt(GL_RGB32F)

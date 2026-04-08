@@ -53,10 +53,10 @@ gl::TextureRef getGradients(gl::TextureRef src, GLuint wrap) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
 	return shade(src,
-         "	float srcL=texture(tex,texCoord+texelSize*vec2(-1.0,0.0)).x;"
-			"	float srcR=texture(tex,texCoord+texelSize*vec2(1.0,0.0)).x;"
-			"	float srcT=texture(tex,texCoord+texelSize*vec2(0.0,-1.0)).x;"
-			"	float srcB=texture(tex,texCoord+texelSize*vec2(0.0,1.0)).x;"
+        "	float srcL=texture(tex0,texCoord+texelSize0*vec2(-1.0,0.0)).x;"
+			"	float srcR=texture(tex0,texCoord+texelSize0*vec2(1.0,0.0)).x;"
+			"	float srcT=texture(tex0,texCoord+texelSize0*vec2(0.0,-1.0)).x;"
+			"	float srcB=texture(tex0,texCoord+texelSize0*vec2(0.0,1.0)).x;"
 		"	float dx=(srcR-srcL)/2.0;"
 		"	float dy=(srcB-srcT)/2.0;"
 		"	_out.xy=vec2(dx,dy);"
@@ -68,17 +68,17 @@ gl::TextureRef getGradients(gl::TextureRef src, GLuint wrap) {
 gl::TextureRef gaussianBlur3x3(gl::TextureRef src) {
 	auto state = shade(src,
 		"vec4 sum = vec4(0.0);"
-            "sum += texture(tex, texCoord + texelSize * vec2(-1.0, -1.0)) / 16.0;"
-			"sum += texture(tex, texCoord + texelSize * vec2(-1.0, 0.0)) / 8.0;"
-			"sum += texture(tex, texCoord + texelSize * vec2(-1.0, +1.0)) / 16.0;"
+              "sum += texture(tex0, texCoord + texelSize0 * vec2(-1.0, -1.0)) / 16.0;"
+			"sum += texture(tex0, texCoord + texelSize0 * vec2(-1.0, 0.0)) / 8.0;"
+			"sum += texture(tex0, texCoord + texelSize0 * vec2(-1.0, +1.0)) / 16.0;"
 
-          "sum += texture(tex, texCoord + texelSize * vec2(0.0, -1.0)) / 8.0;"
-			"sum += texture(tex, texCoord + texelSize * vec2(0.0, 0.0)) / 4.0;"
-			"sum += texture(tex, texCoord + texelSize * vec2(0.0, +1.0)) / 8.0;"
+            "sum += texture(tex0, texCoord + texelSize0 * vec2(0.0, -1.0)) / 8.0;"
+			"sum += texture(tex0, texCoord + texelSize0 * vec2(0.0, 0.0)) / 4.0;"
+			"sum += texture(tex0, texCoord + texelSize0 * vec2(0.0, +1.0)) / 8.0;"
 
-            "sum += texture(tex, texCoord + texelSize * vec2(+1.0, -1.0)) / 16.0;"
-			"sum += texture(tex, texCoord + texelSize * vec2(+1.0, 0.0)) / 8.0;"
-			"sum += texture(tex, texCoord + texelSize * vec2(+1.0, +1.0)) / 16.0;"
+              "sum += texture(tex0, texCoord + texelSize0 * vec2(+1.0, -1.0)) / 16.0;"
+			"sum += texture(tex0, texCoord + texelSize0 * vec2(+1.0, 0.0)) / 8.0;"
+			"sum += texture(tex0, texCoord + texelSize0 * vec2(+1.0, +1.0)) / 16.0;"
 		"_out = sum;"
 		);
 	return state;
@@ -91,11 +91,11 @@ gl::TextureRef getLaplace(gl::TextureRef src, GLuint wrap) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
 	auto state = shade(src,
 		"vec4 sum = vec4(0.0);"
-     "sum += texture(tex, texCoord + texelSize * vec2(-1.0, 0.0)) * -1.0;"
-		"sum += texture(tex, texCoord + texelSize * vec2(0.0, -1.0)) * -1.0;"
-		"sum += texture(tex, texCoord + texelSize * vec2(0.0, +1.0)) * -1.0;"
-		"sum += texture(tex, texCoord + texelSize * vec2(+1.0, 0.0)) * -1.0;"
-		"sum += texture(tex, texCoord + texelSize * vec2(0.0, 0.0)) * 4.0;"
+       "sum += texture(tex0, texCoord + texelSize0 * vec2(-1.0, 0.0)) * -1.0;"
+		"sum += texture(tex0, texCoord + texelSize0 * vec2(0.0, -1.0)) * -1.0;"
+		"sum += texture(tex0, texCoord + texelSize0 * vec2(0.0, +1.0)) * -1.0;"
+		"sum += texture(tex0, texCoord + texelSize0 * vec2(+1.0, 0.0)) * -1.0;"
+		"sum += texture(tex0, texCoord + texelSize0 * vec2(0.0, 0.0)) * 4.0;"
 		"_out = -sum;"
 		);
 	return state;
@@ -110,29 +110,29 @@ inline Operable::Operable(gl::TextureRef aTex) {
 }
 
 Operable Operable::operator+(gl::TextureRef other) {
-	return Operable(shade({ tex, other }, "_out = texture() + texture(tex2);"));
+    return Operable(shade({ tex, other }, "_out = texture() + texture(tex1);"));
 }
 Operable Operable::operator-(gl::TextureRef other) {
-	return Operable(shade({ tex, other }, "_out = texture() - texture(tex2);"));
+    return Operable(shade({ tex, other }, "_out = texture() - texture(tex1);"));
 }
 Operable Operable::operator*(gl::TextureRef other) {
-	return Operable(shade({ tex, other }, "_out = texture() * texture(tex2);"));
+    return Operable(shade({ tex, other }, "_out = texture() * texture(tex1);"));
 }
 Operable Operable::operator/(gl::TextureRef other) {
-	return Operable(shade({ tex, other }, "_out = texture() / texture(tex2);"));
+    return Operable(shade({ tex, other }, "_out = texture() / texture(tex1);"));
 }
 
 void Operable::operator+=(gl::TextureRef other) {
-	tex = shade({ tex, other }, "_out = texture() + texture(tex2);");
+   tex = shade({ tex, other }, "_out = texture() + texture(tex1);");
 }
 void Operable::operator-=(gl::TextureRef other) {
-	tex = shade({ tex, other }, "_out = texture() - texture(tex2);");
+   tex = shade({ tex, other }, "_out = texture() - texture(tex1);");
 }
 void Operable::operator*=(gl::TextureRef other) {
-	tex = shade({ tex, other }, "_out = texture() * texture(tex2);");
+   tex = shade({ tex, other }, "_out = texture() * texture(tex1);");
 }
 void Operable::operator/=(gl::TextureRef other) {
-	tex = shade({ tex, other }, "_out = texture() / texture(tex2);");
+   tex = shade({ tex, other }, "_out = texture() / texture(tex1);");
 }
 
 Operable::operator gl::TextureRef() {

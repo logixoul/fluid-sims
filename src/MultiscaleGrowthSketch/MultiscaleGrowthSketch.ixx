@@ -174,7 +174,7 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 		auto blurred = gpuBlurClaude::blurWithInvKernel(in);
 		auto highpassed = shade({ in, blurred }, MULTILINE(
 			float f = texture().x;
-		float fBlurred = texture(tex2).x;
+       float fBlurred = texture(tex1).x;
 		float highPassed = f - fBlurred * highPassStrength;
 		_out.r = highPassed;
 			), ShadeOpts().uniform("highPassStrength", strength)
