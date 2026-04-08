@@ -133,7 +133,6 @@ std::string getCompleteFshader(vector<gl::TextureRef> const& texv, vector<Unifor
 	{
 		string samplerType = "sampler2D";
 		uniformDeclarations << "uniform " + samplerType + " " + samplerName(i) + ";\n";
-		uniformDeclarations << "uniform vec2 " + samplerName(i) + "Size;\n";
 		uniformDeclarations << "uniform vec2 texelSize" + samplerSuffix(i) + ";\n";
 	}
 	for (auto& p : uniforms)
