@@ -149,7 +149,7 @@ std::string getCompleteFshader(vector<gl::TextureRef> const& texv, vector<Unifor
         << "in vec2 texCoord;"
 		<< "out vec4 _out;"
 		<< "vec4 texture(sampler2D tex_) {"
-      << "	return texture(tex_, texCoord);"
+		<< "	return texture(tex_, texCoord);"
 		<< "}"
 		<< "vec4 texture() {"
        << "	return texture(tex0, texCoord);"
