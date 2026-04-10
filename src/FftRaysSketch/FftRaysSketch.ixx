@@ -232,7 +232,7 @@ export struct FftRaysSketch : public SketchBase {
 					}
 					vec3 desaturateHighlights(vec3 color) {
 						vec3 hsv = rgb2hsv(color);
-						float desaturationAmount = smoothstep(0.0, whitePoint, hsv.z);
+						float desaturationAmount = hsv.z / whitePoint;
 						desaturationAmount = pow(desaturationAmount, 2.0); // make the desaturation kick in more gradually
 						hsv.y *= 1.0 - desaturationAmount;
 						return hsv2rgb(hsv);
