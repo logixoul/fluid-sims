@@ -134,31 +134,31 @@ export gl::TextureRef uploadTex(glm::ivec2 size, GLint internalFormat, GLenum fo
 
 gl::TextureRef uploadTex(Array2D<float> a)
 {
-	return uploadTex(a.Size(), GL_R16F, GL_RED, GL_FLOAT, a.data());
+	return uploadTex(a.size(), GL_R16F, GL_RED, GL_FLOAT, a.data());
 }
 
 gl::TextureRef uploadTex(Array2D<vec2> a)
 {
-	return uploadTex(a.Size(), GL_RG16F, GL_RG, GL_FLOAT, a.data());
+	return uploadTex(a.size(), GL_RG16F, GL_RG, GL_FLOAT, a.data());
 }
 
 gl::TextureRef uploadTex(Array2D<vec3> a)
 {
-	return uploadTex(a.Size(), GL_RGB16F, GL_RGB, GL_FLOAT, a.data());
+	return uploadTex(a.size(), GL_RGB16F, GL_RGB, GL_FLOAT, a.data());
 }
 gl::TextureRef uploadTex(Array2D<bytevec3> a)
 {
-	return uploadTex(a.Size(), GL_RGB8, GL_RGB, GL_UNSIGNED_BYTE, a.data());
+	return uploadTex(a.size(), GL_RGB8, GL_RGB, GL_UNSIGNED_BYTE, a.data());
 }
 
 gl::TextureRef uploadTex(Array2D<vec4> a)
 {
-	return uploadTex(a.Size(), GL_RGBA16F, GL_RGBA, GL_FLOAT, a.data());
+	return uploadTex(a.size(), GL_RGBA16F, GL_RGBA, GL_FLOAT, a.data());
 }
 
 gl::TextureRef uploadTex(Array2D<uvec4> a)
 {
-	return uploadTex(a.Size(), GL_RGBA32UI, GL_RGBA_INTEGER, GL_UNSIGNED_INT, a.data());
+	return uploadTex(a.size(), GL_RGBA32UI, GL_RGBA_INTEGER, GL_UNSIGNED_INT, a.data());
 }
 
 int sign(float f)

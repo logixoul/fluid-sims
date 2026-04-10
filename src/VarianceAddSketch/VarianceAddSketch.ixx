@@ -84,7 +84,7 @@ export struct VarianceAddSketch : public SketchBase {
 
 Array2D<float> VarianceAddSketch::get_variance(Array2D<float> const& in)
 {
-	Array2D<float> out(in.w, in.h, 0.0f);
+   Array2D<float> out(in.width(), in.height(), 0.0f);
 
 	auto clamp_index = [](int v, int maxv) {
 		if (v < 0) return 0;
@@ -92,19 +92,19 @@ Array2D<float> VarianceAddSketch::get_variance(Array2D<float> const& in)
 		return v;
 	};
 
-	for (int y = 0; y < in.h; ++y)
+  for (int y = 0; y < in.height(); ++y)
 	{
-		for (int x = 0; x < in.w; ++x)
+      for (int x = 0; x < in.width(); ++x)
 		{
 			float sum = 0.0f;
 			float sumSq = 0.0f;
 
 			for (int dy = -1; dy <= 1; ++dy)
 			{
-				int yy = clamp_index(y + dy, in.h - 1);
+             int yy = clamp_index(y + dy, in.height() - 1);
 				for (int dx = -1; dx <= 1; ++dx)
 				{
-					int xx = clamp_index(x + dx, in.w - 1);
+                 int xx = clamp_index(x + dx, in.width() - 1);
 					float v = in(xx, yy);
 					sum += v;
 					sumSq += v * v;

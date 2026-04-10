@@ -26,8 +26,8 @@ Img multiply(Img const& a, float scalar);
 template<class T, class WrapPolicy>
 Array2D<T> gaussianBlur3x3(Array2D<T> src) {
 T zero = ::zero<T>();
-Array2D<T> dst1(src.w, src.h);
-Array2D<T> dst2(src.w, src.h);
+Array2D<T> dst1(src.width(), src.height());
+Array2D<T> dst2(src.width(), src.height());
 for(auto p : dst1.coords())
 dst1(p) = .25f * (2 * WrapPolicy::fetch(src, p.x, p.y) + WrapPolicy::fetch(src, p.x - 1, p.y) + WrapPolicy::fetch(src, p.x + 1, p.y));
 for(auto p : dst2.coords())
@@ -117,11 +117,11 @@ std::vector<Img> scales;
 auto state = src.clone();
 while (true)
 {
-const int size = std::min(state.w, state.h);
+const int size = std::min(state.width(), state.height());
 if (size <= 2)
 break;
 scales.push_back(state);
-ivec2 newSize = ivec2(vec2(state.Size()) * scalePerLevel);
+ivec2 newSize = ivec2(vec2(state.size()) * scalePerLevel);
 state = gpuBlurClaude::singleblurLikeCinder(state, newSize);
 }
 return scales;
@@ -138,8 +138,8 @@ float getSupport() const { return 1.25f; }
 
 Array2D<float> resize_referenceImplementation(Array2D<float> const& src, ivec2 dstSize)
 {
-const int srcW = src.w;
-const int srcH = src.h;
+const int srcW = src.width();
+const int srcH = src.height();
 const int dstW = dstSize.x;
 const int dstH = dstSize.y;
 

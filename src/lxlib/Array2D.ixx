@@ -19,6 +19,8 @@ struct Array2D
 {
 private:
 	std::shared_ptr<T[]> dataSharedPtr;
+	int mWidth;
+	int mHeight;
 public:
        struct CoordIterator {
 			ivec2 p;
@@ -60,11 +62,9 @@ public:
 	T const* data() const { return dataSharedPtr.get(); }
 	typedef T value_type;
 	int area;
-	int w, h;
-	int NumBytes() const {
-		return area * sizeof(T);
-	}
-	ivec2 Size() const { return ivec2(w, h); }
+   int width() const { return mWidth; }
+	int height() const { return mHeight; }
+	ivec2 size() const { return ivec2(mWidth, mHeight); }
 	
 	Array2D(int w, int h, nofill) {
 		Init(w, h);
@@ -85,10 +85,10 @@ public:
 	}
 
 	T* begin() { return data(); }
-	T* end() { return data()+w*h; }
+ T* end() { return data()+mWidth*mHeight; }
 	T const* begin() const { return data(); }
-	T const* end() const { return data()+w*h; }
-		CoordRange coords() const { return CoordRange{ w, h }; }
+ T const* end() const { return data()+mWidth*mHeight; }
+		CoordRange coords() const { return CoordRange{ mWidth, mHeight }; }
 	
 	T& operator()(int x, int y) { return data()[offsetOf(x, y)]; }
 	T const& operator()(int x, int y) const { return data()[offsetOf(x, y)]; }
@@ -96,30 +96,16 @@ public:
 	T& operator()(ivec2 const& v) { return data()[offsetOf(v.x, v.y)]; }
 	T const& operator()(ivec2 const& v) const { return data()[offsetOf(v.x, v.y)]; }
 	
-	ivec2 wrapPoint(ivec2 p)
-	{
-		ivec2 wp = p;
-		wp.x %= w; if(wp.x < 0) wp.x += w;
-		wp.y %= h; if(wp.y < 0) wp.y += h;
-		return wp;
-	}
-	
-	T& wr(int x, int y) { return wr(ivec2(x, y)); }
-	T const& wr(int x, int y) const { return wr(ivec2(x, y)); }
-
-	T& wr(ivec2 const& v) { return (*this)(wrapPoint(v)); }
-	T const& wr(ivec2 const& v) const { return (*this)(wrapPoint(v)); }
-
-	bool contains(ivec2 const& p) const { return p.x >= 0 && p.y >= 0 && p.x < w && p.y < h; }
+  bool contains(ivec2 const& p) const { return p.x >= 0 && p.y >= 0 && p.x < mWidth && p.y < mHeight; }
 
 	Array2D clone() const {
-		Array2D result(Size(), nofill());
+		Array2D result(size(), nofill());
 		std::copy(begin(), end(), result.begin());
 		return result;
 	}
 
 private:
-	int offsetOf(int x, int y) const { return y * w + x; }
+  int offsetOf(int x, int y) const { return y * mWidth + x; }
 	void fill(T const& value)
 	{
 		std::fill(begin(), end(), value);
@@ -146,24 +132,24 @@ private:
 	void Init(int w, int h, T* dataPtr, TDeleter deleter) {
 		this->dataSharedPtr = std::shared_ptr<T[]>(dataPtr, deleter);
 		area = w * h;
-		this->w = w;
-		this->h = h;
+        mWidth = w;
+		mHeight = h;
 	}
 };
 
 export template<class T>
 Array2D<T> uninitializedArrayLike(Array2D<T> a) {
-	return Array2D<T>(a.Size(), nofill());
+	return Array2D<T>(a.size(), nofill());
 }
 
 export template<class T>
 Array2D<T> onesLike(Array2D<T> a) {
-	return Array2D<T>(a.Size(), 1.0f);
+	return Array2D<T>(a.size(), 1.0f);
 }
 
 export template<class T>
 Array2D<T> zerosLike(Array2D<T> a) {
-	return Array2D<T>(a.Size(), ::zero<T>());
+	return Array2D<T>(a.size(), ::zero<T>());
 }
 
 
@@ -187,7 +173,7 @@ Array2D<T>& applyOpInPlace(Array2D<T>& arr, T const& secondArg, TOp const& op)
 template<class T1, class T2, class TOp>
 Array2D<T1>& applyArrayArrayOpInPlace(Array2D<T1>& arr1, Array2D<T2> const& arr2, TOp const& op)
 {
-    assert(arr1.w == arr2.w && arr1.h == arr2.h);
+   assert(arr1.width() == arr2.width() && arr1.height() == arr2.height());
    for(auto p : arr1.coords()) {
 		arr1(p) = op(arr1(p), broadcastTo<T1>(arr2(p)));
 	}
@@ -217,7 +203,7 @@ Array2D<T> applyOpOutOfPlace(T const& firstArg, Array2D<T> const& arr, TOp const
 template<class T1, class T2, class TOp>
 Array2D<T1> applyArrayArrayOpOutOfPlace(Array2D<T1> const& arr1, Array2D<T2> const& arr2, TOp const& op)
 {
-	assert(arr1.w == arr2.w && arr1.h == arr2.h);
+   assert(arr1.width() == arr2.width() && arr1.height() == arr2.height());
 	auto resultArr = uninitializedArrayLike(arr1);
    for(auto p : arr1.coords()) {
 		resultArr(p) = op(arr1(p), broadcastTo<T1>(arr2(p)));

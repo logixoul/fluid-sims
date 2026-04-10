@@ -318,7 +318,9 @@ export struct GridFluidSketch : public SketchBase {
 					vec2 v = ivec2(x, y) - mousePos;
 					float w = std::max(0.0f, 1.0f - length(v) / r);
 					w = 3 * w * w - 2 * w * w * w;
-					material->density.wr(x, y) += 1.f * w * 100.0;
+					if (!material->density.contains(ivec2(x, y)))
+						continue;
+					material->density(x, y) += 1.f * w * 100.0;
 				}
 			}
 		}
@@ -333,8 +335,10 @@ export struct GridFluidSketch : public SketchBase {
 					vec2 v = ivec2(x, y) - mousePos;
 					float w = std::max(0.0f, 1.0f - length(v) / r);
 					w = 3 * w * w - 2 * w * w * w;
-					if (material->density.wr(x, y) != 0.0f)
-						material->momentum.wr(x, y) += w * material->density.wr(x, y) * 4.0f * direction / (float)scale;
+					if (!material->density.contains(ivec2(x, y)))
+						continue;
+					if (material->density(x, y) != 0.0f)
+						material->momentum(x, y) += w * material->density(x, y) * 4.0f * direction / (float)scale;
 				}
 			}
 		}
@@ -342,7 +346,7 @@ export struct GridFluidSketch : public SketchBase {
 
 	template<class T, class WrapPolicy>
 	static Array2D<T> convolve(Array2D<T> in, Array2D<float> kernel) {
-		int r = kernel.w / 2;
+       int r = kernel.width() / 2;
 		auto out = ::empty_like(in);
         for(auto p : out.coords()) {
 			float sum = 0.0f;
@@ -357,8 +361,8 @@ export struct GridFluidSketch : public SketchBase {
 	}
 	void repel(Material& affectedMaterial, Material& actingMaterial) {
 		Array2D<float> kernel(7, 7);
-		ivec2 center = kernel.Size() / 2;
-		int r = kernel.w / 2;
+		ivec2 center = kernel.size() / 2;
+       int r = kernel.width() / 2;
      for(auto p : kernel.coords()) {
 			ivec2 p2 = p - center;
 			vec2 p2f = vec2(p2);
@@ -433,7 +437,7 @@ export struct GridFluidSketch : public SketchBase {
 			//auto density2 = empty_like(density);
 			int count = 0;
 			//const auto lowerBound = vec2(0.0f);
-			//const auto upperBound = vec2(density.Size() - ivec2(2));
+			//const auto upperBound = vec2(density.size() - ivec2(2));
             /*for(auto p : density.coords())
 			{
 				float hereMono = density(p);
@@ -513,8 +517,8 @@ export struct GridFluidSketch : public SketchBase {
 	template<class T, class WrapPolicy>
 	static Array2D<T> gauss3_forwardMapping(Array2D<T> src) {
 		T zero = ::zero<T>();
-		Array2D<T> dst1(src.w, src.h);
-		Array2D<T> dst2(src.w, src.h);
+      Array2D<T> dst1(src.width(), src.height());
+		Array2D<T> dst2(src.width(), src.height());
        for(auto p : dst1.coords()) {
 			WrapPolicy::fetch(dst1, p.x - 1, p.y) += .25f * src(p);
 			WrapPolicy::fetch(dst1, p.x, p.y) += .5f * src(p);

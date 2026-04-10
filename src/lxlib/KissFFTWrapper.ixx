@@ -17,7 +17,7 @@ public:
 		return fftImpl(in, false);
     }
     static Array2D<Complex> normalize(Array2D<Complex> const& in) {
-        Array2D<Complex> out(in.Size(), nofill());
+        Array2D<Complex> out(in.size(), nofill());
         for (int i = 0; i < in.area; i++) {
             out.data()[i] = in.data()[i] / static_cast<TComponentType>(in.area);
         }
@@ -30,9 +30,9 @@ public:
 
 private:
     static Array2D<Complex> fftImpl(Array2D<Complex> const& in, bool backward) {
-        const std::vector<int> dims = { in.h, in.w };
+       const std::vector<int> dims = { in.height(), in.width() };
         kiss_fftnd_cfg cfg = kiss_fftnd_alloc(dims.data(), 2, backward ? 1 : 0, nullptr, nullptr);
-        Array2D<Complex> out(in.Size(), nofill());
+        Array2D<Complex> out(in.size(), nofill());
 
         //kissfftnd<Complex> fft(dims, backward);
 

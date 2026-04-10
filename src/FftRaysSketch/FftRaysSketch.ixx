@@ -74,15 +74,15 @@ export struct FftRaysSketch : public SketchBase {
 
 		walkers = std::vector<Walker>(100);
 		for(auto& walker : walkers) {
-			walker.pos = glm::vec2(randFloat(), randFloat()) * vec2(freqDomainState.Size());
+			walker.pos = glm::vec2(randFloat(), randFloat()) * vec2(freqDomainState.size());
 		}
 	}
 
 	Array2D<FFT::Complex> generateRandomState() {
 		Array2D<FFT::Complex> state(windowSize / scale, nofill());
       for(auto p : state.coords()) {
-			float wrappedX = std::min((float)p.x, (float)(state.w - p.x));
-			float wrappedY = std::min((float)p.y, (float)(state.h - p.y));
+          float wrappedX = std::min((float)p.x, (float)(state.width() - p.x));
+			float wrappedY = std::min((float)p.y, (float)(state.height() - p.y));
 			float distToOrigin = glm::length(glm::vec2(wrappedX, wrappedY));
 			float amplitude = 1.0f / pow(std::max(distToOrigin, 1.0f), 1.1f);
 			amplitude *= 100.0f; // boost overall brightness
@@ -130,7 +130,7 @@ export struct FftRaysSketch : public SketchBase {
 	}
 
 	static gl::TextureRef uploadTex(Array2D<FFT::Complex> const& arr) {
-		return ::uploadTex(arr.Size(), GL_RG16F, GL_RG, GL_FLOAT, (void*)arr.data());
+		return ::uploadTex(arr.size(), GL_RG16F, GL_RG, GL_FLOAT, (void*)arr.data());
 	}
 
 	gl::TextureRef darken(gl::TextureRef tex) {

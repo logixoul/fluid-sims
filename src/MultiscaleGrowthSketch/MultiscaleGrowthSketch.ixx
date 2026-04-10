@@ -98,7 +98,7 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 	Img applyVerticalGradient(Img const& img) {
 		Img result = ::uninitializedArrayLike(img);
      for(auto p : result.coords()) {
-			float floatY = p.y / (float)result.h;
+           float floatY = p.y / (float)result.height();
 			floatY = glm::mix(options.blendWeaken, 1.0f - options.blendWeaken, floatY);
 			result(p) = blendHardLight(img(p), floatY);
 		}
@@ -128,7 +128,7 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 		for (int i = updatedScales.size() - 1; i >= 1; i--) {
 			auto diff = subtract(updatedScales[i], origScales[i]);
 			diff = multiply(diff, weights[i]);
-			auto const upscaledDiff = gpuBlurClaude::singleblurLikeCinder(diff, origScales[i - 1].Size());
+			auto const upscaledDiff = gpuBlurClaude::singleblurLikeCinder(diff, origScales[i - 1].size());
 			auto& nextScale = updatedScales[i - 1];
 			nextScale = add(origScales[i - 1], upscaledDiff);
 			nextScale = func(nextScale);

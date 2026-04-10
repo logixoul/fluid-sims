@@ -11,9 +11,9 @@ export namespace WrapModes {
 		template<class T>
 		static T& fetch(Array2D<T>& src, int x, int y)
 		{
-			if (x >= src.w) x = src.w - (x - src.w) - 1;
+            if (x >= src.width()) x = src.width() - (x - src.width()) - 1;
 			else if (x < 0) x = -x;
-			if (y >= src.h) y = src.h - (y - src.h) - 1;
+            if (y >= src.height()) y = src.height() - (y - src.height()) - 1;
 			else if (y < 0) y = -y;
 			return src(x, y);
 		}
@@ -22,14 +22,17 @@ export namespace WrapModes {
 		template<class T>
 		static T& fetch(Array2D<T>& src, int x, int y)
 		{
-			return src.wr(x, y);
+			ivec2 wp(x, y);
+         wp.x %= src.width(); if (wp.x < 0) wp.x += src.width();
+			wp.y %= src.height(); if (wp.y < 0) wp.y += src.height();
+			return src(wp);
 		}
 	};
 	struct ZeroesOutside {
 		template<class T>
 		static T& fetch(Array2D<T>& src, int x, int y)
 		{
-			if (x < 0 || y < 0 || x >= src.w || y >= src.h)
+         if (x < 0 || y < 0 || x >= src.width() || y >= src.height())
 			{
 				static T zeroRef = ::zero<T>();
 				return zeroRef;
@@ -49,9 +52,9 @@ export namespace WrapModes {
 		static T& fetch(Array2D<T>& src, int x, int y)
 		{
 			if (x < 0) x = 0;
-			if (x > src.w - 1) x = src.w - 1;
+           if (x > src.width() - 1) x = src.width() - 1;
 			if (y < 0) y = 0;
-			if (y > src.h - 1) y = src.h - 1;
+           if (y > src.height() - 1) y = src.height() - 1;
 			
 			return src(x, y);
 		}
@@ -99,8 +102,8 @@ T& zero() {
 export template<class T>
 Array2D<T> gauss3(Array2D<T> src) {
 	T zero = ::zero<T>();
-	Array2D<T> dst1(src.w, src.h);
-	Array2D<T> dst2(src.w, src.h);
+  Array2D<T> dst1(src.width(), src.height());
+	Array2D<T> dst2(src.width(), src.height());
  for(auto p : dst1.coords())
 		dst1(p) = .25f * (2.0f * get_clamped(src, p.x, p.y) + get_clamped(src, p.x - 1, p.y) + get_clamped(src, p.x + 1, p.y));
  for(auto p : dst2.coords())
@@ -130,19 +133,19 @@ Array2D<vec2> get_gradients(Array2D<T>& src)
 	auto src2 = src.clone();
  for(auto p : src2.coords())
 		src2(p) /= 2.0f;
-	Array2D<vec2> gradients(src.w, src.h);
-	for (int x = 0; x < src.w; x++)
+  Array2D<vec2> gradients(src.width(), src.height());
+	for (int x = 0; x < src.width(); x++)
 	{
 		gradients(x, 0) = gradient_i_nodiv<T, WrapPolicy>(src2, ivec2(x, 0));
-		gradients(x, src.h - 1) = gradient_i_nodiv<T, WrapPolicy>(src2, ivec2(x, src.h - 1));
+       gradients(x, src.height() - 1) = gradient_i_nodiv<T, WrapPolicy>(src2, ivec2(x, src.height() - 1));
 	}
-	for (int y = 1; y < src.h - 1; y++)
+ for (int y = 1; y < src.height() - 1; y++)
 	{
 		gradients(0, y) = gradient_i_nodiv<T, WrapPolicy>(src2, ivec2(0, y));
-		gradients(src.w - 1, y) = gradient_i_nodiv<T, WrapPolicy>(src2, ivec2(src.w - 1, y));
+       gradients(src.width() - 1, y) = gradient_i_nodiv<T, WrapPolicy>(src2, ivec2(src.width() - 1, y));
 	}
-	for (int y = 1; y < src.h - 1; y++) {
-		for (int x = 1; x < src.w - 1; x++) {
+   for (int y = 1; y < src.height() - 1; y++) {
+		for (int x = 1; x < src.width() - 1; x++) {
 			gradients(x, y) = gradient_i_nodiv<T, WrapModes::NoWrap>(src2, ivec2(x, y));
 		}
 	}
@@ -155,10 +158,10 @@ Array2D<T> separableConvolve(Array2D<T>& src, vector<float> const& kernel) {
 	int r = ksize / 2;
 
 	T zero = ::zero<T>();
-	Array2D<T> dst1(src.w, src.h);
-	Array2D<T> dst2(src.w, src.h);
+  Array2D<T> dst1(src.width(), src.height());
+	Array2D<T> dst2(src.width(), src.height());
 
-	int w = src.w, h = src.h;
+   int w = src.width(), h = src.height();
 
 	for (int y = 0; y < h; y++)
 	{
