@@ -8,6 +8,7 @@ import lxlib.TextureRef;
 import lxlib.Array2D;
 import lxlib.stuff;
 import lxlib.VaoVbo;
+import lxlib.TextureCache;
 
 export struct GpuScope {
 	GpuScope(string name);
@@ -220,7 +221,12 @@ export gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string cons
 		}
 		else {
 			GLenum ifmt = opts._ifmt.exists ? opts._ifmt.val : tex0->getInternalFormat();
-			results = { getTexFromPool(viewportSize.x, viewportSize.y, ifmt) };
+			TextureCacheKey key;
+			key.ifmt = ifmt;
+			key.size = viewportSize;
+			key.allocateMipmaps = false;
+			gl::TextureRef tex = TextureCache::instance()->get(key);
+			results = { tex };
 		}
 	}
 	

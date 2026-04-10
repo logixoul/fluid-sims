@@ -27,10 +27,7 @@ namespace gpuBlurClaude {
 	}
 	gl::TextureRef gtexF32(Array2D<float> a)
 	{
-     gl::TextureRef tex = getTexFromPool(a.width(), a.height(), GL_R32F);
-		tex->bind();
-      glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.width(), a.height(), GL_RED, GL_FLOAT, a.data());
-		return tex;
+		return uploadTex(a.size(), GL_R32F, GL_RED, GL_FLOAT, a.data());
 	}
 	Array2D<float> singleblurLikeCinder(Array2D<float> src, ivec2 dstSize) {
 		return downloadTex<float>(singleblurLikeCinder(gtexF32(src), dstSize));

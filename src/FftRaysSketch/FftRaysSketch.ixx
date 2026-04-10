@@ -1,7 +1,5 @@
 module;
 #include "precompiled.h"
-#include <lxlib/simplexnoise.h>
-#include <lxlib/macros.h>
 
 import lxlib.Array2D;
 import lxlib.Array2D_imageProc;
@@ -22,12 +20,6 @@ using FFT = KissFFTWrapper<float>;
 export module FftRaysSketch;
 
 bool pause;
-const double M_PI = 3.14159265359;
-struct Walker {
-	glm::vec2 pos;
-	glm::vec2 vel;
-};
-
 export struct FftRaysSketch : public SketchBase {
 	struct Options {
 		float gain;
@@ -54,7 +46,7 @@ export struct FftRaysSketch : public SketchBase {
 	Array2D<FFT::Complex> spatialDomainStateNext;
 	gl::TextureRef spatialDomainTex;
 	gl::TextureRef spatialDomainTexNext;
-	std::vector<Walker> walkers;
+	
 	const int scale = 1;
 	
 	void setup()
@@ -71,11 +63,6 @@ export struct FftRaysSketch : public SketchBase {
 		spatialDomainStateNext = spatialDomainStateFromFrequencyDomain(freqDomainStateNext);
 		spatialDomainTex = darken(uploadTex(spatialDomainState));
 		spatialDomainTexNext = darken(uploadTex(spatialDomainStateNext));
-
-		walkers = std::vector<Walker>(100);
-		for(auto& walker : walkers) {
-			walker.pos = glm::vec2(randFloat(), randFloat()) * vec2(freqDomainState.size());
-		}
 	}
 
 	Array2D<FFT::Complex> generateRandomState() {
@@ -86,7 +73,7 @@ export struct FftRaysSketch : public SketchBase {
 			float distToOrigin = glm::length(glm::vec2(wrappedX, wrappedY));
 			float amplitude = 1.0f / pow(std::max(distToOrigin, 1.0f), 1.1f);
 			amplitude *= 100.0f; // boost overall brightness
-			float phase = randFloat(0.0f, 2.0f * (float)M_PI);
+			float phase = randFloat(0.0f, 2.0f * (float)::pi);
 			state(p) = FFT::Complex(
 				amplitude * std::cos(phase),
 				amplitude * std::sin(phase));

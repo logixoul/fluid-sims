@@ -324,25 +324,3 @@ Array2D<T1>& operator/=(Array2D<T1>& arr1, Array2D<T2> const& arr2)
 {
 	return applyArrayArrayOpInPlace(arr1, arr2, std::divides<T1>());
 }
-
-
-
-export const float pi = 3.14159265f;
-
-// --- Implementations from util.cpp ---
-
-export void rotate(vec2& p, float angle)
-{
-	float c = cos(angle), s = sin(angle);
-	p = vec2(p.x * c + p.y * (-s), p.x * s + p.y * c);
-}
-
-export float randFloat()
-{
-	return rand() / (float)RAND_MAX;
-}
-
-export float randFloat(float min, float max)
-{
-	return randFloat() * (max - min) + min;
-}

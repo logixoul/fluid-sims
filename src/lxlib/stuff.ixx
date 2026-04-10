@@ -19,8 +19,6 @@ export gl::TextureRef uploadTex(Array2D<uvec4> a);
 export int sign(float f);
 export float expRange(float x, float min, float max);
 
-export gl::TextureRef getTexFromPool(int w, int h, GLint ifmt, bool allocateMipmaps = false, bool clear = false);
-
 export template<class T>
 Array2D<T> downloadTex(gl::TextureRef tex) {
 	return Array2D<T>(); // tmp.
@@ -126,7 +124,12 @@ void enableGlDebugOutput() {
 }
 
 export gl::TextureRef uploadTex(glm::ivec2 size, GLint internalFormat, GLenum format, GLenum type, void* data) {
-	gl::TextureRef tex = getTexFromPool(size.x, size.y, internalFormat);
+	TextureCacheKey key;
+	key.ifmt = internalFormat;
+	key.size = size;
+	key.allocateMipmaps = false;
+	gl::TextureRef tex = TextureCache::instance()->get(key);
+
 	tex->bind();
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size.x, size.y, format, type, data);
 	return tex;
@@ -229,20 +232,6 @@ export void endRTT()
 	fboBound = false;
 }
 
-gl::TextureRef getTexFromPool(int w, int h, GLint ifmt, bool allocateMipmaps, bool clear) {
-	TextureCacheKey key;
-	key.ifmt = ifmt;
-	key.size = ivec2(w, h);
-	key.allocateMipmaps = allocateMipmaps;
-	auto tex = TextureCache::instance()->get(key);
-	if(clear) {
-		beginRTT(tex);
-		lxClear();
-		endRTT();
-	}
-	return tex;
-}
-
 void disableGLReadClamp() {
 	glClampColor(GL_CLAMP_READ_COLOR, GL_FALSE);
 }
@@ -258,15 +247,6 @@ unsigned int ilog2(unsigned int val) {
 		ret++;
 	}
 	return ret;
-}
-
-vec2 compdiv(vec2 const & v1, vec2 const & v2) {
-	float a = v1.x, b = v1.y;
-	float c = v2.x, d = v2.y;
-	float cd = sq(c) + sq(d);
-	return vec2(
-		(a*c + b * d) / cd,
-		(b*c - a * d) / cd);
 }
 
 template<> Array2D<bytevec3> downloadTex<bytevec3>(gl::TextureRef tex) {
@@ -287,4 +267,16 @@ template<> Array2D<vec3> downloadTex<vec3>(gl::TextureRef tex) {
 
 template<> Array2D<vec4> downloadTex<vec4>(gl::TextureRef tex) {
 	return gettexdata<vec4>(tex, GL_RGBA, GL_FLOAT);
+}
+
+export const float pi = 3.14159265f;
+
+export float randFloat()
+{
+	return rand() / (float)RAND_MAX;
+}
+
+export float randFloat(float min, float max)
+{
+	return randFloat() * (max - min) + min;
 }
