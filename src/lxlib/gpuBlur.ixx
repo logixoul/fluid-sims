@@ -120,7 +120,7 @@ namespace gpuBlur {
 			"	w0/=sum;"
 			"	wP1/=sum;"
 			"	_out = wM1*aM1 + w0*a0 + wP1*aP1;";
-		setWrapBlack(src);
+      lx::setWrapBlack(src);
 		auto hscaled = shade(src, shader,
 			ShadeOpts()
 				.scale(hscale, 1.0f)
@@ -128,7 +128,7 @@ namespace gpuBlur {
 				.uniform("GB2_offsetY", 0.0f)
 				.functions(lib)
 			);
-		setWrapBlack(hscaled);
+      lx::setWrapBlack(hscaled);
 		auto vscaled = shade(hscaled, shader,
 			ShadeOpts()
 				.scale(1.0f, vscale)
@@ -162,14 +162,14 @@ namespace gpuBlur {
 			+ weights.str() +
 			"_out = w2 * (aM2 + aP2) + w1 * (aM1 + aP1) + w0 * a0;";
 
-		setWrap(src, wrap);
+     lx::setWrap(src, wrap);
 		auto hscaled = shade(src, shader,
 			ShadeOpts()
 				.scale(hscale, 1.0f)
 				.uniform("GB2_offsetX", 1.0f)
 				.uniform("GB2_offsetY", 0.0f)
 			);
-		setWrap(hscaled, wrap);
+     lx::setWrap(hscaled, wrap);
 		auto vscaled = shade(hscaled, shader,
 			ShadeOpts()
 			.uniform("GB2_offsetX", 0.0f)

@@ -46,7 +46,7 @@ struct Walker {
 	}
 
 	Walker() {
-		pos = vec2(randFloat()* sx, randFloat()*sy);
+        pos = vec2(lx::randFloat()* sx, lx::randFloat()*sy);
 		age = std::rand() % MAX_AGE;
 	}
 	float noiseXAt(vec2 p) {
@@ -115,7 +115,7 @@ export struct ParticleTraces2DSketch : public SketchBase {
 			"}"
 		);
 
-		for (int i = 0; i < 4000 / sq(::scale); i++) {
+      for (int i = 0; i < 4000 / lx::sq(::scale); i++) {
 			walkers.push_back(Walker());
 		}
 	}
@@ -174,7 +174,7 @@ export struct ParticleTraces2DSketch : public SketchBase {
 
 		lxClear();
 		static Array2D<vec3> sizeSource(sx, sy);
-		static auto sizeSourceTex = uploadTex(sizeSource);
+      static auto sizeSourceTex = lx::uploadTex(sizeSource);
 		static auto walkerTex = shade(sizeSourceTex, "_out.rgb = vec3(0.0);");
 		if (!pause) {
 			walkerTex = shade(walkerTex, "_out.rgb = texture().xyz * 0.993;");
@@ -185,7 +185,7 @@ export struct ParticleTraces2DSketch : public SketchBase {
 			{
 				for(Walker & walker : walkers) {
 					auto walkerColor = walker.color;
-					float hueDot = dot(refVec, safeNormalized(walker.lastMove));
+                    float hueDot = dot(refVec, lx::safeNormalized(walker.lastMove));
 					hueDot = std::max(0.0f, hueDot);
 					hueDot = std::max(0.0f, 1 - hueDot);
 					walkerColor *= hueDot;
@@ -203,11 +203,11 @@ export struct ParticleTraces2DSketch : public SketchBase {
 				//gl::setMatricesWindow(sx, sy, true);
 				colorProg->bind();
 
-				beginRTT(walkerTex);
+                lx::beginRTT(walkerTex);
 				{
 					drawPoints(pos, color);
 				}
-				endRTT();
+               lx::endRTT();
 			}
 		}
 		auto walkerTexThres = shade(walkerTex,
@@ -229,7 +229,7 @@ export struct ParticleTraces2DSketch : public SketchBase {
 			"_out.rgb = c;",
 			ShadeOpts()
 				.ifmt(GL_RGB32F)
-				.functions(FileCache::get("stuff.fs"))
+              .functions(lx::FileCache::get("stuff.fs"))
 		);
 		glViewport(0, 0, wsx, wsy);
 		glDisable(GL_BLEND);

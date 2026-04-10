@@ -245,11 +245,11 @@ export gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string cons
 	shader->bind();
 
 	if (opts._enableResult) {
-		beginRTT(results);
+      lx::beginRTT(results);
 	}
 	else {
 		// if we don't do that, OpenGL clamps the viewport (that we set) by the cinder window size
-		beginRTT(opts._targetImg);
+      lx::beginRTT(opts._targetImg);
 
 		glColorMask(false, false, false, false);
 	}
@@ -260,10 +260,10 @@ export gl::TextureRef shade(vector<gl::TextureRef> const& texv, std::string cons
 		::drawRect();
 	}
 	if (opts._enableResult) {
-		endRTT();
+       lx::endRTT();
 	}
 	else {
-		endRTT();
+       lx::endRTT();
 		glColorMask(true, true, true, true);
 	}
 	return results[0];

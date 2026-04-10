@@ -143,9 +143,9 @@ export struct GridFluidSketch : public SketchBase {
         for(auto p : density.coords()) {
 			density(p) = red.density(p) + green.density(p);
 		}
-		auto sumTex = uploadTex(density);
-		auto redTex = uploadTex(red.density);
-		auto greenTex = uploadTex(green.density);
+       auto sumTex = lx::uploadTex(density);
+		auto redTex = lx::uploadTex(red.density);
+		auto greenTex = lx::uploadTex(green.density);
 
 		sumTex = gauss3texScaled(sumTex, 1.0); // reduce upscale artefacts
 		sumTex = gauss3texScaled(sumTex, 1.0); // reduce upscale artefacts
@@ -160,10 +160,10 @@ export struct GridFluidSketch : public SketchBase {
 		redTex = Operable(redTex) * colorAmount;
 		greenTex = Operable(greenTex) * colorAmount;
 
-		auto momentumTex = uploadTex(red.momentum);
+     auto momentumTex = lx::uploadTex(red.momentum);
 		auto hsvTex = shade(momentumTex, MULTILINE(
 			vec2 momentum = texture().xy;
-			float angle = atan(momentum.y, momentum.x) / (2 * pi) + .5;
+         float angle = atan(momentum.y, momentum.x) / (2 * lx::pi) + .5;
 			//angle *= pi;
 			float len = length(momentum);
 			len /= len + 1.0;
@@ -171,7 +171,7 @@ export struct GridFluidSketch : public SketchBase {
 			),
 			ShadeOpts()
 				.ifmt(GL_RGB16F)
-				.functions(FileCache::get("stuff.fs"))
+              .functions(lx::FileCache::get("stuff.fs"))
 		);
 
 		static float bloomSize = 1.5f;

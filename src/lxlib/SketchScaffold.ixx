@@ -70,9 +70,9 @@ public:
 
 		integratedConsole = make_shared<IntegratedConsole>();;
 
-		enableDenormalFlushToZero();
+        lx::enableDenormalFlushToZero();
 
-		disableGLReadClamp();
+       lx::disableGLReadClamp();
 
 		sketch->setup();
 	}

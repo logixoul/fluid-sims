@@ -70,7 +70,7 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 	}
 	void reset() {
         for(auto p : img.coords()) {
-			img(p) = ::randFloat();
+         img(p) = lx::randFloat();
 		}
 	}
 	Array2D<float> updateSingleScale(Array2D<float> aImg)
@@ -82,7 +82,7 @@ export struct MultiscaleGrowthSketch : public SketchBase {
         for(auto p : img.coords()) {
 			vec2 const& pf = vec2(p);
 			vec2 const& grad = gradients(p);
-			vec2 const& gradN = safeNormalized(grad);
+           vec2 const& gradN = lx::safeNormalized(grad);
 			vec2 const& gradNPerp = perpLeft(gradN);
 			float add = -hessianDirectionalSecondDeriv<float, WrapModes::Clamp>(img, p, gradNPerp);
 			splatBilinearPoint<float, WrapModes::Clamp>(img2, pf - gradN * add, add * options.morphogenesisStrength);
@@ -151,7 +151,7 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 	void testMatchingFunctionality() {
 		Array2D<float> arr(100, 100);
         for(auto p : arr.coords()) {
-			arr(p) = ::randFloat();
+         arr(p) = lx::randFloat();
 		}
 
 		std::vector<int> testSizes{ 50, 200, 67, 107, 3 };
@@ -185,7 +185,7 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 		auto imgClamped = img.clone();
         for(auto p : imgClamped.coords()) imgClamped(p) = glm::clamp(imgClamped(p), 0.0f, 1.0f);
 
-		auto imgTex = uploadTex(imgClamped);
+        auto imgTex = lx::uploadTex(imgClamped);
 		auto imgTexCentered = shade(imgTex,
 			"float f = texture().x;"
 			"_out.r = f - .5;"
@@ -193,13 +193,13 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 
 		auto imgTexHighpassed = gpuHighpass(imgTexCentered, options.highPassStrength);
 		imgTexHighpassed = gpuHighpass(imgTexHighpassed, options.highPassStrength);
-		auto imgHighpassed = downloadTex<float>(imgTexHighpassed);
+      auto imgHighpassed = lx::downloadTex<float>(imgTexHighpassed);
 
 		auto pyramid = buildGaussianPyramid(imgHighpassed);
 		auto stateTex = shade(imgTex, "_out = vec4(0.0);", ShadeOpts().dstRectSize(windowSize));
 		for (int i = pyramid.size() - 1; i >= 0; i--) {
 			auto& thisLevel = pyramid[i];
-			auto thisLevelTex = uploadTex(thisLevel);
+           auto thisLevelTex = lx::uploadTex(thisLevel);
 			auto thisLevelTexContrastized = shade(thisLevelTex,
 				"float f = texture().x;"
 				"float fw = fwidth(f);"
@@ -222,7 +222,7 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 		lxClear();
 		options.update();
 
-		gl::TextureRef tex = uploadTex(img);
+        gl::TextureRef tex = lx::uploadTex(img);
 		if (options.binarizePostprocessing) {
 			tex = postprocess();
 		}

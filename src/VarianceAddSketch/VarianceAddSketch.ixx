@@ -44,7 +44,7 @@ export struct VarianceAddSketch : public SketchBase {
 	}
 	void reset() {
       for(auto p : state.coords()) {
-			state(p) = randFloat();
+         state(p) = lx::randFloat();
 		}
 	}
 	void keyDown(int key)
@@ -75,7 +75,7 @@ export struct VarianceAddSketch : public SketchBase {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glViewport(0, 0, wsx, wsy);
 		glDisable(GL_BLEND);
-		auto tex = uploadTex(state);
+        auto tex = lx::uploadTex(state);
 		lxDraw(tex);
 	}
 };
