@@ -1,6 +1,5 @@
 module;
 #include "precompiled.h"
-#include "macros.h"
 
 export module lxlib.Array2D_imageProc;
 
