@@ -61,8 +61,7 @@ public:
 	T* data() { return dataSharedPtr.get(); }
 	T const* data() const { return dataSharedPtr.get(); }
 	typedef T value_type;
-	int area;
-   int width() const { return mWidth; }
+	int width() const { return mWidth; }
 	int height() const { return mHeight; }
 	ivec2 size() const { return ivec2(mWidth, mHeight); }
 	
@@ -131,7 +130,6 @@ private:
 	template<class TDeleter>
 	void Init(int w, int h, T* dataPtr, TDeleter deleter) {
 		this->dataSharedPtr = std::shared_ptr<T[]>(dataPtr, deleter);
-		area = w * h;
         mWidth = w;
 		mHeight = h;
 	}
@@ -140,11 +138,6 @@ private:
 export template<class T>
 Array2D<T> uninitializedArrayLike(Array2D<T> a) {
 	return Array2D<T>(a.size(), nofill());
-}
-
-export template<class T>
-Array2D<T> onesLike(Array2D<T> a) {
-	return Array2D<T>(a.size(), 1.0f);
 }
 
 export template<class T>

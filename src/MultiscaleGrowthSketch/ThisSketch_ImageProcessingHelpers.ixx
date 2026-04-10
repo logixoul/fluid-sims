@@ -65,37 +65,7 @@ vec2 perpLeft(vec2 const& v) {
 return vec2(-v.y, v.x);
 }
 
-Img subtract(Img const& a, Img const& b) {
-Img result = a.clone();
-for (int i = 0; i < result.area; i++) {
-result.data()[i] -= b.data()[i];
-}
-return result;
-}
 
-Img add(Img const& a, Img const& b) {
-Img result = a.clone();
-for (int i = 0; i < result.area; i++) {
-result.data()[i] += b.data()[i];
-}
-return result;
-}
-
-Img multiply(Img const& a, Img const& b) {
-Img result = a.clone();
-for (int i = 0; i < result.area; i++) {
-result.data()[i] *= b.data()[i];
-}
-return result;
-}
-
-Img multiply(Img const& a, float scalar) {
-Img result = a.clone();
-for (int i = 0; i < result.area; i++) {
-result.data()[i] *= scalar;
-}
-return result;
-}
 
 float mulContrastize(float i, float contrastizeStrength) {
 i = glm::clamp(i, 0.0f, 1.0f);

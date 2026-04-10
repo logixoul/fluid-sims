@@ -273,17 +273,19 @@ export void mm(string desc, Array2D<vec3> arr) {
 	if (desc != "") {
 		cout << "[" << desc << "] ";
 	}
-	auto data = (float*)arr.data();
-	cout << "min: " << *std::min_element(data, data + arr.area * 3) << ", "
-		<< "max: " << *std::max_element(data, data + arr.area * 3) << endl;
+	float const* data = (float*)arr.data();
+	int const area = arr.width() * arr.height();
+	cout << "min: " << *std::min_element(data, data + area * 3) << ", "
+		<< "max: " << *std::max_element(data, data + area * 3) << endl;
 }
 export void mm(string desc, Array2D<vec2> arr) {
 	if (desc != "") {
 		cout << "[" << desc << "] ";
 	}
-	auto data = (float*)arr.data();
-	cout << "min: " << *std::min_element(data, data + arr.area * 2) << ", "
-		<< "max: " << *std::max_element(data, data + arr.area * 2) << endl;
+	float const* data = (float*)arr.data();
+	int const area = arr.width() * arr.height();
+	cout << "min: " << *std::min_element(data, data + area * 2) << ", "
+		<< "max: " << *std::max_element(data, data + area * 2) << endl;
 }
 
 // Linearly remaps the values in the array to be between 0 and 1, based

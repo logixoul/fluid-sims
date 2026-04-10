@@ -95,7 +95,8 @@ export struct FftRaysSketch : public SketchBase {
 	}
 
 	Array2D<FFT::Complex> spatialDomainStateFromFrequencyDomain(Array2D<FFT::Complex> const& freqDomain) {
-		return FFT::inverseFftC2C(freqDomain) / std::sqrt((float)(freqDomain.area));
+		int const numElements = freqDomain.width() * freqDomain.height();
+		return FFT::inverseFftC2C(freqDomain) / std::sqrt((float)(numElements));
 	}
 
 	void keyDown(int key)

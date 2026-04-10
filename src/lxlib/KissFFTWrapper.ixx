@@ -17,11 +17,7 @@ public:
 		return fftImpl(in, false);
     }
     static Array2D<Complex> normalize(Array2D<Complex> const& in) {
-        Array2D<Complex> out(in.size(), nofill());
-        for (int i = 0; i < in.area; i++) {
-            out.data()[i] = in.data()[i] / static_cast<TComponentType>(in.area);
-        }
-        return out;
+        return in / static_cast<TComponentType>(in.width() * in.height());
 	}
     // complex-to-complex inverse FFT
     static Array2D<Complex> inverseFftC2C(Array2D<Complex> const& in) {

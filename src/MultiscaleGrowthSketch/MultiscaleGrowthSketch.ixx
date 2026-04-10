@@ -126,11 +126,11 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 		updatedScales[last] = func(origScales[last]);
 		auto weights = getLevelWeights(origScales.size());
 		for (int i = updatedScales.size() - 1; i >= 1; i--) {
-			auto diff = subtract(updatedScales[i], origScales[i]);
-			diff = multiply(diff, weights[i]);
+			auto diff = updatedScales[i] - origScales[i];
+			diff = diff * weights[i];
 			auto const upscaledDiff = gpuBlurClaude::singleblurLikeCinder(diff, origScales[i - 1].size());
 			auto& nextScale = updatedScales[i - 1];
-			nextScale = add(origScales[i - 1], upscaledDiff);
+			nextScale = origScales[i - 1] + upscaledDiff;
 			nextScale = func(nextScale);
 		}
 		return updatedScales[0];
