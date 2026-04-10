@@ -1,7 +1,5 @@
 module;
 #include "precompiled.h"
-#include <lxlib/simplexnoise.h>
-#include <lxlib/macros.h>
 
 import lxlib.Array2D;
 import lxlib.Array2D_imageProc;
