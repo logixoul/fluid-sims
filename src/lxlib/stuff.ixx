@@ -126,51 +126,40 @@ void enableGlDebugOutput() {
 	glDebugMessageCallback(messageCallback, 0);
 }
 
+export gl::TextureRef uploadTex(glm::ivec2 size, GLint internalFormat, GLenum format, GLenum type, void* data) {
+	gl::TextureRef tex = getTexFromPool(size.x, size.y, internalFormat);
+	tex->bind();
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size.x, size.y, format, type, data);
+	return tex;
+}
+
 gl::TextureRef uploadTex(Array2D<float> a)
 {
-	gl::TextureRef tex = getTexFromPool(a.w, a.h, GL_R16F);
-	tex->bind();
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RED, GL_FLOAT, a.data());
-	return tex;
+	return uploadTex(a.Size(), GL_R16F, GL_RED, GL_FLOAT, a.data());
 }
 
 gl::TextureRef uploadTex(Array2D<vec2> a)
 {
-	gl::TextureRef tex = getTexFromPool(a.w, a.h, GL_RG16F);
-	tex->bind();
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RG, GL_FLOAT, a.data());
-	return tex;
+	return uploadTex(a.Size(), GL_RG16F, GL_RG, GL_FLOAT, a.data());
 }
 
 gl::TextureRef uploadTex(Array2D<vec3> a)
 {
-	gl::TextureRef tex = getTexFromPool(a.w, a.h, GL_RGB16F);
-	tex->bind();
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RGB, GL_FLOAT, a.data());
-	return tex;
+	return uploadTex(a.Size(), GL_RGB16F, GL_RGB, GL_FLOAT, a.data());
 }
 gl::TextureRef uploadTex(Array2D<bytevec3> a)
 {
-	gl::TextureRef tex = getTexFromPool(a.w, a.h, GL_RGB8);
-	tex->bind();
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RGB, GL_UNSIGNED_BYTE, a.data());
-	return tex;
+	return uploadTex(a.Size(), GL_RGB8, GL_RGB, GL_UNSIGNED_BYTE, a.data());
 }
 
 gl::TextureRef uploadTex(Array2D<vec4> a)
 {
-	gl::TextureRef tex = getTexFromPool(a.w, a.h, GL_RGBA16F);
-	tex->bind();
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RGBA, GL_FLOAT, a.data());
-	return tex;
+	return uploadTex(a.Size(), GL_RGBA16F, GL_RGBA, GL_FLOAT, a.data());
 }
 
 gl::TextureRef uploadTex(Array2D<uvec4> a)
 {
-	gl::TextureRef tex = getTexFromPool(a.w, a.h, GL_RGBA32UI);
-	tex->bind();
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, a.w, a.h, GL_RGBA_INTEGER, GL_UNSIGNED_INT, a.data());
-	return tex;
+	return uploadTex(a.Size(), GL_RGBA32UI, GL_RGBA_INTEGER, GL_UNSIGNED_INT, a.data());
 }
 
 int sign(float f)

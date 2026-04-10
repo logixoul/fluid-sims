@@ -1,0 +1,30 @@
+		for(auto& walker : walkers) {
+			float angle = randFloat() * 2 * M_PI;
+			walker.vel = glm::vec2(cos(angle), sin(angle));
+
+			walker.pos += walker.vel;
+			/*if (walker.pos.x < 0 || walker.pos.x >= freqDomainState.w)
+				walker.vel.x *= -1;
+			if (walker.pos.y < 0 || walker.pos.y >= freqDomainState.h)
+				walker.vel.y *= -1;*/
+
+
+			FFT::Complex const contribution(randFloat(-1, 1) * 5.0f, randFloat(-1, 1) * 5.0f);
+			//cout << "Adding contribution " << contribution << " at " << walker.pos << endl;
+			splatBilinearPoint<FFT::Complex, WrapModes::Wrap>(freqDomainState, walker.pos, contribution);
+		}
+		freqDomainState(0, 0) = FFT::Complex(0, 0); // remove DC component to prevent it from dominating the image
+
+=========
+
+vec3 complexToColor_HSV(vec2 comp) {
+	float hue = (float)M_PI + (float)atan2(comp.y, comp.x);
+	hue /= (float)(2 * M_PI);
+	float lightness = length(comp);
+	//lightness = .5f;
+	//lightness /= lightness + 1.0f;
+	const float saturation = 0.9f; // not 1.0 because we want tonemapping bright colors to desaturate them
+	HsvF hsv(hue, saturation, lightness);
+	return FromHSV(hsv);
+}
+

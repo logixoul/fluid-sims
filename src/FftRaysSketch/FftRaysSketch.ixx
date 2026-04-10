@@ -23,17 +23,6 @@ export module FftRaysSketch;
 
 bool pause;
 const double M_PI = 3.14159265359;
-vec3 complexToColor_HSV(vec2 comp) {
-	float hue = (float)M_PI + (float)atan2(comp.y, comp.x);
-	hue /= (float)(2 * M_PI);
-	float lightness = length(comp);
-	//lightness = .5f;
-	//lightness /= lightness + 1.0f;
-	const float saturation = 0.9f; // not 1.0 because we want tonemapping bright colors to desaturate them
-	HsvF hsv(hue, saturation, lightness);
-	return FromHSV(hsv);
-}
-
 struct Walker {
 	glm::vec2 pos;
 	glm::vec2 vel;
@@ -61,8 +50,12 @@ export struct FftRaysSketch : public SketchBase {
 
 	Array2D<FFT::Complex> freqDomainState;
 	Array2D<FFT::Complex> freqDomainStateNext;
+	Array2D<FFT::Complex> spatialDomainState;
+	Array2D<FFT::Complex> spatialDomainStateNext;
+	gl::TextureRef spatialDomainTex;
+	gl::TextureRef spatialDomainTexNext;
 	std::vector<Walker> walkers;
-	const int scale = 4;
+	const int scale = 1;
 	
 	void setup()
 	{
@@ -74,6 +67,10 @@ export struct FftRaysSketch : public SketchBase {
 	void reset() {
 		freqDomainState = generateRandomState();
 		freqDomainStateNext = generateRandomState();
+		spatialDomainState = spatialDomainStateFromFrequencyDomain(freqDomainState);
+		spatialDomainStateNext = spatialDomainStateFromFrequencyDomain(freqDomainStateNext);
+		spatialDomainTex = darken(uploadTex(spatialDomainState));
+		spatialDomainTexNext = darken(uploadTex(spatialDomainStateNext));
 
 		walkers = std::vector<Walker>(100);
 		for(auto& walker : walkers) {
@@ -87,7 +84,7 @@ export struct FftRaysSketch : public SketchBase {
 			float wrappedX = std::min((float)p.x, (float)(state.w - p.x));
 			float wrappedY = std::min((float)p.y, (float)(state.h - p.y));
 			float distToOrigin = glm::length(glm::vec2(wrappedX, wrappedY));
-			float amplitude = 1.0f / std::max(distToOrigin, 1.0f);
+			float amplitude = 1.0f / pow(std::max(distToOrigin, 1.0f), 1.1f);
 			amplitude *= 100.0f; // boost overall brightness
 			float phase = randFloat(0.0f, 2.0f * (float)M_PI);
 			state(p) = FFT::Complex(
@@ -95,6 +92,10 @@ export struct FftRaysSketch : public SketchBase {
 				amplitude * std::sin(phase));
 		}
 		return state;
+	}
+
+	Array2D<FFT::Complex> spatialDomainStateFromFrequencyDomain(Array2D<FFT::Complex> const& freqDomain) {
+		return FFT::inverseFftC2C(freqDomain) / std::sqrt((float)(freqDomain.area));
 	}
 
 	void keyDown(int key)
@@ -119,43 +120,28 @@ export struct FftRaysSketch : public SketchBase {
 		if(elapsedFrames % NUM_FRAMES_BETWEEN_REGENERATIONS == 0) {
 			freqDomainState = freqDomainStateNext;
 			freqDomainStateNext = generateRandomState();
+			
+			spatialDomainState = spatialDomainStateNext;
+			spatialDomainStateNext = spatialDomainStateFromFrequencyDomain(freqDomainStateNext);
+			
+			spatialDomainTex = spatialDomainTexNext;
+			spatialDomainTexNext = darken(uploadTex(spatialDomainStateNext));
 		}
-
-
-#if 0
-		for(auto& walker : walkers) {
-			float angle = randFloat() * 2 * M_PI;
-			walker.vel = glm::vec2(cos(angle), sin(angle));
-
-			walker.pos += walker.vel;
-			/*if (walker.pos.x < 0 || walker.pos.x >= freqDomainState.w)
-				walker.vel.x *= -1;
-			if (walker.pos.y < 0 || walker.pos.y >= freqDomainState.h)
-				walker.vel.y *= -1;*/
-
-
-			FFT::Complex const contribution(randFloat(-1, 1) * 5.0f, randFloat(-1, 1) * 5.0f);
-			//cout << "Adding contribution " << contribution << " at " << walker.pos << endl;
-			splatBilinearPoint<FFT::Complex, WrapModes::Wrap>(freqDomainState, walker.pos, contribution);
-		}
-		freqDomainState(0, 0) = FFT::Complex(0, 0); // remove DC component to prevent it from dominating the image
-
-#endif
 	}
 
-	FFT::Complex mix(FFT::Complex const& a, FFT::Complex const& b, float t) {
-		return a * (1.0f - t) + b * t;
+	static gl::TextureRef uploadTex(Array2D<FFT::Complex> const& arr) {
+		return ::uploadTex(arr.Size(), GL_RG16F, GL_RG, GL_FLOAT, (void*)arr.data());
 	}
 
-	Array2D<FFT::Complex> darken(Array2D<FFT::Complex> const& in) {
-		Array2D<FFT::Complex> result(in.Size(), nofill());
-		forxy(result) {
-			const float len = std::abs(in(p));
-			const float newLen = std::pow(len, 3.0f);
-			result(p) = in(p) * newLen / len;
-		}
-		return result;
+	gl::TextureRef darken(gl::TextureRef tex) {
+		return shade(tex,
+			"vec2 c = texture().xy;"
+			"float len = length(c);"
+			"float newLen = pow(len, 3.0);"
+			"_out.xy = c * (newLen / len);");
 	}
+
+
 
 	void draw() {
 		glClearColor(0, 0, 0.7, 1);
@@ -163,23 +149,30 @@ export struct FftRaysSketch : public SketchBase {
 		glViewport(0, 0, windowSize.x, windowSize.y);
 		glDisable(GL_BLEND);
 
-		auto spatialDomainState = FFT::inverseFftC2C(freqDomainState) / std::sqrt((float)(freqDomainState.area));
-		spatialDomainState = darken(spatialDomainState);
-		auto spatialDomainStateNext = FFT::inverseFftC2C(freqDomainStateNext) / std::sqrt((float)(freqDomainStateNext.area));
-		spatialDomainStateNext = darken(spatialDomainStateNext);
-		auto mixedState = uninitializedArrayLike(spatialDomainState);
-		forxy(mixedState) {
-			const float normalizedStateAge = (float)(elapsedFrames % NUM_FRAMES_BETWEEN_REGENERATIONS) / (float)NUM_FRAMES_BETWEEN_REGENERATIONS;
-			float interpolationCoef = 1.0f - std::pow(1.0f - normalizedStateAge, 2.0f); // ease out curve
-			mixedState(p) = mix(spatialDomainState(p), spatialDomainStateNext(p), interpolationCoef);
-		}
+		const float normalizedStateAge = (float)(elapsedFrames % NUM_FRAMES_BETWEEN_REGENERATIONS) / (float)NUM_FRAMES_BETWEEN_REGENERATIONS;
+		const float interpolationCoef = 1.0f - std::pow(1.0f - normalizedStateAge, 2.0f); // ease out curve
+		auto tex = shade({ spatialDomainTex, spatialDomainTexNext },
+			"vec2 state = texture(tex0).rg;"
+			"vec2 stateNext = texture(tex1).rg;"
+			"vec2 mixed = mix(state, stateNext, interpolationCoef);"
 
-		Array2D<vec3> img(mixedState.Size(), nofill());
-		forxy(img) {
-			glm::vec2 vec2(mixedState(p).real(), mixedState(p).imag());
-			img(p) = complexToColor_HSV(vec2);
-		}
-		auto tex = uploadTex(img);
+			"_out.rgb = complexToColor_HSV(mixed);",
+			ShadeOpts()
+				.ifmt(GL_RGB16F)
+				.uniform("interpolationCoef", interpolationCoef)
+				.functions(FileCache::get("stuff.fs") + 
+					R"(
+				vec3 complexToColor_HSV(vec2 comp) {
+					float hue = atan(comp.y, comp.x);
+					hue /= (2.0 * 3.14159265359);
+					hue += .5;
+					float lightness = length(comp);
+					const float saturation = 0.99; // not 1.0 because we want tonemapping bright colors to desaturate them
+					vec3 hsv = vec3(hue, saturation, lightness);
+					return hsv2rgb(hsv);
+				}
+			)")
+		);
 		tex = shade(tex, // upscale
 			"_out = texture();"
 			, ShadeOpts().dstRectSize(vec2(windowSize)));
@@ -193,27 +186,33 @@ export struct FftRaysSketch : public SketchBase {
 			"for(int i = 0; i < NUM_STEPS; i++) {"
 			"	float weight = pow(crepuscularFalloff, float(i));" // exponential weight falloff
 			"	if(i == 0) weight *= 15.0f;" // boost center sample
-           "	col += texture(tex0, localTc + 0.5).rgb * weight;"
+			//"	vec2 offset = texture(tex0, localTc + 0.5).rg;"
+			//"	vec2 localTc2 = localTc + offset*0.0004;"
+            //"	col += texture(tex0, localTc2 + 0.5).rgb * weight;"
+			"	col += texture(tex0, localTc + 0.5).rgb * weight; "
 			"	localTc -= localTc * 0.005;" // "zoom blur" effect
 			"	sumWeights += weight;"
 			"}"
 			"_out.rgb = col / sumWeights;",
 				ShadeOpts().uniform("crepuscularFalloff", options.crepuscularFalloff));
 
-		auto texb = gpuBlur::run(tex, 3);
+		auto texb = gpuBlur::run(tex, 5);
 		tex = op(tex) + op(texb);
 		//tex = shade(tex, "_out.rgb = texture().rgb * .1;");
 		tex = shade(tex,
 			"_out.rgb = texture().rgb*gain;"
 			//"_out.rgb = reinhardTonemapLuma(_out.rgb);"
 			//"_out.rgb = uncharted2Tonemap(_out.rgb);" // filmic tonemapping
-			"_out.rgb = clipChroma(_out.rgb);" // chroma clipping to prevent colors from going out of gamut after tonemapping
-			//"_out.rgb /= _out.rgb + vec3(1.0);" // reinhard-ish tonemapping
+			//"_out.rgb = clipChroma(_out.rgb);" // chroma clipping to prevent colors from going out of gamut after tonemapping
+			"_out.rgb /= _out.rgb + vec3(1.0);" // reinhard-ish tonemapping
+			"_out.rgb *= whitePoint * 1.5;"
+			"_out.rgb = desaturateHighlights(_out.rgb);" // desaturate highlights to prevent them from looking too colorful after tonemapping
 			//"_out.rgb = smoothstep(vec3(0.0), vec3(1.0), _out.rgb);" // contrast enhancement
 			//"_out.rgb = pow(_out.rgb, vec3(1.0/2.2));" // gamma correction
 			, ShadeOpts().uniform("gain", options.gain)
-				.functions(R"(
-					const float whitePoint = 11.2;
+				.functions(FileCache::get("stuff.fs") +
+					R"(
+					const float whitePoint = 1.4;
 					// http://filmicworlds.com/blog/filmic-tonemapping-operators/
 					vec3 uncharted2Tonemap(vec3 color) {
 						// Filmic tonemapping curve (from Uncharted 2)
@@ -230,6 +229,13 @@ export struct FftRaysSketch : public SketchBase {
 						float luma = dot(color, rgbWeights);
 						float tonemappedLuma = luma / (luma + 1.0);
 						return color * (tonemappedLuma / luma);
+					}
+					vec3 desaturateHighlights(vec3 color) {
+						vec3 hsv = rgb2hsv(color);
+						float desaturationAmount = smoothstep(0.0, whitePoint, hsv.z);
+						desaturationAmount = pow(desaturationAmount, 2.0); // make the desaturation kick in more gradually
+						hsv.y *= 1.0 - desaturationAmount;
+						return hsv2rgb(hsv);
 					}
 					vec3 clipChroma(vec3 inColor) {
 						float luma = dot(inColor, rgbWeights);
