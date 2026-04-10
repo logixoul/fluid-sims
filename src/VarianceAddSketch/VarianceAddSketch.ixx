@@ -45,7 +45,7 @@ export struct VarianceAddSketch : public SketchBase {
 		reset();
 	}
 	void reset() {
-		forxy(state) {
+      for(auto p : state.coords()) {
 			state(p) = randFloat();
 		}
 	}
@@ -66,7 +66,7 @@ export struct VarianceAddSketch : public SketchBase {
 			return;
 
 		auto variance = get_variance(state);
-		forxy(state) {
+      for(auto p : state.coords()) {
 			state(p) += variance(p) * 0.1f;
 		}
 		state = to01(state);

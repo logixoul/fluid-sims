@@ -21,6 +21,42 @@ struct Array2D
 private:
 	std::shared_ptr<T[]> dataSharedPtr;
 public:
+       struct CoordIterator {
+			ivec2 p;
+			int width;
+
+			ivec2 operator*() const { return p; }
+
+			CoordIterator& operator++() {
+				++p.x;
+				if(p.x >= width) {
+					p.x = 0;
+					++p.y;
+				}
+				return *this;
+			}
+
+			bool operator!=(CoordIterator const& other) const {
+				return p.x != other.p.x || p.y != other.p.y;
+			}
+		};
+
+		struct CoordRange {
+			int width;
+			int height;
+
+			CoordIterator begin() const {
+				if(width <= 0 || height <= 0) {
+					return end();
+				}
+				return CoordIterator{ ivec2(0, 0), width };
+			}
+
+			CoordIterator end() const {
+				return CoordIterator{ ivec2(0, height), width };
+			}
+		};
+
 	T* data() { return dataSharedPtr.get(); }
 	T const* data() const { return dataSharedPtr.get(); }
 	typedef T value_type;
@@ -53,6 +89,7 @@ public:
 	T* end() { return data()+w*h; }
 	T const* begin() const { return data(); }
 	T const* end() const { return data()+w*h; }
+		CoordRange coords() const { return CoordRange{ w, h }; }
 	
 	T& operator()(int x, int y) { return data()[offsetOf(x, y)]; }
 	T const& operator()(int x, int y) const { return data()[offsetOf(x, y)]; }
@@ -142,7 +179,7 @@ TTarget broadcastTo(TValue const& value) {
 template<class T, class TOp>
 Array2D<T>& applyOpInPlace(Array2D<T>& arr, T const& secondArg, TOp const& op)
 {
-	forxy(arr) {
+    for(auto p : arr.coords()) {
 		arr(p) = op(arr(p), secondArg);
 	}
 	return arr;
@@ -152,7 +189,7 @@ template<class T1, class T2, class TOp>
 Array2D<T1>& applyArrayArrayOpInPlace(Array2D<T1>& arr1, Array2D<T2> const& arr2, TOp const& op)
 {
     assert(arr1.w == arr2.w && arr1.h == arr2.h);
-	forxy(arr1) {
+   for(auto p : arr1.coords()) {
 		arr1(p) = op(arr1(p), broadcastTo<T1>(arr2(p)));
 	}
  return arr1;
@@ -162,7 +199,7 @@ template<class T, class TOp>
 Array2D<T> applyOpOutOfPlace(Array2D<T> const& arr, T const& secondArg, TOp const& op)
 {
 	auto resultArr = uninitializedArrayLike(arr);
-	forxy(arr) {
+    for(auto p : arr.coords()) {
 		resultArr(p) = op(arr(p), secondArg);
 	}
 	return resultArr;
@@ -172,7 +209,7 @@ template<class T, class TOp>
 Array2D<T> applyOpOutOfPlace(T const& firstArg, Array2D<T> const& arr, TOp const& op)
 {
 	auto resultArr = uninitializedArrayLike(arr);
-	forxy(arr) {
+    for(auto p : arr.coords()) {
 		resultArr(p) = op(firstArg, arr(p));
 	}
 	return resultArr;
@@ -183,7 +220,7 @@ Array2D<T1> applyArrayArrayOpOutOfPlace(Array2D<T1> const& arr1, Array2D<T2> con
 {
 	assert(arr1.w == arr2.w && arr1.h == arr2.h);
 	auto resultArr = uninitializedArrayLike(arr1);
-	forxy(arr1) {
+   for(auto p : arr1.coords()) {
 		resultArr(p) = op(arr1(p), broadcastTo<T1>(arr2(p)));
 	}
 	return resultArr;

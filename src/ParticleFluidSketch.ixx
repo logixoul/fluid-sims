@@ -90,7 +90,7 @@ export struct ParticleFluidSketch : public SketchBase {
 		auto accum = Array2D<float>(sz);
 		for (int i = 3; i < 3 + blurIters; i++) {
 			auto imgb = gaussianBlur<float, WrapModes::Wrap>(img, 1 + pow(2, i));
-			forxy(img) {
+            for(auto p : img.coords()) {
 				accum(p) += imgb(p);
 			}
 		}

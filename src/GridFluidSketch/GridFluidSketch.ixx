@@ -140,7 +140,7 @@ export struct GridFluidSketch : public SketchBase {
 		ImGui::DragFloat("matterThreshold", &matterThreshold, 1.0f, 0.01, 8.0, "%.3f", ImGuiSliderFlags_Logarithmic);
 
 		auto density = uninitializedArrayLike(red.density);
-		forxy(density) {
+        for(auto p : density.coords()) {
 			density(p) = red.density(p) + green.density(p);
 		}
 		auto sumTex = uploadTex(density);
@@ -344,7 +344,7 @@ export struct GridFluidSketch : public SketchBase {
 	static Array2D<T> convolve(Array2D<T> in, Array2D<float> kernel) {
 		int r = kernel.w / 2;
 		auto out = ::empty_like(in);
-		forxy(out) {
+        for(auto p : out.coords()) {
 			float sum = 0.0f;
 			for (int kx = -r; kx < r; kx++) {
 				for (int ky = -r; ky < r; ky++) {
@@ -359,7 +359,7 @@ export struct GridFluidSketch : public SketchBase {
 		Array2D<float> kernel(7, 7);
 		ivec2 center = kernel.Size() / 2;
 		int r = kernel.w / 2;
-		forxy(kernel) {
+     for(auto p : kernel.coords()) {
 			ivec2 p2 = p - center;
 			vec2 p2f = vec2(p2);
 			float distance = length(p2f);
@@ -370,7 +370,7 @@ export struct GridFluidSketch : public SketchBase {
 			kernel(p) = pow(1 - distance / r, 2.0f);
 		}
 		auto kernelSum = std::accumulate(kernel.begin(), kernel.end(), 0.0f);
-		forxy(kernel) {
+     for(auto p : kernel.coords()) {
 			kernel(p) /= kernelSum;
 		}
 		//auto guidance = convolve<float, WrapModes::Clamp>(actingMaterial.density, kernel);
@@ -380,7 +380,7 @@ export struct GridFluidSketch : public SketchBase {
 		static float intermaterialRepelCoef = 0.5f;
 		ImGui::DragFloat("intermaterialRepelCoef", &intermaterialRepelCoef, 1.0f, 0.1, 5.0f, "%.3f", ImGuiSliderFlags_Logarithmic);
 
-		forxy(affectedMaterial.density)
+     for(auto p : affectedMaterial.density.coords())
 		{
 			auto g = gradient_i<float, WrapModes::ZeroesOutside>(guidance, p);
 			//if(length(g) != 0.0f) g = glm::normalize(g);
@@ -399,7 +399,7 @@ export struct GridFluidSketch : public SketchBase {
 			auto& momentum = material->momentum;
 			auto& density = material->density;
 			float gravity = cfg.getFloat("gravity");
-			forxy(momentum)
+         for(auto p : momentum.coords())
 			{
 				momentum(p) += vec2(0.0f, gravity) * density(p);
 			}
@@ -416,7 +416,7 @@ export struct GridFluidSketch : public SketchBase {
 			float surfTensionThres = cfg.getFloat("surfTensionThres");
 			float surfTension = cfg.getFloat("surfTension");
 			float incompressibilityCoef = cfg.getFloat("incompressibilityCoef");
-			forxy(momentum)
+         for(auto p : momentum.coords())
 			{
 				auto g = gradient_i<float, WrapModes::ZeroesOutside>(guidance, p);
 				if (guidance(p) < surfTensionThres)
@@ -434,7 +434,7 @@ export struct GridFluidSketch : public SketchBase {
 			int count = 0;
 			//const auto lowerBound = vec2(0.0f);
 			//const auto upperBound = vec2(density.Size() - ivec2(2));
-			/*forxy(density)
+            /*for(auto p : density.coords())
 			{
 				float hereMono = density(p);
 				vec2 offset = momentum(p) / density(p);
@@ -456,7 +456,7 @@ export struct GridFluidSketch : public SketchBase {
 			}*/
 			//density = density2;
 			auto offsets = uninitializedArrayLike(momentum);
-			forxy(offsets) {
+            for(auto p : offsets.coords()) {
 				offsets(p) = momentum(p) / density(p);
 			}
 			advect(*material, offsets);
@@ -472,7 +472,7 @@ export struct GridFluidSketch : public SketchBase {
 		auto momentum3 = Array2D<vec2>(sx, sy, vec2());
 		int count = 0;
 		float sumOffsetY = 0; float div = 0;
-		forxy(density)
+      for(auto p : density.coords())
 		{
 			if (density(p) == 0.0f)
 				continue;
@@ -515,12 +515,12 @@ export struct GridFluidSketch : public SketchBase {
 		T zero = ::zero<T>();
 		Array2D<T> dst1(src.w, src.h);
 		Array2D<T> dst2(src.w, src.h);
-		forxy(dst1) {
+       for(auto p : dst1.coords()) {
 			WrapPolicy::fetch(dst1, p.x - 1, p.y) += .25f * src(p);
 			WrapPolicy::fetch(dst1, p.x, p.y) += .5f * src(p);
 			WrapPolicy::fetch(dst1, p.x + 1, p.y) += .25f * src(p);
 		}
-		forxy(dst1) {
+       for(auto p : dst1.coords()) {
 			//vector<float> weights = { .25, .5, .25 };
 			//auto one = T(1);
 			WrapPolicy::fetch(dst2, p.x, p.y - 1) += .25f * dst1(p);

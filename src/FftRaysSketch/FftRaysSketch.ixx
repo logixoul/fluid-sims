@@ -80,7 +80,7 @@ export struct FftRaysSketch : public SketchBase {
 
 	Array2D<FFT::Complex> generateRandomState() {
 		Array2D<FFT::Complex> state(windowSize / scale, nofill());
-		forxy(state) {
+      for(auto p : state.coords()) {
 			float wrappedX = std::min((float)p.x, (float)(state.w - p.x));
 			float wrappedY = std::min((float)p.y, (float)(state.h - p.y));
 			float distToOrigin = glm::length(glm::vec2(wrappedX, wrappedY));
@@ -207,7 +207,6 @@ export struct FftRaysSketch : public SketchBase {
 			"_out.rgb /= _out.rgb + vec3(1.0);" // reinhard-ish tonemapping
 			"_out.rgb *= whitePoint * 1.5;"
 			"_out.rgb = desaturateHighlights(_out.rgb);" // desaturate highlights to prevent them from looking too colorful after tonemapping
-			//"_out.rgb = smoothstep(vec3(0.0), vec3(1.0), _out.rgb);" // contrast enhancement
 			//"_out.rgb = pow(_out.rgb, vec3(1.0/2.2));" // gamma correction
 			, ShadeOpts().uniform("gain", options.gain)
 				.functions(FileCache::get("stuff.fs") +

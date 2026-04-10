@@ -102,9 +102,9 @@ Array2D<T> gauss3(Array2D<T> src) {
 	T zero = ::zero<T>();
 	Array2D<T> dst1(src.w, src.h);
 	Array2D<T> dst2(src.w, src.h);
-	forxy(dst1)
+ for(auto p : dst1.coords())
 		dst1(p) = .25f * (2.0f * get_clamped(src, p.x, p.y) + get_clamped(src, p.x - 1, p.y) + get_clamped(src, p.x + 1, p.y));
-	forxy(dst2)
+ for(auto p : dst2.coords())
 		dst2(p) = .25f * (2.0f * get_clamped(dst1, p.x, p.y) + get_clamped(dst1, p.x, p.y - 1) + get_clamped(dst1, p.x, p.y + 1));
 	return dst2;
 }
@@ -129,7 +129,7 @@ export template<class T, class WrapPolicy>
 Array2D<vec2> get_gradients(Array2D<T>& src)
 {
 	auto src2 = src.clone();
-	forxy(src2)
+ for(auto p : src2.coords())
 		src2(p) /= 2.0f;
 	Array2D<vec2> gradients(src.w, src.h);
 	for (int x = 0; x < src.w; x++)
@@ -290,7 +290,7 @@ export Array2D<float> to01(Array2D<float> a) {
 	auto minn = *std::min_element(a.begin(), a.end());
 	auto maxx = *std::max_element(a.begin(), a.end());
 	auto b = a.clone();
-	forxy(b) {
+  for(auto p : b.coords()) {
 		b(p) -= minn;
 		b(p) /= (maxx - minn);
 	}

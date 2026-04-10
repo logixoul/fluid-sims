@@ -28,9 +28,9 @@ Array2D<T> gaussianBlur3x3(Array2D<T> src) {
 T zero = ::zero<T>();
 Array2D<T> dst1(src.w, src.h);
 Array2D<T> dst2(src.w, src.h);
-forxy(dst1)
+for(auto p : dst1.coords())
 dst1(p) = .25f * (2 * WrapPolicy::fetch(src, p.x, p.y) + WrapPolicy::fetch(src, p.x - 1, p.y) + WrapPolicy::fetch(src, p.x + 1, p.y));
-forxy(dst2)
+for(auto p : dst2.coords())
 dst2(p) = .25f * (2 * WrapPolicy::fetch(dst1, p.x, p.y) + WrapPolicy::fetch(dst1, p.x, p.y - 1) + WrapPolicy::fetch(dst1, p.x, p.y + 1));
 return dst2;
 }

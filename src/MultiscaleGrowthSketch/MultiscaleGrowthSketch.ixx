@@ -69,7 +69,7 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 		}
 	}
 	void reset() {
-		forxy(img) {
+        for(auto p : img.coords()) {
 			img(p) = ::randFloat();
 		}
 	}
@@ -79,7 +79,7 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 
 		auto gradients = ::get_gradients<float, WrapModes::Clamp>(img);
 		auto img2 = img.clone();
-		forxy(img) {
+        for(auto p : img.coords()) {
 			vec2 const& pf = vec2(p);
 			vec2 const& grad = gradients(p);
 			vec2 const& gradN = safeNormalized(grad);
@@ -97,7 +97,7 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 	}
 	Img applyVerticalGradient(Img const& img) {
 		Img result = ::uninitializedArrayLike(img);
-		forxy(result) {
+     for(auto p : result.coords()) {
 			float floatY = p.y / (float)result.h;
 			floatY = glm::mix(options.blendWeaken, 1.0f - options.blendWeaken, floatY);
 			result(p) = blendHardLight(img(p), floatY);
@@ -150,7 +150,7 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 
 	void testMatchingFunctionality() {
 		Array2D<float> arr(100, 100);
-		forxy(arr) {
+        for(auto p : arr.coords()) {
 			arr(p) = ::randFloat();
 		}
 
@@ -162,7 +162,7 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 			//mm("new", newImpl);
 			//mm("old", oldImpl);
 				
-			forxy(newImpl) {
+            for(auto p : newImpl.coords()) {
 				if (abs(newImpl(p) - oldImpl(p)) > 0.0001) {
 					std::cout << "[" << testSize << "] mismatch at " << p.x << ", " << p.y << ": " << newImpl(p) << " vs " << oldImpl(p) << std::endl;
 				}
@@ -183,7 +183,7 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 	}
 	gl::TextureRef postprocess() {
 		auto imgClamped = img.clone();
-		forxy(imgClamped) imgClamped(p) = glm::clamp(imgClamped(p), 0.0f, 1.0f);
+        for(auto p : imgClamped.coords()) imgClamped(p) = glm::clamp(imgClamped(p), 0.0f, 1.0f);
 
 		auto imgTex = uploadTex(imgClamped);
 		auto imgTexCentered = shade(imgTex,
