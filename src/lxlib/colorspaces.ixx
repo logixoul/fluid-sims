@@ -3,8 +3,9 @@ module;
 
 export module lxlib.colorspaces;
 
-export struct HslF
-{
+export namespace lx {
+    struct HslF
+    {
     float h, s, l;
     HslF(float h, float s, float l)
     {
@@ -39,10 +40,10 @@ export struct HslF
         }
     }
 
-};
+    };
 
-export struct HsvF
-{
+  struct HsvF
+    {
     float h, s, v;
 
     HsvF(float h, float s, float v)
@@ -81,10 +82,10 @@ export struct HsvF
             h /= 6.0f;
         }
     }
-};
+    };
 
-export vec3 FromHSL(HslF const& hsl)
-{
+    vec3 FromHSL(lx::HslF const& hsl)
+    {
     float v;
     float r, g, b;
 
@@ -144,10 +145,10 @@ export vec3 FromHSL(HslF const& hsl)
         }
     }
     return vec3(r, g, b);
-}
+   }
 
-export vec3 FromHSV(HsvF const& hsv)
-{
+    vec3 FromHSV(lx::HsvF const& hsv)
+    {
     float H = hsv.h;
     float S = hsv.s;
     float V = hsv.v;
@@ -175,4 +176,5 @@ export vec3 FromHSV(HsvF const& hsv)
         case 4: return vec3(t, p, V);
         default: return vec3(V, p, q);
     }
+   }
 }

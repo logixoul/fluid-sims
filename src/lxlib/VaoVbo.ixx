@@ -7,12 +7,13 @@ module;
 
 export module lxlib.VaoVbo;
 
-export class VBO {
-public:
-    VBO() {
-        glGenBuffers(1, &m_id);
-        if (!m_id) throw std::runtime_error("glGenBuffers failed");
-    }
+export namespace lx {
+    class VBO {
+    public:
+        VBO() {
+            glGenBuffers(1, &m_id);
+            if (!m_id) throw std::runtime_error("glGenBuffers failed");
+        }
 
     ~VBO() {
         if (m_id) glDeleteBuffers(1, &m_id);
@@ -37,10 +38,10 @@ public:
 private:
     GLuint m_id = 0;
     mutable GLenum m_target = GL_ARRAY_BUFFER;
-};
+  };
 
-export class VAO {
-public:
+  class VAO {
+    public:
     VAO() {
         glGenVertexArrays(1, &m_id);
         if (!m_id) throw std::runtime_error("glGenVertexArrays failed");
@@ -69,16 +70,16 @@ public:
 
 private:
     GLuint m_id = 0;
-};
+  };
 
-export struct QuadGpu {
-    VAO vao;
-    VBO vboPos;
-    VBO vboUV;
-};
+ struct QuadGpu {
+        lx::VAO vao;
+        lx::VBO vboPos;
+        lx::VBO vboUV;
+    };
 
-export inline std::shared_ptr<QuadGpu> createQuadVAO_VBOs()
-{
+ inline std::shared_ptr<lx::QuadGpu> createQuadVAO_VBOs()
+    {
     static const float positions[6][4] = {
         {0.f, 0.f, 0.f, 1.f},
         {0.f, 1.f, 0.f, 1.f},
@@ -97,7 +98,7 @@ export inline std::shared_ptr<QuadGpu> createQuadVAO_VBOs()
         {1.f, 0.f},
     };
 
-    auto q = std::make_shared<QuadGpu>();
+       auto q = std::make_shared<lx::QuadGpu>();
 
     q->vao.bind();
 
@@ -109,8 +110,9 @@ export inline std::shared_ptr<QuadGpu> createQuadVAO_VBOs()
     q->vboUV.bind(GL_ARRAY_BUFFER);
     q->vao.defineAttrib(1, 2, GL_FLOAT, GL_FALSE, 2 * (GLsizei)sizeof(float), (const void*)0);
 
-    VBO::unbind(GL_ARRAY_BUFFER);
-    VAO::unbind();
+       lx::VBO::unbind(GL_ARRAY_BUFFER);
+        lx::VAO::unbind();
 
-    return q;
+       return q;
+    }
 }

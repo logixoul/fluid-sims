@@ -12,8 +12,9 @@ template<class T> T& getOpt_Base(std::string const& name, T defaultValue) {
 	return m[name];
 }
 
-export struct ConfigManager3
-{
+export namespace lx {
+	struct ConfigManager3
+	{
 private:
 	toml::table tbl;
 public:
@@ -59,4 +60,5 @@ public:
 	{
 		ImGui::End();
 	}
-};
+  };
+}

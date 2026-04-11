@@ -5,57 +5,53 @@ export module lxlib.TextureCache;
 
 import lxlib.TextureRef;
 
-export struct TextureCacheKey {
-	glm::ivec2 size;
-	GLenum ifmt;
-	bool allocateMipmaps = false;
-	
-	bool operator==(const TextureCacheKey &other) const
-	{
-		return size == other.size
-			&& ifmt == other.ifmt
-			&& allocateMipmaps == other.allocateMipmaps
-			;
-	}
-};
+export namespace lx {
+	struct TextureCacheKey {
+		glm::ivec2 size;
+		GLenum ifmt;
+		bool allocateMipmaps = false;
 
-export namespace std {
+		bool operator==(const lx::TextureCacheKey &other) const
+		{
+			return size == other.size
+				&& ifmt == other.ifmt
+				&& allocateMipmaps == other.allocateMipmaps
+				;
+		}
+	};
 
-	template <>
-	struct hash<TextureCacheKey>
-	{
-		std::size_t operator()(const TextureCacheKey& k) const
+	struct TextureCacheKeyHasher {
+		std::size_t operator()(lx::TextureCacheKey const& k) const
 		{
 			return k.size.x ^ k.size.y ^ k.ifmt ^ k.allocateMipmaps;
 		}
 	};
 
+	class TextureCache
+	{
+	public:
+		static lx::TextureCache* instance();
+		lx::gl::TextureRef get(lx::TextureCacheKey const& key);
+		static void clearCaches();
+
+		static void printTextures();
+
+		static void deleteTexture(lx::gl::TextureRef tex);
+
+	private:
+		TextureCache();
+
+     std::unordered_map<lx::TextureCacheKey, std::vector<lx::gl::TextureRef>, lx::TextureCacheKeyHasher> cache;
+	};
 }
-
-export class TextureCache
-{
-public:
-	static TextureCache* instance();
-	gl::TextureRef get(TextureCacheKey const& key);
-	static void clearCaches();
-
-	static void printTextures();
-
-	static void deleteTexture(gl::TextureRef tex);
-
-private:
-	TextureCache();
-
-	std::unordered_map<TextureCacheKey, std::vector<gl::TextureRef>> cache;
-};
 
 // --- Implementations from TextureCache.cpp ---
 
 int count1;
 int count2;
 
-TextureCache* TextureCache::instance() {
-	static TextureCache obj;
+lx::TextureCache* lx::TextureCache::instance() {
+	static lx::TextureCache obj;
 	return &obj;
 }
 
@@ -77,30 +73,30 @@ std::map<int, int> fmtMapBpp = {
 	{ GL_RGB8, 3 },
 };
 
-TextureCache::TextureCache() {
+lx::TextureCache::TextureCache() {
 }
 
-static gl::TextureRef allocTex(TextureCacheKey const& key) {
-	gl::Texture::Format fmt;
+static lx::gl::TextureRef allocTex(lx::TextureCacheKey const& key) {
+	lx::gl::Texture::Format fmt;
 	fmt.setInternalFormat(key.ifmt);
 	fmt.setImmutableStorage(true);
 	fmt.enableMipmapping(key.allocateMipmaps);
-	auto tex = gl::Texture::create(key.size.x, key.size.y, fmt);
+    auto tex = lx::gl::Texture::create(key.size.x, key.size.y, fmt);
 	return tex;
 }
 
-void setDefaults(gl::TextureRef tex) {
+void setDefaults(lx::gl::TextureRef tex) {
 	tex->setMinFilter(GL_LINEAR);
 	tex->setMagFilter(GL_LINEAR);
 	tex->setWrap(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
 }
 
-gl::TextureRef TextureCache::get(TextureCacheKey const & key)
+lx::gl::TextureRef lx::TextureCache::get(lx::TextureCacheKey const & key)
 {
 	auto it = cache.find(key);
 	if (it == cache.end()) {
 		auto tex = allocTex(key);
-		std::vector<gl::TextureRef> vec{ tex };
+     std::vector<lx::gl::TextureRef> vec{ tex };
 		cache.insert(std::make_pair(key, vec));
 		setDefaults(tex);
 		return tex;
@@ -126,12 +122,12 @@ gl::TextureRef TextureCache::get(TextureCacheKey const & key)
 	}
 }
 
-void TextureCache::clearCaches()
+void lx::TextureCache::clearCaches()
 {
 	auto& cache = instance()->cache;
 	
 	for (auto& pair : cache) {
-		std::vector<gl::TextureRef> remaining;
+      std::vector<lx::gl::TextureRef> remaining;
 		for (auto& tex : pair.second) {
 			if (tex.use_count() > 1) {
 				remaining.push_back(tex);
@@ -141,17 +137,17 @@ void TextureCache::clearCaches()
 	}
 }
 
-void TextureCache::printTextures()
+void lx::TextureCache::printTextures()
 {
 	throw std::runtime_error("TextureCache::printTextures(): Not implemented");
 }
 
-void TextureCache::deleteTexture(gl::TextureRef texToDel)
+void lx::TextureCache::deleteTexture(lx::gl::TextureRef texToDel)
 {
 	auto& cache = instance()->cache;
 
 	for (auto& pair : cache) {
-		std::vector<gl::TextureRef> remaining;
+      std::vector<lx::gl::TextureRef> remaining;
 		for (auto& tex : pair.second) {
 			if (tex != texToDel) {
 				remaining.push_back(tex);

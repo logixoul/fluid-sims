@@ -9,36 +9,35 @@ import lxlib.TextureRef;
 import lxlib.stuff;
 import lxlib.gpgpu;
 
-// Forward declarations (exported interface)
-export namespace gpuBlur {
-	gl::TextureRef run(gl::TextureRef src, int lvls);
-	gl::TextureRef run_longtail(gl::TextureRef src, int lvls, float lvlmul, float hscale = .5f, float vscale = .5f);
-	float getGaussW();
-	float gauss(float f, float width);
-	gl::TextureRef upscale(gl::TextureRef src, ivec2 toSize);
-	gl::TextureRef upscale(gl::TextureRef src, float hscale, float vscale);
-	gl::TextureRef singleblur(gl::TextureRef src, float hscale, float vscale, GLenum wrap = GL_CLAMP_TO_BORDER);
-	std::vector<gl::TextureRef> buildGaussianPyramid(gl::TextureRef const& src, float scalePerLevel);
-}
+export namespace lx {
+	namespace gpuBlur {
+		lx::gl::TextureRef run(lx::gl::TextureRef src, int lvls);
+		lx::gl::TextureRef run_longtail(lx::gl::TextureRef src, int lvls, float lvlmul, float hscale = .5f, float vscale = .5f);
+		float getGaussW();
+		float gauss(float f, float width);
+		lx::gl::TextureRef upscale(lx::gl::TextureRef src, ivec2 toSize);
+		lx::gl::TextureRef upscale(lx::gl::TextureRef src, float hscale, float vscale);
+		lx::gl::TextureRef singleblur(lx::gl::TextureRef src, float hscale, float vscale, GLenum wrap = GL_CLAMP_TO_BORDER);
+		std::vector<lx::gl::TextureRef> buildGaussianPyramid(lx::gl::TextureRef const& src, float scalePerLevel);
+	}
 
-// Implementations
-namespace gpuBlur {
+	namespace gpuBlur {
 
-	static float logAB(float a, float b) {
+  float logAB(float a, float b) {
 		return log(b) / log(a);
 	}
 
-	gl::TextureRef run(gl::TextureRef src, int lvls) {
-		auto state = shade(src, "_out = texture();");
+      lx::gl::TextureRef run(lx::gl::TextureRef src, int lvls) {
+			auto state = lx::shade(src, "_out = texture();");
 
 		for (int i = 0; i < lvls; i++) {
 			state = singleblur(state, .5, .5);
 		}
-		state = upscale(state, src->getSize());
+         state = lx::gpuBlur::upscale(state, src->getSize());
 		return state;
 	}
 
-	gl::TextureRef run_longtail(gl::TextureRef src, int lvls, float lvlmul, float hscale, float vscale) {
+       lx::gl::TextureRef run_longtail(lx::gl::TextureRef src, int lvls, float lvlmul, float hscale, float vscale) {
 		vector<float> weights;
 		float sumw = 0.0f;
 		int maxHLvls = floor(logAB(1.0f / hscale, (float)src->getWidth()));
@@ -54,25 +53,25 @@ namespace gpuBlur {
 		for (float& w : weights) {
 			w /= sumw;
 		}
-		vector<gl::TextureRef> zoomstates;
+          vector<lx::gl::TextureRef> zoomstates;
 		zoomstates.push_back(src);
-		zoomstates[0] = shade(zoomstates[0],
+            zoomstates[0] = lx::shade(zoomstates[0],
 			"_out = texture().xyz * _mul;",
-			ShadeOpts().uniform("_mul", 1.0f / sumw));
+              lx::ShadeOpts().uniform("_mul", 1.0f / sumw));
 		for (int i = 0; i < lvls; i++) {
-			auto newZoomstate = singleblur(zoomstates[i], hscale, vscale);
+              auto newZoomstate = lx::gpuBlur::singleblur(zoomstates[i], hscale, vscale);
 			zoomstates.push_back(newZoomstate);
 			if (newZoomstate->getWidth() < 1 || newZoomstate->getHeight() < 1) throw runtime_error("too many blur levels");
 		}
 		for (int i = lvls - 1; i > 0; i--) {
-			auto upscaled = upscale(zoomstates[i], zoomstates[i - 1]->getSize());
+               auto upscaled = lx::gpuBlur::upscale(zoomstates[i], zoomstates[i - 1]->getSize());
 			float w = pow(lvlmul, float(i)); // tmp copypaste
-			zoomstates[i - 1] = shade({ zoomstates[i - 1], upscaled },
+          zoomstates[i - 1] = lx::shade({ zoomstates[i - 1], upscaled },
               "vec4 acc = texture(tex0);"
 				"vec4 nextzoom = texture(tex1);"
 				"vec4 c = acc + nextzoom * _mul;"
 				"_out = c;"
-				, ShadeOpts().uniform("_mul", w)
+                , lx::ShadeOpts().uniform("_mul", w)
 			);
 		}
 		return zoomstates[0];
@@ -87,11 +86,11 @@ namespace gpuBlur {
 		return exp(-f * f / (width*width));
 	}
 
-	gl::TextureRef upscale(gl::TextureRef src, ivec2 toSize) {
-		return upscale(src, float(toSize.x) / src->getWidth(), float(toSize.y) / src->getHeight());
+      lx::gl::TextureRef upscale(lx::gl::TextureRef src, ivec2 toSize) {
+			return lx::gpuBlur::upscale(src, float(toSize.x) / src->getWidth(), float(toSize.y) / src->getHeight());
 	}
 
-	gl::TextureRef upscale(gl::TextureRef src, float hscale, float vscale) {
+        lx::gl::TextureRef upscale(lx::gl::TextureRef src, float hscale, float vscale) {
 		string lib =
 			"float gauss(float f, float width) {"
 			"	return exp(-f*f/(width*width));"
@@ -121,16 +120,16 @@ namespace gpuBlur {
 			"	wP1/=sum;"
 			"	_out = wM1*aM1 + w0*a0 + wP1*aP1;";
       lx::setWrapBlack(src);
-		auto hscaled = shade(src, shader,
-			ShadeOpts()
+           auto hscaled = lx::shade(src, shader,
+				lx::ShadeOpts()
 				.scale(hscale, 1.0f)
 				.uniform("GB2_offsetX", 1.0f)
 				.uniform("GB2_offsetY", 0.0f)
 				.functions(lib)
 			);
       lx::setWrapBlack(hscaled);
-		auto vscaled = shade(hscaled, shader,
-			ShadeOpts()
+           auto vscaled = lx::shade(hscaled, shader,
+				lx::ShadeOpts()
 				.scale(1.0f, vscale)
 				.uniform("GB2_offsetX", 0.0f)
 				.uniform("GB2_offsetY", 1.0f)
@@ -139,7 +138,7 @@ namespace gpuBlur {
 		return vscaled;
 	}
 
-	gl::TextureRef singleblur(gl::TextureRef src, float hscale, float vscale, GLenum wrap) {
+        lx::gl::TextureRef singleblur(lx::gl::TextureRef src, float hscale, float vscale, GLenum wrap) {
 		GPU_SCOPE("singleblur");
 		float gaussW = getGaussW();
 		float w0 = gauss(0.0, gaussW);
@@ -163,23 +162,23 @@ namespace gpuBlur {
 			"_out = w2 * (aM2 + aP2) + w1 * (aM1 + aP1) + w0 * a0;";
 
      lx::setWrap(src, wrap);
-		auto hscaled = shade(src, shader,
-			ShadeOpts()
+           auto hscaled = lx::shade(src, shader,
+				lx::ShadeOpts()
 				.scale(hscale, 1.0f)
 				.uniform("GB2_offsetX", 1.0f)
 				.uniform("GB2_offsetY", 0.0f)
 			);
      lx::setWrap(hscaled, wrap);
-		auto vscaled = shade(hscaled, shader,
-			ShadeOpts()
+           auto vscaled = lx::shade(hscaled, shader,
+				lx::ShadeOpts()
 			.uniform("GB2_offsetX", 0.0f)
 			.uniform("GB2_offsetY", 1.0f)
 			.scale(1.0f, vscale));
 		return vscaled;
 	}
 
-	std::vector<gl::TextureRef> buildGaussianPyramid(gl::TextureRef const& src, float scalePerLevel) {
-		std::vector<gl::TextureRef> result;
+      std::vector<lx::gl::TextureRef> buildGaussianPyramid(lx::gl::TextureRef const& src, float scalePerLevel) {
+			std::vector<lx::gl::TextureRef> result;
 		result.push_back(src);
 		auto state = src;
 		while (true) {
@@ -187,10 +186,10 @@ namespace gpuBlur {
 			if (minDim <= 2)
 				break;
 			ivec2 dstSize = ivec2(state->getWidth() * scalePerLevel, state->getHeight() * scalePerLevel);
-			state = singleblur(state, scalePerLevel, scalePerLevel, GL_CLAMP_TO_BORDER);
+            state = lx::gpuBlur::singleblur(state, scalePerLevel, scalePerLevel, GL_CLAMP_TO_BORDER);
 			result.push_back(state);
 		}
 		return result;
 	}
-
-} // namespace gpuBlur
+	}
+}

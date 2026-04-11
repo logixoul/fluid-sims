@@ -20,9 +20,9 @@ int wsx = 700, wsy = 700;
 
 using namespace ThisSketch;
 
-Array2D<float> img(256, 256);
+lx::Array2D<float> img(256, 256);
 
-export struct MultiscaleGrowthSketch : public SketchBase {
+export struct MultiscaleGrowthSketch : public lx::SketchBase {
 	struct Options {
 		float morphogenesisStrength;
 		const float contrastizeStrength = 1.0f;
@@ -31,7 +31,7 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 		bool multiscale;
 		bool binarizePostprocessing;
 		float highPassStrength;
-		ConfigManager3 cfg;
+		lx::ConfigManager3 cfg;
 
 		Options() : cfg("MultiscaleGrowthConfig.toml") {}
 
@@ -73,30 +73,30 @@ export struct MultiscaleGrowthSketch : public SketchBase {
          img(p) = lx::randFloat();
 		}
 	}
-	Array2D<float> updateSingleScale(Array2D<float> aImg)
+	lx::Array2D<float> updateSingleScale(lx::Array2D<float> aImg)
 	{
 		auto img = aImg.clone();
 
-		auto gradients = ::get_gradients<float, WrapModes::Clamp>(img);
+		auto gradients = lx::get_gradients<float, lx::WrapModes::Clamp>(img);
 		auto img2 = img.clone();
         for(auto p : img.coords()) {
 			vec2 const& pf = vec2(p);
 			vec2 const& grad = gradients(p);
            vec2 const& gradN = lx::safeNormalized(grad);
 			vec2 const& gradNPerp = perpLeft(gradN);
-			float add = -hessianDirectionalSecondDeriv<float, WrapModes::Clamp>(img, p, gradNPerp);
-			splatBilinearPoint<float, WrapModes::Clamp>(img2, pf - gradN * add, add * options.morphogenesisStrength);
+			float add = -hessianDirectionalSecondDeriv<float, lx::WrapModes::Clamp>(img, p, gradNPerp);
+			lx::splatBilinearPoint<float, lx::WrapModes::Clamp>(img2, pf - gradN * add, add * options.morphogenesisStrength);
 		}
-		auto kernel = getGaussianKernel(3, sigmaFromKsize(3));
+		auto kernel = lx::getGaussianKernel(3, lx::sigmaFromKsize(3));
 		//auto blurredImg2 = ::separableConvolve<float, WrapModes::Clamp>(img2, kernel);
-		auto blurredImg2 = ThisSketch::gaussianBlur3x3<float, WrapModes::Clamp>(img2);
+		auto blurredImg2 = ThisSketch::gaussianBlur3x3<float, lx::WrapModes::Clamp>(img2);
 		img = blurredImg2;
 		img = applyVerticalGradient(img);
 
 		return img;
 	}
 	Img applyVerticalGradient(Img const& img) {
-		Img result = ::uninitializedArrayLike(img);
+		Img result = lx::uninitializedArrayLike(img);
      for(auto p : result.coords()) {
            float floatY = p.y / (float)result.height();
 			floatY = glm::mix(options.blendWeaken, 1.0f - options.blendWeaken, floatY);
@@ -136,20 +136,20 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 		return updatedScales[0];
 	}
 	void update() {
-		Array2D<float> newImg;
+		lx::Array2D<float> newImg;
 		if (options.multiscale)
 			newImg = multiscaleApply(img, [this](auto arg) { return updateSingleScale(arg); });
 		else
 			newImg = updateSingleScale(img);
 		if(!isPaused)
 			img = newImg;
-		img = to01(img);
+		img = lx::to01(img);
 
 		//testMatchingFunctionality();
 	}
 
 	void testMatchingFunctionality() {
-		Array2D<float> arr(100, 100);
+		lx::Array2D<float> arr(100, 100);
         for(auto p : arr.coords()) {
          arr(p) = lx::randFloat();
 		}
@@ -170,23 +170,23 @@ export struct MultiscaleGrowthSketch : public SketchBase {
 		}
 	}
 
-	static gl::TextureRef gpuHighpass(gl::TextureRef in, float strength) {
+	static lx::gl::TextureRef gpuHighpass(lx::gl::TextureRef in, float strength) {
 		auto blurred = gpuBlurClaude::blurWithInvKernel(in);
-		auto highpassed = shade({ in, blurred }, MULTILINE(
+		auto highpassed = lx::shade({ in, blurred }, MULTILINE(
 			float f = texture().x;
        float fBlurred = texture(tex1).x;
 		float highPassed = f - fBlurred * highPassStrength;
 		_out.r = highPassed;
-			), ShadeOpts().uniform("highPassStrength", strength)
+			), lx::ShadeOpts().uniform("highPassStrength", strength)
 			);
 		return highpassed;
 	}
-	gl::TextureRef postprocess() {
+	lx::gl::TextureRef postprocess() {
 		auto imgClamped = img.clone();
         for(auto p : imgClamped.coords()) imgClamped(p) = glm::clamp(imgClamped(p), 0.0f, 1.0f);
 
         auto imgTex = lx::uploadTex(imgClamped);
-		auto imgTexCentered = shade(imgTex,
+		auto imgTexCentered = lx::shade(imgTex,
 			"float f = texture().x;"
 			"_out.r = f - .5;"
 		);
@@ -196,41 +196,42 @@ export struct MultiscaleGrowthSketch : public SketchBase {
       auto imgHighpassed = lx::downloadTex<float>(imgTexHighpassed);
 
 		auto pyramid = buildGaussianPyramid(imgHighpassed);
-		auto stateTex = shade(imgTex, "_out = vec4(0.0);", ShadeOpts().dstRectSize(windowSize));
+		auto stateTex = lx::shade(imgTex, "_out = vec4(0.0);", lx::ShadeOpts().dstRectSize(windowSize));
 		for (int i = pyramid.size() - 1; i >= 0; i--) {
 			auto& thisLevel = pyramid[i];
            auto thisLevelTex = lx::uploadTex(thisLevel);
-			auto thisLevelTexContrastized = shade(thisLevelTex,
+			auto thisLevelTexContrastized = lx::shade(thisLevelTex,
 				"float f = texture().x;"
 				"float fw = fwidth(f);"
 				"f = smoothstep(-fw/2.0, fw/2.0, f);"
-				"_out.r = f;", ShadeOpts().dstRectSize(ivec2(wsx, wsy)));
-			stateTex = op(stateTex) + thisLevelTexContrastized;
+				"_out.r = f;", lx::ShadeOpts().dstRectSize(ivec2(wsx, wsy)));
+			stateTex = lx::op(stateTex) + thisLevelTexContrastized;
 		}
-		stateTex = op(stateTex) / float(pyramid.size());
+		stateTex = lx::op(stateTex) / float(pyramid.size());
 		//stateTex = (op(stateTex) + op(gpuBlur::run(stateTex, 3))*2.0f) / 2;
-		stateTex = shade(stateTex, MULTILINE(
+		stateTex = lx::shade(stateTex, MULTILINE(
 			float val = texture().x;
 		vec3 fire = vec3(min(val * 1.5, 1.), pow(val, 2.5), pow(val, 12.));
 		_out.rgb = fire;
 			),
-			ShadeOpts().ifmt(GL_RGBA16F));
+			lx::ShadeOpts().ifmt(GL_RGBA16F));
 		return stateTex;
 	}
 	void draw()
 	{
-		lxClear();
+		lx::lxClear();
 		options.update();
 
-        gl::TextureRef tex = lx::uploadTex(img);
+        lx::gl::TextureRef tex = lx::uploadTex(img);
 		if (options.binarizePostprocessing) {
 			tex = postprocess();
 		}
 		else {
 			tex = redToLuminance(tex);
 		}
-		lxDraw(tex);
+		lx::lxDraw(tex);
 	}
 };
 
 export using StartupSketch = MultiscaleGrowthSketch;
+

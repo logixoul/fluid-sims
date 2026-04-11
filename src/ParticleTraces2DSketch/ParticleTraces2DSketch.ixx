@@ -31,8 +31,8 @@ vec3 complexToColor_HSV(vec2 comp) {
 	float lightness = length(comp);
 	lightness = .5f;
 	//lightness /= lightness + 1.0f;
-	HslF hsl(hue, 1.0f, lightness);
-	return FromHSL(hsl);
+ lx::HslF hsl(hue, 1.0f, lightness);
+	return lx::FromHSL(hsl);
 }
 
 struct Walker {
@@ -93,12 +93,12 @@ struct Walker {
 
 vector<Walker> walkers;
 
-export struct ParticleTraces2DSketch : public SketchBase {
-	GlslProgRef colorProg;
+export struct ParticleTraces2DSketch : public lx::SketchBase {
+	lx::GlslProgRef colorProg;
 
 	void setup()
 	{
-		colorProg = std::make_shared<GlslProg>(
+     colorProg = std::make_shared<lx::GlslProg>(
 			"#version 330\n"
 			"in vec4 vColor;\n"
 			"out vec4 outColor;\n"
@@ -145,8 +145,8 @@ export struct ParticleTraces2DSketch : public SketchBase {
 
 	void drawPoints(std::vector<vec2> const& pos, std::vector<vec4> const& color)
 	{
-		VAO vao;
-		VBO vboPos, vboColor;
+        lx::VAO vao;
+		lx::VBO vboPos, vboColor;
 		
 		vao.bind();
 
@@ -160,8 +160,8 @@ export struct ParticleTraces2DSketch : public SketchBase {
 
 		glDrawArrays(GL_POINTS, 0, (GLsizei)pos.size());
 
-		VBO::unbind(GL_ARRAY_BUFFER);
-		VAO::unbind();
+       lx::VBO::unbind(GL_ARRAY_BUFFER);
+		lx::VAO::unbind();
 	}
 
 	int elapsedFrames = 0;
@@ -172,12 +172,12 @@ export struct ParticleTraces2DSketch : public SketchBase {
 		//mat2 rotMat = mat2(rotMat3);
 		auto refVec = vec2(sinf(t), cosf(t));
 
-		lxClear();
-		static Array2D<vec3> sizeSource(sx, sy);
+      lx::lxClear();
+		static lx::Array2D<vec3> sizeSource(sx, sy);
       static auto sizeSourceTex = lx::uploadTex(sizeSource);
-		static auto walkerTex = shade(sizeSourceTex, "_out.rgb = vec3(0.0);");
+      static auto walkerTex = lx::shade(sizeSourceTex, "_out.rgb = vec3(0.0);");
 		if (!pause) {
-			walkerTex = shade(walkerTex, "_out.rgb = texture().xyz * 0.993;");
+          walkerTex = lx::shade(walkerTex, "_out.rgb = texture().xyz * 0.993;");
 
 			glPointSize(2.5);
 			std::vector<vec4> color;
@@ -210,15 +210,15 @@ export struct ParticleTraces2DSketch : public SketchBase {
                lx::endRTT();
 			}
 		}
-		auto walkerTexThres = shade(walkerTex,
+      auto walkerTexThres = lx::shade(walkerTex,
 			"vec3 c = texture().xyz;"
 			"float avg = dot(c, vec3(1)/3.0f);"
 			"if(avg < .25)"
 			"	 c = vec3(0);"
 			"_out.rgb = c;"
 		);
-		auto walkerTexB = gpuBlur::run(walkerTexThres, 4);
-		auto walkerTex2 = shade({ walkerTex, walkerTexB },
+      auto walkerTexB = lx::gpuBlur::run(walkerTexThres, 4);
+		auto walkerTex2 = lx::shade({ walkerTex, walkerTexB },
 			"vec3 c = texture().xyz;"
 			"vec3 hsl = rgb2hsl(c);"
 			"hsl.z /= .5;"
@@ -227,12 +227,12 @@ export struct ParticleTraces2DSketch : public SketchBase {
 			"c = hsl2rgb(hsl);"
            "c += texture(tex1).xyz;"
 			"_out.rgb = c;",
-			ShadeOpts()
+         lx::ShadeOpts()
 				.ifmt(GL_RGB32F)
               .functions(lx::FileCache::get("stuff.fs"))
 		);
 		glViewport(0, 0, wsx, wsy);
 		glDisable(GL_BLEND);
-		lxDraw(walkerTex2);
+     lx::lxDraw(walkerTex2);
 	}
 };

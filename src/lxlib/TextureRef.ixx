@@ -11,11 +11,12 @@ import lxlib.Rect;
 extern void drawRect();
 extern glm::ivec2 windowSize;
 
-export class Texture
-{
-public:
-	class Format {
+export namespace lx {
+	class Texture
+	{
 	public:
+		class Format {
+		public:
 		GLint mInternalFormat = -1;
 		bool mImmutableStorage = false;
 		bool mMipmapping = false;
@@ -32,17 +33,17 @@ public:
 		Format& loadTopDown(bool loadTopDown = true) { mLoadTopDown = loadTopDown; return *this; }
 		Format& wrap(GLenum wrap) { mWrapS = mWrapT = mWrapR = wrap; return *this; }
 		Format& internalFormat(GLenum internalFormat) { mInternalFormat = internalFormat; return *this; }
-	};
-private:
+      };
+	private:
 	GLuint mId;
 	Format mFormat;
 	int mWidth, mHeight;
 	bool mTopDown = false;
-public:
-	Texture(int width, int height, Format const& format) {
+ public:
+		Texture(int width, int height, lx::Texture::Format const& format) {
 		init(width, height, format);
 	}
-	Texture(std::string filePath, Format const& format) {
+       Texture(std::string filePath, lx::Texture::Format const& format) {
 		int width, height, n;
 		filePath = "../../assets/" + filePath;
 		unsigned char *data = stbi_load(filePath.c_str(), &width, &height, &n, 4);
@@ -102,15 +103,15 @@ public:
 	GLenum getTarget() const {
 		return GL_TEXTURE_2D;
 	}
-	static std::shared_ptr<Texture> create(int width, int height, Format const& format) {
-		return std::make_shared<Texture>(width, height, format);
+       static std::shared_ptr<lx::Texture> create(int width, int height, lx::Texture::Format const& format) {
+			return std::make_shared<lx::Texture>(width, height, format);
 	}
-	static std::shared_ptr<Texture> create(std::string filepath, Format const& format) {
-		return std::make_shared<Texture>(filepath, format);
+        static std::shared_ptr<lx::Texture> create(std::string filepath, lx::Texture::Format const& format) {
+			return std::make_shared<lx::Texture>(filepath, format);
 	}
 
-private:
-	void init(int width, int height, Format const& format) {
+    private:
+		void init(int width, int height, lx::Texture::Format const& format) {
 		mFormat = format;
 		mWidth = width;
 		mHeight = height;
@@ -123,12 +124,12 @@ private:
 		else
 			levels = 1;
 		glTexStorage2D(GL_TEXTURE_2D, levels, format.mInternalFormat, width, height);
-	}
-};
+   }
+	};
 
-export typedef std::shared_ptr<Texture> TextureRef;
+	typedef std::shared_ptr<lx::Texture> TextureRef;
 
-export inline const std::string genericVertexShaderSource =
+	inline const std::string genericVertexShaderSource =
 "#version 150\n"
 "in vec4 ciPosition;"
 "in vec2 ciTexCoord0;"
@@ -141,7 +142,7 @@ export inline const std::string genericVertexShaderSource =
 "\ttexCoord = uTexCoordOffset + uTexCoordScale * texCoord;"
 "}";
 
-export inline const std::string genericFragmentShaderSource =
+   inline const std::string genericFragmentShaderSource =
 "#version 150\n"
 "in highp vec2 texCoord;"
 "uniform sampler2D uTex;"
@@ -150,11 +151,11 @@ export inline const std::string genericFragmentShaderSource =
 "\tgl_FragColor = texture2D(uTex, texCoord);"
 "}";
 
-export void lxDraw(TextureRef const& tex, Rect<float> const& destRect) {
+    void lxDraw(lx::TextureRef const& tex, lx::Rect<float> const& destRect) {
 	glActiveTexture(GL_TEXTURE0);
 	tex->bind();
 
-	static const auto glsl = std::make_shared<GlslProg>(genericFragmentShaderSource, genericVertexShaderSource);
+        static const auto glsl = std::make_shared<lx::GlslProg>(lx::genericFragmentShaderSource, lx::genericVertexShaderSource);
 	glsl->bind();
 	glsl->uniform("uTex", 0);
 	glsl->uniform("uPositionOffset", destRect.topLeft());
@@ -162,24 +163,25 @@ export void lxDraw(TextureRef const& tex, Rect<float> const& destRect) {
 	glsl->uniform("uTexCoordOffset", glm::vec2(0.0f, 1.0f));
 	glsl->uniform("uTexCoordScale", glm::vec2(1.0f, -1.0f));
 
-	static std::shared_ptr<QuadGpu> quad = createQuadVAO_VBOs();
+        static std::shared_ptr<lx::QuadGpu> quad = lx::createQuadVAO_VBOs();
 	quad->vao.bind();
 	glDrawArrays(GL_TRIANGLES, 0, 6);
-	VAO::unbind();
-}
+      lx::VAO::unbind();
+	}
 
-export void lxDraw(TextureRef const& tex) {
+ void lxDraw(lx::TextureRef const& tex) {
 	auto upperLeft = glm::vec2(0, 0);
 	auto bottomRight = tex->getSize();
-	lxDraw(tex, Rect<float>::fromBounds(upperLeft, bottomRight));
+       lx::lxDraw(tex, lx::Rect<float>::fromBounds(upperLeft, bottomRight));
 }
 
-export void lxClear() {
+ void lxClear() {
 	glClearColor(0, 0, 0, 0);
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
-export namespace gl {
-	typedef ::TextureRef TextureRef;
-	typedef ::Texture Texture;
+   namespace gl {
+		typedef lx::TextureRef TextureRef;
+		typedef lx::Texture Texture;
+	}
 }

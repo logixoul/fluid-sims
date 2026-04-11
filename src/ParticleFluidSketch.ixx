@@ -12,8 +12,8 @@ import lxlib.SketchBase;
 import lxlib.Array2D;
 import lxlib.TextureRef;
 
-export struct ParticleFluidSketch : public SketchBase {
-	typedef Array2D<float> Image;
+export struct ParticleFluidSketch : public lx::SketchBase {
+	typedef lx::Array2D<float> Image;
 	const int scale = 4;
 	ivec2 sz;
 
@@ -81,15 +81,15 @@ export struct ParticleFluidSketch : public SketchBase {
 		ImGui::DragFloat("surfaceTensionThreshold", &surfaceTensionThreshold, .1f, .001f, 20.0f, "%.3f", ImGuiSliderFlags_Logarithmic);
 		ImGui::DragFloat("surfaceTensionCoef", &surfaceTensionCoef, .1f, .001f, 20.0f, "%.3f", ImGuiSliderFlags_Logarithmic);
 
-		lxClear();
+      lx::lxClear();
 
-		auto img = Array2D<float>(sz);
+      auto img = lx::Array2D<float>(sz);
 		for (auto& particle : particles) {
-			splatBilinearPoint<float, WrapModes::Clamp>(img, particle.pos, 1);
+          lx::splatBilinearPoint<float, lx::WrapModes::Clamp>(img, particle.pos, 1);
 		}
-		auto accum = Array2D<float>(sz);
+        auto accum = lx::Array2D<float>(sz);
 		for (int i = 3; i < 3 + blurIters; i++) {
-			auto imgb = gaussianBlur<float, WrapModes::Wrap>(img, 1 + pow(2, i));
+           auto imgb = lx::gaussianBlur<float, lx::WrapModes::Wrap>(img, 1 + pow(2, i));
             for(auto p : img.coords()) {
 				accum(p) += imgb(p);
 			}
@@ -99,18 +99,18 @@ export struct ParticleFluidSketch : public SketchBase {
       auto tex = lx::uploadTex(img);
 		//auto tex2 = gpuBlur::run(tex, blurSize);
 		auto tex2 = tex;
-		tex2 = shade(tex2,
+      tex2 = lx::shade(tex2,
 			"float f = texture().x;"
 			"float fw = fwidth(f);"
 			"f = smoothstep(renderThreshold-fw/2, renderThreshold+fw/2, f);"
 			//"f = dFdx(f)+dFdy(f);"
 			"_out.rgb = vec3(0, f*2.0, f);"
-			, ShadeOpts().ifmt(GL_RGB16F).uniform("renderThreshold", renderThreshold)
+           , lx::ShadeOpts().ifmt(GL_RGB16F).uniform("renderThreshold", renderThreshold)
 		);
 
 			//videoWriter->write(tex2);
 
-		lxDraw(tex2);
+       lx::lxDraw(tex2);
 		//lxDraw(tex);
 	}
 	int elapsedFrames = 0;

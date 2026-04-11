@@ -29,17 +29,17 @@ vec3 complexToColor_HSV(vec2 comp) {
 	float lightness = length(comp);
 	lightness = .5f;
 	//lightness /= lightness + 1.0f;
-	HslF hsl(hue, 1.0f, lightness);
-	return FromHSL(hsl);
+ lx::HslF hsl(hue, 1.0f, lightness);
+	return lx::FromHSL(hsl);
 }
 
-export struct VarianceAddSketch : public SketchBase {
-	Array2D<float> state;
-	Array2D<float> get_variance(Array2D<float> const& in);
+export struct VarianceAddSketch : public lx::SketchBase {
+	lx::Array2D<float> state;
+	lx::Array2D<float> get_variance(lx::Array2D<float> const& in);
 
 	void setup()
 	{
-		state = Array2D<float>(sx, sy);
+     state = lx::Array2D<float>(sx, sy);
 		reset();
 	}
 	void reset() {
@@ -67,7 +67,7 @@ export struct VarianceAddSketch : public SketchBase {
       for(auto p : state.coords()) {
 			state(p) += variance(p) * 0.1f;
 		}
-		state = to01(state);
+        state = lx::to01(state);
 	}
 
 	void draw() {
@@ -76,13 +76,13 @@ export struct VarianceAddSketch : public SketchBase {
 		glViewport(0, 0, wsx, wsy);
 		glDisable(GL_BLEND);
         auto tex = lx::uploadTex(state);
-		lxDraw(tex);
+        lx::lxDraw(tex);
 	}
 };
 
-Array2D<float> VarianceAddSketch::get_variance(Array2D<float> const& in)
+lx::Array2D<float> VarianceAddSketch::get_variance(lx::Array2D<float> const& in)
 {
-   Array2D<float> out(in.width(), in.height(), 0.0f);
+   lx::Array2D<float> out(in.width(), in.height(), 0.0f);
 
 	auto clamp_index = [](int v, int maxv) {
 		if (v < 0) return 0;

@@ -15,16 +15,16 @@ import lxlib.GlslProg;
 import lxlib.KissFFTWrapper;
 import lxlib.ConfigManager3;
 
-using FFT = KissFFTWrapper<float>;
+using FFT = lx::KissFFTWrapper<float>;
 
 export module FftRaysSketch;
 
 bool pause;
-export struct FftRaysSketch : public SketchBase {
+export struct FftRaysSketch : public lx::SketchBase {
 	struct Options {
 		float gain;
 		float crepuscularFalloff;
-		ConfigManager3 cfg;
+     lx::ConfigManager3 cfg;
 
 		Options() : cfg("FftRaysConfig.toml") {}
 
@@ -40,12 +40,12 @@ export struct FftRaysSketch : public SketchBase {
 
 	Options options;
 
-	Array2D<FFT::Complex> freqDomainState;
-	Array2D<FFT::Complex> freqDomainStateNext;
-	Array2D<FFT::Complex> spatialDomainState;
-	Array2D<FFT::Complex> spatialDomainStateNext;
-	gl::TextureRef spatialDomainTex;
-	gl::TextureRef spatialDomainTexNext;
+  lx::Array2D<FFT::Complex> freqDomainState;
+	lx::Array2D<FFT::Complex> freqDomainStateNext;
+	lx::Array2D<FFT::Complex> spatialDomainState;
+	lx::Array2D<FFT::Complex> spatialDomainStateNext;
+	lx::gl::TextureRef spatialDomainTex;
+	lx::gl::TextureRef spatialDomainTexNext;
 	
 	const int scale = 1;
 	
@@ -65,8 +65,8 @@ export struct FftRaysSketch : public SketchBase {
 		spatialDomainTexNext = darken(uploadTex(spatialDomainStateNext));
 	}
 
-	Array2D<FFT::Complex> generateRandomState() {
-		Array2D<FFT::Complex> state(windowSize / scale, nofill());
+   lx::Array2D<FFT::Complex> generateRandomState() {
+      lx::Array2D<FFT::Complex> state(windowSize / scale, lx::nofill());
       for(auto p : state.coords()) {
           float wrappedX = std::min((float)p.x, (float)(state.width() - p.x));
 			float wrappedY = std::min((float)p.y, (float)(state.height() - p.y));
@@ -81,7 +81,7 @@ export struct FftRaysSketch : public SketchBase {
 		return state;
 	}
 
-	Array2D<FFT::Complex> spatialDomainStateFromFrequencyDomain(Array2D<FFT::Complex> const& freqDomain) {
+  lx::Array2D<FFT::Complex> spatialDomainStateFromFrequencyDomain(lx::Array2D<FFT::Complex> const& freqDomain) {
 		int const numElements = freqDomain.width() * freqDomain.height();
 		return FFT::inverseFftC2C(freqDomain) / std::sqrt((float)(numElements));
 	}
@@ -117,12 +117,12 @@ export struct FftRaysSketch : public SketchBase {
 		}
 	}
 
-	static gl::TextureRef uploadTex(Array2D<FFT::Complex> const& arr) {
+ static lx::gl::TextureRef uploadTex(lx::Array2D<FFT::Complex> const& arr) {
        return lx::uploadTex(arr.size(), GL_RG16F, GL_RG, GL_FLOAT, (void*)arr.data());
 	}
 
-	gl::TextureRef darken(gl::TextureRef tex) {
-		return shade(tex,
+ lx::gl::TextureRef darken(lx::gl::TextureRef tex) {
+		return lx::shade(tex,
 			"vec2 c = texture().xy;"
 			"float len = length(c);"
 			"float newLen = pow(len, 3.0);"
@@ -139,13 +139,13 @@ export struct FftRaysSketch : public SketchBase {
 
 		const float normalizedStateAge = (float)(elapsedFrames % NUM_FRAMES_BETWEEN_REGENERATIONS) / (float)NUM_FRAMES_BETWEEN_REGENERATIONS;
 		const float interpolationCoef = 1.0f - std::pow(1.0f - normalizedStateAge, 2.0f); // ease out curve
-		auto tex = shade({ spatialDomainTex, spatialDomainTexNext },
+        auto tex = lx::shade({ spatialDomainTex, spatialDomainTexNext },
 			"vec2 state = texture(tex0).rg;"
 			"vec2 stateNext = texture(tex1).rg;"
 			"vec2 mixed = mix(state, stateNext, interpolationCoef);"
 
 			"_out.rgb = complexToColor_HSV(mixed);",
-			ShadeOpts()
+         lx::ShadeOpts()
 				.ifmt(GL_RGB16F)
 				.uniform("interpolationCoef", interpolationCoef)
                 .functions(lx::FileCache::get("stuff.fs") + 
@@ -161,11 +161,11 @@ export struct FftRaysSketch : public SketchBase {
 				}
 			)")
 		);
-		tex = shade(tex, // upscale
+     tex = lx::shade(tex, // upscale
 			"_out = texture();"
-			, ShadeOpts().dstRectSize(vec2(windowSize)));
+           , lx::ShadeOpts().dstRectSize(vec2(windowSize)));
 
-		tex = shade(tex,
+        tex = lx::shade(tex,
           "vec2 localTc = texCoord - 0.5;"
 			"localTc *= 1.5; /* look from 'up high' */"
 			"vec3 col = vec3(0.0);"
@@ -182,12 +182,12 @@ export struct FftRaysSketch : public SketchBase {
 			"	sumWeights += weight;"
 			"}"
 			"_out.rgb = col / sumWeights;",
-				ShadeOpts().uniform("crepuscularFalloff", options.crepuscularFalloff));
+             lx::ShadeOpts().uniform("crepuscularFalloff", options.crepuscularFalloff));
 
-		auto texb = gpuBlur::run(tex, 5);
-		tex = op(tex) + op(texb);
+       auto texb = lx::gpuBlur::run(tex, 5);
+		tex = lx::op(tex) + lx::op(texb);
 		//tex = shade(tex, "_out.rgb = texture().rgb * .1;");
-		tex = shade(tex,
+        tex = lx::shade(tex,
 			"_out.rgb = texture().rgb*gain;"
 			//"_out.rgb = reinhardTonemapLuma(_out.rgb);"
 			//"_out.rgb = uncharted2Tonemap(_out.rgb);" // filmic tonemapping
@@ -196,7 +196,7 @@ export struct FftRaysSketch : public SketchBase {
 			"_out.rgb *= whitePoint * 1.5;"
 			"_out.rgb = desaturateHighlights(_out.rgb);" // desaturate highlights to prevent them from looking too colorful after tonemapping
 			//"_out.rgb = pow(_out.rgb, vec3(1.0/2.2));" // gamma correction
-         , ShadeOpts().uniform("gain", options.gain)
+             , lx::ShadeOpts().uniform("gain", options.gain)
 				.functions(lx::FileCache::get("stuff.fs") +
 					R"(
 					const float whitePoint = 1.4;
@@ -250,7 +250,7 @@ export struct FftRaysSketch : public SketchBase {
 					}
 				)")
 		);
-		lxDraw(tex);
+        lx::lxDraw(tex);
 	}
 };
 

@@ -17,7 +17,7 @@ int WINAPI WinMain(
 ) {
 	try {
 		StartupSketch sketch;
-		SketchScaffold sketchScaffold(&sketch);
+     lx::SketchScaffold sketchScaffold(&sketch);
 		sketchScaffold.setup();
 		sketchScaffold.mainLoop();
 	} catch (std::exception& e) {

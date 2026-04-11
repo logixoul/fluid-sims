@@ -10,18 +10,20 @@ export module lxlib.Array2D;
 #endif
 */
 
-export enum nofill {};
+export namespace lx {
+	enum nofill {};
 
-export typedef glm::tvec3<unsigned char> bytevec3;
+	typedef glm::tvec3<unsigned char> bytevec3;
 
-export template<class T>
-struct Array2D
-{
+	template<class T>
+	struct Array2D
+	{
 private:
 	std::shared_ptr<T[]> dataSharedPtr;
 	int mWidth;
 	int mHeight;
 public:
+       using Self = lx::Array2D<T>;
        struct CoordIterator {
 			ivec2 p;
 			int width;
@@ -97,8 +99,8 @@ public:
 	
   bool contains(ivec2 const& p) const { return p.x >= 0 && p.y >= 0 && p.x < mWidth && p.y < mHeight; }
 
-	Array2D clone() const {
-		Array2D result(size(), nofill());
+       Self clone() const {
+			Self result(size(), lx::nofill());
 		std::copy(begin(), end(), result.begin());
 		return result;
 	}
@@ -132,195 +134,198 @@ private:
 		this->dataSharedPtr = std::shared_ptr<T[]>(dataPtr, deleter);
         mWidth = w;
 		mHeight = h;
-	}
-};
-
-export template<class T>
-Array2D<T> uninitializedArrayLike(Array2D<T> a) {
-	return Array2D<T>(a.size(), nofill());
-}
-
-export template<class T>
-Array2D<T> zerosLike(Array2D<T> a) {
-	return Array2D<T>(a.size(), ::zero<T>());
-}
+   }
+	};
 
 
-template<class TTarget, class TValue>
-TTarget broadcastTo(TValue const& value) {
+   template<class TTarget, class TValue>
+	TTarget broadcastTo(TValue const& value) {
 	// this works because glm vector types have a constructor that takes a single scalar
 	// and broadcasts it to all components, and for non-vector types this just returns
 	// the value as-is
     return TTarget(value);
-}
+   }
 
-template<class T, class TOp>
-Array2D<T>& applyOpInPlace(Array2D<T>& arr, T const& secondArg, TOp const& op)
-{
+    template<class T, class TOp>
+  Array2D<T>& applyOpInPlace(Array2D<T>& arr, T const& secondArg, TOp const& op)
+	{
     for(auto p : arr.coords()) {
 		arr(p) = op(arr(p), secondArg);
 	}
-	return arr;
-}
+     return arr;
+	}
 
-template<class T1, class T2, class TOp>
-Array2D<T1>& applyArrayArrayOpInPlace(Array2D<T1>& arr1, Array2D<T2> const& arr2, TOp const& op)
-{
+ template<class T1, class T2, class TOp>
+    Array2D<T1>& applyArrayArrayOpInPlace(Array2D<T1>& arr1, Array2D<T2> const& arr2, TOp const& op)
+	{
    assert(arr1.width() == arr2.width() && arr1.height() == arr2.height());
    for(auto p : arr1.coords()) {
 		arr1(p) = op(arr1(p), broadcastTo<T1>(arr2(p)));
 	}
- return arr1;
-}
+       return arr1;
+	}
 
-template<class T, class TOp>
-Array2D<T> applyOpOutOfPlace(Array2D<T> const& arr, T const& secondArg, TOp const& op)
-{
-	auto resultArr = uninitializedArrayLike(arr);
+    template<class T, class TOp>
+  Array2D<T> applyOpOutOfPlace(Array2D<T> const& arr, T const& secondArg, TOp const& op)
+	{
+      Array2D<T> resultArr(arr.size(), lx::nofill());
     for(auto p : arr.coords()) {
 		resultArr(p) = op(arr(p), secondArg);
 	}
-	return resultArr;
-}
+       return resultArr;
+	}
 
-template<class T, class TOp>
-Array2D<T> applyOpOutOfPlace(T const& firstArg, Array2D<T> const& arr, TOp const& op)
-{
-	auto resultArr = uninitializedArrayLike(arr);
+    template<class T, class TOp>
+   Array2D<T> applyOpOutOfPlace(T const& firstArg, Array2D<T> const& arr, TOp const& op)
+	{
+      Array2D<T> resultArr(arr.size(), lx::nofill());
     for(auto p : arr.coords()) {
 		resultArr(p) = op(firstArg, arr(p));
 	}
-	return resultArr;
-}
+       return resultArr;
+	}
 
-template<class T1, class T2, class TOp>
-Array2D<T1> applyArrayArrayOpOutOfPlace(Array2D<T1> const& arr1, Array2D<T2> const& arr2, TOp const& op)
-{
+ template<class T1, class T2, class TOp>
+    Array2D<T1> applyArrayArrayOpOutOfPlace(Array2D<T1> const& arr1, Array2D<T2> const& arr2, TOp const& op)
+	{
    assert(arr1.width() == arr2.width() && arr1.height() == arr2.height());
-	auto resultArr = uninitializedArrayLike(arr1);
+       Array2D<T1> resultArr(arr1.size(), lx::nofill());
    for(auto p : arr1.coords()) {
 		resultArr(p) = op(arr1(p), broadcastTo<T1>(arr2(p)));
 	}
-	return resultArr;
-}
+       return resultArr;
+	}
+
+	template<class T>
+    Array2D<T> uninitializedArrayLike(Array2D<T> a) {
+      Array2D<T> result(a.size(), lx::nofill());
+		return result;
+	}
+
+	template<class T>
+    Array2D<T> zerosLike(Array2D<T> a) {
+        Array2D<T> result(a.size(), T());
+		return result;
+	}
 
 // this allows both Array2D<float> + float and Array2D<glm::vec3> + glm::vec3, but also Array2D<glm::vec3> + float (which adds the float to each component of the vec3, a.k.a. "broadcasts" the float)
-export template<class T, class TSecondArg>
-Array2D<T> operator+(Array2D<T> const& arr, TSecondArg const& secondArg)
-{
-	return applyOpOutOfPlace(arr, broadcastTo<T>(secondArg), std::plus<T>());
-}
+  template<class T, class TSecondArg>
+    Array2D<T> operator+(Array2D<T> const& arr, TSecondArg const& secondArg)
+	{
+		return lx::applyOpOutOfPlace(arr, lx::broadcastTo<T>(secondArg), std::plus<T>());
+	}
 
-export template<class T, class TSecondArg>
-Array2D<T>& operator+=(Array2D<T>& arr, TSecondArg const& secondArg)
-{
-	return applyOpInPlace(arr, broadcastTo<T>(secondArg), std::plus<T>());
-}
+  template<class T, class TSecondArg>
+    Array2D<T>& operator+=(Array2D<T>& arr, TSecondArg const& secondArg)
+	{
+		return lx::applyOpInPlace(arr, lx::broadcastTo<T>(secondArg), std::plus<T>());
+	}
 
-export template<class T, class TFirstArg>
-Array2D<T> operator+(TFirstArg const& firstArg, Array2D<T> const& arr)
-{
-	return applyOpOutOfPlace(broadcastTo<T>(firstArg), arr, std::plus<T>());
-}
+   template<class T, class TFirstArg>
+  Array2D<T> operator+(TFirstArg const& firstArg, Array2D<T> const& arr)
+	{
+		return lx::applyOpOutOfPlace(lx::broadcastTo<T>(firstArg), arr, std::plus<T>());
+	}
 
-export template<class T1, class T2>
-Array2D<T1> operator+(Array2D<T1> const& arr1, Array2D<T2> const& arr2)
-{
-	return applyArrayArrayOpOutOfPlace(arr1, arr2, std::plus<T1>());
-}
+ template<class T1, class T2>
+ Array2D<T1> operator+(Array2D<T1> const& arr1, Array2D<T2> const& arr2)
+	{
+		return lx::applyArrayArrayOpOutOfPlace(arr1, arr2, std::plus<T1>());
+	}
 
-export template<class T1, class T2>
-Array2D<T1>& operator+=(Array2D<T1>& arr1, Array2D<T2> const& arr2)
-{
-	return applyArrayArrayOpInPlace(arr1, arr2, std::plus<T1>());
-}
+ template<class T1, class T2>
+ Array2D<T1>& operator+=(Array2D<T1>& arr1, Array2D<T2> const& arr2)
+	{
+		return lx::applyArrayArrayOpInPlace(arr1, arr2, std::plus<T1>());
+	}
 
-export template<class T, class TSecondArg>
-Array2D<T> operator-(Array2D<T> const& arr, TSecondArg const& secondArg)
-{
-	return applyOpOutOfPlace(arr, broadcastTo<T>(secondArg), std::minus<T>());
-}
+  template<class T, class TSecondArg>
+    Array2D<T> operator-(Array2D<T> const& arr, TSecondArg const& secondArg)
+	{
+		return lx::applyOpOutOfPlace(arr, lx::broadcastTo<T>(secondArg), std::minus<T>());
+	}
 
-export template<class T, class TSecondArg>
-Array2D<T>& operator-=(Array2D<T>& arr, TSecondArg const& secondArg)
-{
-	return applyOpInPlace(arr, broadcastTo<T>(secondArg), std::minus<T>());
-}
+  template<class T, class TSecondArg>
+    Array2D<T>& operator-=(Array2D<T>& arr, TSecondArg const& secondArg)
+	{
+		return lx::applyOpInPlace(arr, lx::broadcastTo<T>(secondArg), std::minus<T>());
+	}
 
-export template<class T, class TFirstArg>
-Array2D<T> operator-(TFirstArg const& firstArg, Array2D<T> const& arr)
-{
-	return applyOpOutOfPlace(broadcastTo<T>(firstArg), arr, std::minus<T>());
-}
+   template<class T, class TFirstArg>
+  Array2D<T> operator-(TFirstArg const& firstArg, Array2D<T> const& arr)
+	{
+		return lx::applyOpOutOfPlace(lx::broadcastTo<T>(firstArg), arr, std::minus<T>());
+	}
 
-export template<class T1, class T2>
-Array2D<T1> operator-(Array2D<T1> const& arr1, Array2D<T2> const& arr2)
-{
-	return applyArrayArrayOpOutOfPlace(arr1, arr2, std::minus<T1>());
-}
+ template<class T1, class T2>
+ Array2D<T1> operator-(Array2D<T1> const& arr1, Array2D<T2> const& arr2)
+	{
+		return lx::applyArrayArrayOpOutOfPlace(arr1, arr2, std::minus<T1>());
+	}
 
-export template<class T1, class T2>
-Array2D<T1>& operator-=(Array2D<T1>& arr1, Array2D<T2> const& arr2)
-{
-	return applyArrayArrayOpInPlace(arr1, arr2, std::minus<T1>());
-}
+ template<class T1, class T2>
+ Array2D<T1>& operator-=(Array2D<T1>& arr1, Array2D<T2> const& arr2)
+	{
+		return lx::applyArrayArrayOpInPlace(arr1, arr2, std::minus<T1>());
+	}
 
-export template<class T, class TSecondArg>
-Array2D<T> operator*(Array2D<T> const& arr, TSecondArg const& secondArg)
-{
-	return applyOpOutOfPlace(arr, broadcastTo<T>(secondArg), std::multiplies<T>());
-}
+  template<class T, class TSecondArg>
+    Array2D<T> operator*(Array2D<T> const& arr, TSecondArg const& secondArg)
+	{
+		return lx::applyOpOutOfPlace(arr, lx::broadcastTo<T>(secondArg), std::multiplies<T>());
+	}
 
-export template<class T, class TSecondArg>
-Array2D<T>& operator*=(Array2D<T>& arr, TSecondArg const& secondArg)
-{
-	return applyOpInPlace(arr, broadcastTo<T>(secondArg), std::multiplies<T>());
-}
+  template<class T, class TSecondArg>
+    Array2D<T>& operator*=(Array2D<T>& arr, TSecondArg const& secondArg)
+	{
+		return lx::applyOpInPlace(arr, lx::broadcastTo<T>(secondArg), std::multiplies<T>());
+	}
 
-export template<class T, class TFirstArg>
-Array2D<T> operator*(TFirstArg const& firstArg, Array2D<T> const& arr)
-{
-	return applyOpOutOfPlace(broadcastTo<T>(firstArg), arr, std::multiplies<T>());
-}
+   template<class T, class TFirstArg>
+  Array2D<T> operator*(TFirstArg const& firstArg, Array2D<T> const& arr)
+	{
+		return lx::applyOpOutOfPlace(lx::broadcastTo<T>(firstArg), arr, std::multiplies<T>());
+	}
 
-export template<class T1, class T2>
-Array2D<T1> operator*(Array2D<T1> const& arr1, Array2D<T2> const& arr2)
-{
-	return applyArrayArrayOpOutOfPlace(arr1, arr2, std::multiplies<T1>());
-}
+ template<class T1, class T2>
+ Array2D<T1> operator*(Array2D<T1> const& arr1, Array2D<T2> const& arr2)
+	{
+		return lx::applyArrayArrayOpOutOfPlace(arr1, arr2, std::multiplies<T1>());
+	}
 
-export template<class T1, class T2>
-Array2D<T1>& operator*=(Array2D<T1>& arr1, Array2D<T2> const& arr2)
-{
-	return applyArrayArrayOpInPlace(arr1, arr2, std::multiplies<T1>());
-}
+ template<class T1, class T2>
+ Array2D<T1>& operator*=(Array2D<T1>& arr1, Array2D<T2> const& arr2)
+	{
+		return lx::applyArrayArrayOpInPlace(arr1, arr2, std::multiplies<T1>());
+	}
 
-export template<class T, class TSecondArg>
-Array2D<T> operator/(Array2D<T> const& arr, TSecondArg const& secondArg)
-{
-	return applyOpOutOfPlace(arr, broadcastTo<T>(secondArg), std::divides<T>());
-}
+  template<class T, class TSecondArg>
+    Array2D<T> operator/(Array2D<T> const& arr, TSecondArg const& secondArg)
+	{
+		return lx::applyOpOutOfPlace(arr, lx::broadcastTo<T>(secondArg), std::divides<T>());
+	}
 
-export template<class T, class TSecondArg>
-Array2D<T>& operator/=(Array2D<T>& arr, TSecondArg const& secondArg)
-{
-	return applyOpInPlace(arr, broadcastTo<T>(secondArg), std::divides<T>());
-}
+  template<class T, class TSecondArg>
+    Array2D<T>& operator/=(Array2D<T>& arr, TSecondArg const& secondArg)
+	{
+		return lx::applyOpInPlace(arr, lx::broadcastTo<T>(secondArg), std::divides<T>());
+	}
 
-export template<class T, class TFirstArg>
-Array2D<T> operator/(TFirstArg const& firstArg, Array2D<T> const& arr)
-{
-	return applyOpOutOfPlace(broadcastTo<T>(firstArg), arr, std::divides<T>());
-}
+   template<class T, class TFirstArg>
+  Array2D<T> operator/(TFirstArg const& firstArg, Array2D<T> const& arr)
+	{
+		return lx::applyOpOutOfPlace(lx::broadcastTo<T>(firstArg), arr, std::divides<T>());
+	}
 
-export template<class T1, class T2>
-Array2D<T1> operator/(Array2D<T1> const& arr1, Array2D<T2> const& arr2)
-{
-	return applyArrayArrayOpOutOfPlace(arr1, arr2, std::divides<T1>());
-}
+ template<class T1, class T2>
+ Array2D<T1> operator/(Array2D<T1> const& arr1, Array2D<T2> const& arr2)
+	{
+		return lx::applyArrayArrayOpOutOfPlace(arr1, arr2, std::divides<T1>());
+	}
 
-export template<class T1, class T2>
-Array2D<T1>& operator/=(Array2D<T1>& arr1, Array2D<T2> const& arr2)
-{
-	return applyArrayArrayOpInPlace(arr1, arr2, std::divides<T1>());
+ template<class T1, class T2>
+ Array2D<T1>& operator/=(Array2D<T1>& arr1, Array2D<T2> const& arr2)
+	{
+		return lx::applyArrayArrayOpInPlace(arr1, arr2, std::divides<T1>());
+	}
 }

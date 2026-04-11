@@ -15,8 +15,8 @@ import lxlib.TextureRef;
 
 export module GridFluidSketch;
 
-export struct GridFluidSketch : public SketchBase {
-	ConfigManager3 cfg;
+export struct GridFluidSketch : public lx::SketchBase {
+	lx::ConfigManager3 cfg;
 
 	GridFluidSketch() :
 		cfg("gridFluidConfig.toml")
@@ -37,15 +37,15 @@ export struct GridFluidSketch : public SketchBase {
 	int sy;
 	ivec2 sz;
 	struct Material {
-		Array2D<float> density;
-		Array2D<vec2> momentum;
+     lx::Array2D<float> density;
+		lx::Array2D<vec2> momentum;
 	};
 	Material red, green;
 	vector<Material*> materials{ &green, &red };//&red, &green };
 	
 	bool pause = false;
 
-	Array2D<float> bounces_dbg;
+ lx::Array2D<float> bounces_dbg;
 
 
 
@@ -57,8 +57,8 @@ export struct GridFluidSketch : public SketchBase {
 		sz = ivec2(sx, sy);
 
 		for (auto& material : materials) {
-			material->density = Array2D<float>(sz);
-			material->momentum = Array2D<vec2>(sz);
+         material->density = lx::Array2D<float>(sz);
+			material->momentum = lx::Array2D<vec2>(sz);
 		}
 
 		glDisable(GL_BLEND);
@@ -108,8 +108,8 @@ export struct GridFluidSketch : public SketchBase {
 		lastm = pos;
 	}
 	
-	gl::TextureRef gauss3texScaled(gl::TextureRef src, float scale) {
-		auto state = shade(src,
+   lx::gl::TextureRef gauss3texScaled(lx::gl::TextureRef src, float scale) {
+		auto state = lx::shade(src,
 			"vec4 sum = vec4(0.0);"
               "sum += texture(tex0, texCoord + texelSize0 * vec2(-1.0, -1.0)) / 16.0;"
 			"sum += texture(tex0, texCoord + texelSize0 * vec2(-1.0, 0.0)) / 8.0;"
@@ -123,14 +123,14 @@ export struct GridFluidSketch : public SketchBase {
 			"sum += texture(tex0, texCoord + texelSize0 * vec2(+1.0, 0.0)) / 8.0;"
 			"sum += texture(tex0, texCoord + texelSize0 * vec2(+1.0, +1.0)) / 16.0;"
 			"_out = sum;",
-			ShadeOpts().scale(scale)
+            lx::ShadeOpts().scale(scale)
 		);
 		return state;
 	}
 
 	void draw()
 	{
-		lxClear();
+      lx::lxClear();
 
 		static float colorAmount = 0.06f;
 		ImGui::DragFloat("colorAmount", &colorAmount, 1.0f, 0.01, 8.0, "%.3f", ImGuiSliderFlags_Logarithmic);
@@ -139,7 +139,7 @@ export struct GridFluidSketch : public SketchBase {
 		static float matterThreshold = 1.0f;
 		ImGui::DragFloat("matterThreshold", &matterThreshold, 1.0f, 0.01, 8.0, "%.3f", ImGuiSliderFlags_Logarithmic);
 
-		auto density = uninitializedArrayLike(red.density);
+     auto density = lx::uninitializedArrayLike(red.density);
         for(auto p : density.coords()) {
 			density(p) = red.density(p) + green.density(p);
 		}
@@ -150,18 +150,18 @@ export struct GridFluidSketch : public SketchBase {
 		sumTex = gauss3texScaled(sumTex, 1.0); // reduce upscale artefacts
 		sumTex = gauss3texScaled(sumTex, 1.0); // reduce upscale artefacts
 		sumTex = gauss3texScaled(sumTex, 1.0); // reduce upscale artefacts
-		sumTex = shade(sumTex,
+      sumTex = lx::shade(sumTex,
 			"float f = texture().x;"
 			"float fw = fwidth(f);"
 			"_out.r = f * smoothstep(matterThreshold-fw/2, matterThreshold+fw/2, f);"
-			, ShadeOpts().uniform("matterThreshold", matterThreshold).scale(scale)
+          , lx::ShadeOpts().uniform("matterThreshold", matterThreshold).scale(scale)
 		);
-		sumTex = Operable(sumTex) * matterAmount;
-		redTex = Operable(redTex) * colorAmount;
-		greenTex = Operable(greenTex) * colorAmount;
+       sumTex = lx::Operable(sumTex) * matterAmount;
+		redTex = lx::Operable(redTex) * colorAmount;
+		greenTex = lx::Operable(greenTex) * colorAmount;
 
      auto momentumTex = lx::uploadTex(red.momentum);
-		auto hsvTex = shade(momentumTex, MULTILINE(
+     auto hsvTex = lx::shade(momentumTex, MULTILINE(
 			vec2 momentum = texture().xy;
          float angle = atan(momentum.y, momentum.x) / (2 * lx::pi) + .5;
 			//angle *= pi;
@@ -169,7 +169,7 @@ export struct GridFluidSketch : public SketchBase {
 			len /= len + 1.0;
 			_out.rgb = hsl2rgb(vec3(angle, 1.0, .5)) * pow(len, 3.0) * 3.0;
 			),
-			ShadeOpts()
+         lx::ShadeOpts()
 				.ifmt(GL_RGB16F)
               .functions(lx::FileCache::get("stuff.fs"))
 		);
@@ -180,28 +180,28 @@ export struct GridFluidSketch : public SketchBase {
 		ImGui::DragFloat("bloomSize", &bloomSize, 1.0f, 0.1, 100, "%.3f", ImGuiSliderFlags_Logarithmic);
 		ImGui::DragInt("bloomIters", &bloomIters, 1.0f, 1, 16, "%d", ImGuiSliderFlags_None);
 		ImGui::DragFloat("bloomIntensity", &bloomIntensity, 1.0f, 0.0001, 2000, "%.3f", ImGuiSliderFlags_Logarithmic);
-		auto redTexB = gpuBlur::run_longtail(redTex, bloomIters, bloomSize);
-		auto greenTexB = gpuBlur::run_longtail(greenTex, bloomIters, bloomSize);
-		auto hsvTexB = gpuBlur::run_longtail(hsvTex, bloomIters, bloomSize);
+        auto redTexB = lx::gpuBlur::run_longtail(redTex, bloomIters, bloomSize);
+		auto greenTexB = lx::gpuBlur::run_longtail(greenTex, bloomIters, bloomSize);
+		auto hsvTexB = lx::gpuBlur::run_longtail(hsvTex, bloomIters, bloomSize);
 
-		greenTex = op(greenTex) * 0.16;
+     greenTex = lx::op(greenTex) * 0.16;
 
-		hsvTex = shade({ hsvTex, hsvTexB }, MULTILINE(
+      hsvTex = lx::shade({ hsvTex, hsvTexB }, MULTILINE(
           _out = (texture() + texture(tex1) * 1.0) * bloomIntensity;
 		),
-			ShadeOpts().uniform("bloomIntensity", bloomIntensity)
+           lx::ShadeOpts().uniform("bloomIntensity", bloomIntensity)
 		);
-		static const auto format = gl::Texture::Format().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR).magFilter(GL_LINEAR).loadTopDown(true).wrap(GL_MIRRORED_REPEAT).internalFormat(GL_RGBA8);
-		static auto envMap = gl::Texture::create("milkyway.png", format);
-		static auto envMap2 = shade(envMap, MULTILINE(
+      static const auto format = lx::gl::Texture::Format().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR).magFilter(GL_LINEAR).loadTopDown(true).wrap(GL_MIRRORED_REPEAT).internalFormat(GL_RGBA8);
+		static auto envMap = lx::gl::Texture::create("milkyway.png", format);
+		static auto envMap2 = lx::shade(envMap, MULTILINE(
 			vec3 c = texture().xyz;
 		c /= vec3(1.0) - c * 0.99;
 		_out.rgb = c;
 			),
-			ShadeOpts().ifmt(GL_RGB16F));
+           lx::ShadeOpts().ifmt(GL_RGB16F));
 		//static auto envMap = gl::TextureCubeMap::create(loadImage(loadAsset("envmap_cube.jpg")), gl::TextureCubeMap::Format().mipmap());
 
-		auto grads = getGradients(sumTex);
+      auto grads = lx::getGradients(sumTex);
 		std::string const shaderFunctions = "float PI = 3.14159265358979323846264;\n"
 			"vec2 latlong(vec3 refl) {\n"
 			"	return vec2(atan(refl.z, refl.x) / (2.0 * PI) + 0.5, asin(clamp(refl.y, -1.0, 1.0)) / PI + 0.5);"
@@ -224,7 +224,7 @@ export struct GridFluidSketch : public SketchBase {
 			float maxLod = floor(log2(max(texSize.x, texSize.y)));
 			return clamp(lod, 0.0, maxLod);
 		});
-		auto tex2 = shade({ sumTex, grads, envMap2, redTex, greenTex, hsvTex },
+     auto tex2 = lx::shade({ sumTex, grads, envMap2, redTex, greenTex, hsvTex },
 
 
          "vec3 hsv = texture(tex5).xyz;"
@@ -268,7 +268,7 @@ export struct GridFluidSketch : public SketchBase {
 
 			//"_out.rgb = vec3(d, 0.0);"
 			//"_out.rgb /= _out.rgb + 1.0;"
-			, ShadeOpts().ifmt(GL_RGB16F)
+           , lx::ShadeOpts().ifmt(GL_RGB16F)
 			.uniform("surfTensionThres", cfg.getFloat("surfTensionThres"))
 			.uniform("lodBias", 0.0f)
 			.uniform("lodMax", 3.0f)
@@ -278,11 +278,11 @@ export struct GridFluidSketch : public SketchBase {
 			
 		);
 
-		const auto tex2Thres = shade(tex2, "vec3 c=texture().xyz; c *= step(vec3(1.0), c); _out.rgb=c;");
-		auto tex2b = gpuBlur::run_longtail(tex2Thres, bloomIters, bloomSize);
-		tex2 = op(tex2) + op(tex2b) * bloomIntensity;
+       const auto tex2Thres = lx::shade(tex2, "vec3 c=texture().xyz; c *= step(vec3(1.0), c); _out.rgb=c;");
+		auto tex2b = lx::gpuBlur::run_longtail(tex2Thres, bloomIters, bloomSize);
+		tex2 = lx::op(tex2) + lx::op(tex2b) * bloomIntensity;
 
-		tex2 = shade(tex2,
+      tex2 = lx::shade(tex2,
             "vec3 c = texture(tex0).xyz;"
 			"if(c.r<0.0||c.g<0.0||c.b<0.0) { _out.rgb = vec3(1.0, 0.0, 0.0); }" // eases debugging
 			"c /= c + vec3(1.0);"
@@ -292,7 +292,7 @@ export struct GridFluidSketch : public SketchBase {
 		);
 		//videoWriter->write(tex2);
 
-		lxDraw(tex2);
+       lx::lxDraw(tex2);
 		//lxDraw(envMap);
 	}
 	void update()
@@ -305,7 +305,7 @@ export struct GridFluidSketch : public SketchBase {
 		auto material = keys['g'] ? &red : &green;
 
 		ivec2 mousePos = ivec2(this->lastm / float(scale));
-		Rect<int> a = Rect<int>::fromBounds(mousePos, mousePos);
+        lx::Rect<int> a = lx::Rect<int>::fromBounds(mousePos, mousePos);
 		if (mouseDown_[0])
 		{
 			
@@ -345,9 +345,9 @@ export struct GridFluidSketch : public SketchBase {
 	}
 
 	template<class T, class WrapPolicy>
-	static Array2D<T> convolve(Array2D<T> in, Array2D<float> kernel) {
+  static lx::Array2D<T> convolve(lx::Array2D<T> in, lx::Array2D<float> kernel) {
        int r = kernel.width() / 2;
-		auto out = ::empty_like(in);
+      lx::Array2D<T> out(in.size(), lx::nofill());
         for(auto p : out.coords()) {
 			float sum = 0.0f;
 			for (int kx = -r; kx < r; kx++) {
@@ -360,7 +360,7 @@ export struct GridFluidSketch : public SketchBase {
 		return out;
 	}
 	void repel(Material& affectedMaterial, Material& actingMaterial) {
-		Array2D<float> kernel(7, 7);
+        lx::Array2D<float> kernel(7, 7);
 		ivec2 center = kernel.size() / 2;
        int r = kernel.width() / 2;
      for(auto p : kernel.coords()) {
@@ -386,7 +386,7 @@ export struct GridFluidSketch : public SketchBase {
 
      for(auto p : affectedMaterial.density.coords())
 		{
-			auto g = gradient_i<float, WrapModes::ZeroesOutside>(guidance, p);
+          auto g = lx::gradient_i<float, lx::WrapModes::ZeroesOutside>(guidance, p);
 			//if(length(g) != 0.0f) g = glm::normalize(g);
 
 			affectedMaterial.momentum(p) += -g * affectedMaterial.density(p) * intermaterialRepelCoef;
@@ -408,10 +408,10 @@ export struct GridFluidSketch : public SketchBase {
 				momentum(p) += vec2(0.0f, gravity) * density(p);
 			}
 
-			density = gauss3_forwardMapping<float, WrapModes::MirrorWrap>(density);
-			density = gauss3_forwardMapping<float, WrapModes::MirrorWrap>(density);
-			momentum = gauss3_forwardMapping<vec2, WrapModes::MirrorWrap>(momentum);
-			momentum = gauss3_forwardMapping<vec2, WrapModes::MirrorWrap>(momentum);
+         density = gauss3_forwardMapping<float, lx::WrapModes::MirrorWrap>(density);
+			density = gauss3_forwardMapping<float, lx::WrapModes::MirrorWrap>(density);
+			momentum = gauss3_forwardMapping<vec2, lx::WrapModes::MirrorWrap>(momentum);
+			momentum = gauss3_forwardMapping<vec2, lx::WrapModes::MirrorWrap>(momentum);
 
 			//auto density_b = density.clone();
 			//for(int i < 0
@@ -422,7 +422,7 @@ export struct GridFluidSketch : public SketchBase {
 			float incompressibilityCoef = cfg.getFloat("incompressibilityCoef");
          for(auto p : momentum.coords())
 			{
-				auto g = gradient_i<float, WrapModes::ZeroesOutside>(guidance, p);
+              auto g = lx::gradient_i<float, lx::WrapModes::ZeroesOutside>(guidance, p);
 				if (guidance(p) < surfTensionThres)
 				{
 					g = g * surfTension * density(p);
@@ -459,7 +459,7 @@ export struct GridFluidSketch : public SketchBase {
 				//aaPoint<float, WrapModes::WrapModes::Wrap>(density2, dst, density(p));
 			}*/
 			//density = density2;
-			auto offsets = uninitializedArrayLike(momentum);
+            auto offsets = lx::uninitializedArrayLike(momentum);
             for(auto p : offsets.coords()) {
 				offsets(p) = momentum(p) / density(p);
 			}
@@ -468,12 +468,12 @@ export struct GridFluidSketch : public SketchBase {
 
 
 	}
-	void advect(Material& material, Array2D<vec2> offsets) {
+    void advect(Material& material, lx::Array2D<vec2> offsets) {
 		auto& density = material.density;
 		auto& momentum = material.momentum;
 
-		auto density3 = Array2D<float>(sx, sy);
-		auto momentum3 = Array2D<vec2>(sx, sy, vec2());
+     auto density3 = lx::Array2D<float>(sx, sy);
+		auto momentum3 = lx::Array2D<vec2>(sx, sy, vec2());
 		int count = 0;
 		float sumOffsetY = 0; float div = 0;
       for(auto p : density.coords())
@@ -506,8 +506,8 @@ export struct GridFluidSketch : public SketchBase {
 				count++;
 			//if(bounced)
 			//	aaPoint<float, WrapModes::NoWrap>(bounces_dbg, dst, 1);
-			splatBilinearPoint<float, WrapModes::MirrorWrap>(density3, dst, density(p));
-			splatBilinearPoint<vec2, WrapModes::MirrorWrap>(momentum3, dst, newEnergy);
+            lx::splatBilinearPoint<float, lx::WrapModes::MirrorWrap>(density3, dst, density(p));
+			lx::splatBilinearPoint<vec2, lx::WrapModes::MirrorWrap>(momentum3, dst, newEnergy);
 		}
 		//cout << "bugged=" << count << endl;
 		//cout << "sumOffsetY=" << sumOffsetY/div << endl;
@@ -515,10 +515,9 @@ export struct GridFluidSketch : public SketchBase {
 		momentum = momentum3;
 	}
 	template<class T, class WrapPolicy>
-	static Array2D<T> gauss3_forwardMapping(Array2D<T> src) {
-		T zero = ::zero<T>();
-      Array2D<T> dst1(src.width(), src.height());
-		Array2D<T> dst2(src.width(), src.height());
+   static lx::Array2D<T> gauss3_forwardMapping(lx::Array2D<T> src) {
+		lx::Array2D<T> dst1(src.width(), src.height());
+		lx::Array2D<T> dst2(src.width(), src.height());
        for(auto p : dst1.coords()) {
 			WrapPolicy::fetch(dst1, p.x - 1, p.y) += .25f * src(p);
 			WrapPolicy::fetch(dst1, p.x, p.y) += .5f * src(p);

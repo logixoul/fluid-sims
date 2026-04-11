@@ -14,20 +14,14 @@ import gpuBlurClaude;
 
 export namespace ThisSketch {
 
-using Img = Array2D<float>;
+using Img = lx::Array2D<float>;
 
 vec2 perpLeft(vec2 const& v);
 
-Img subtract(Img const& a, Img const& b);
-Img add(Img const& a, Img const& b);
-Img multiply(Img const& a, Img const& b);
-Img multiply(Img const& a, float scalar);
-
 template<class T, class WrapPolicy>
-Array2D<T> gaussianBlur3x3(Array2D<T> src) {
-T zero = ::zero<T>();
-Array2D<T> dst1(src.width(), src.height());
-Array2D<T> dst2(src.width(), src.height());
+lx::Array2D<T> gaussianBlur3x3(lx::Array2D<T> src) {
+lx::Array2D<T> dst1(src.width(), src.height());
+lx::Array2D<T> dst2(src.width(), src.height());
 for(auto p : dst1.coords())
 dst1(p) = .25f * (2 * WrapPolicy::fetch(src, p.x, p.y) + WrapPolicy::fetch(src, p.x - 1, p.y) + WrapPolicy::fetch(src, p.x + 1, p.y));
 for(auto p : dst2.coords())
@@ -38,7 +32,7 @@ return dst2;
 float mulContrastize(float i, float contrastizeStrength);
 
 template<class T, class WrapPolicy>
-float hessianDirectionalSecondDeriv(Array2D<T>& src, ivec2 const& p, vec2 const& d) {
+float hessianDirectionalSecondDeriv(lx::Array2D<T>& src, ivec2 const& p, vec2 const& d) {
 float fxx = WrapPolicy::fetch(src, p.x + 1, p.y) - 2.0f * WrapPolicy::fetch(src, p.x, p.y) + WrapPolicy::fetch(src, p.x - 1, p.y);
 float fyy = WrapPolicy::fetch(src, p.x, p.y + 1) - 2.0f * WrapPolicy::fetch(src, p.x, p.y) + WrapPolicy::fetch(src, p.x, p.y - 1);
 float fxy = 0.25f * (
@@ -52,10 +46,10 @@ return d.x * d.x * fxx + 2.0f * d.x * d.y * fxy + d.y * d.y * fyy;
 //Array2D<float> resize(Array2D<float> src, ivec2 dstSize, const ci::FilterBase& filter);
 std::vector<Img> buildGaussianPyramid(Img src, float scalePerLevel = 0.5f);
 
-gl::TextureRef redToLuminance(gl::TextureRef const& in);
+lx::gl::TextureRef redToLuminance(lx::gl::TextureRef const& in);
 float blendHardLight(float base, float blend);
 
-Array2D<float> resize_referenceImplementation(Array2D<float> const& src, ivec2 dstSize);
+lx::Array2D<float> resize_referenceImplementation(lx::Array2D<float> const& src, ivec2 dstSize);
 
 } // namespace ThisSketch
 
@@ -106,7 +100,7 @@ return exp(-2.0f * x * x);
 float getSupport() const { return 1.25f; }
 };
 
-Array2D<float> resize_referenceImplementation(Array2D<float> const& src, ivec2 dstSize)
+lx::Array2D<float> resize_referenceImplementation(lx::Array2D<float> const& src, ivec2 dstSize)
 {
 const int srcW = src.width();
 const int srcH = src.height();
@@ -123,8 +117,8 @@ const float filterScaleY = std::max(1.0f, 1.0f / sy);
 const float supportX = std::max(0.5f, filterScaleX * filter.getSupport());
 const float supportY = std::max(0.5f, filterScaleY * filter.getSupport());
 
-Array2D<float> tmp(dstW, srcH);
-Array2D<float> out(dstW, dstH);
+lx::Array2D<float> tmp(dstW, srcH);
+lx::Array2D<float> out(dstW, dstH);
 
 for (int dstY = 0; dstY < srcH; ++dstY) {
 for (int dstX = 0; dstX < dstW; ++dstX) {
@@ -172,10 +166,10 @@ out.data()[dstY * dstW + dstX] = sum / den;
 return out;
 }
 
-gl::TextureRef redToLuminance(gl::TextureRef const& in) {
-return shade(in,
+lx::gl::TextureRef redToLuminance(lx::gl::TextureRef const& in) {
+return lx::shade(in,
 "_out.rgb = vec3(texture().x);",
-ShadeOpts().ifmt(GL_RGBA16F)
+lx::ShadeOpts().ifmt(GL_RGBA16F)
 );
 }
 

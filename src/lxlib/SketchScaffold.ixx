@@ -14,25 +14,26 @@ static void glfw_error_callback(int error, const char* description)
 {
 	fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
-class SketchScaffold;
+namespace lx { class SketchScaffold; }
 
-SketchScaffold* instance;
+lx::SketchScaffold* instance;
 
 void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos);
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
-export class SketchScaffold {
+export namespace lx {
+	class SketchScaffold {
 private:
 	GLFWwindow* window;
 
-	shared_ptr<IntegratedConsole> integratedConsole;
+    shared_ptr<lx::IntegratedConsole> integratedConsole;
 
 public:
 
-	SketchBase* sketch;
+ lx::SketchBase* sketch;
 
-	SketchScaffold(SketchBase* sketch) : sketch(sketch) {}
+  SketchScaffold(lx::SketchBase* sketch) : sketch(sketch) {}
 
 	void setup()
 	{
@@ -68,7 +69,7 @@ public:
 		ImGui_ImplOpenGL3_Init("#version 430");
 		
 
-		integratedConsole = make_shared<IntegratedConsole>();;
+      integratedConsole = make_shared<lx::IntegratedConsole>();;
 
         lx::enableDenormalFlushToZero();
 
@@ -122,7 +123,8 @@ public:
 	{
 		sketch->mouseMove(pos);
 	}
-};
+  };
+}
 
 static void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos) {
     ImGuiIO& io = ImGui::GetIO();
