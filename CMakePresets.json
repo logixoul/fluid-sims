@@ -11,7 +11,7 @@
       "name": "windows",
       "inherits": "base",
       "displayName": "Windows MSVC",
-      "generator": "Visual Studio 17 2022",
+      "generator": "Ninja Multi-Config",
       "cacheVariables": {
         "VCPKG_TARGET_TRIPLET": "x64-windows"
       }
