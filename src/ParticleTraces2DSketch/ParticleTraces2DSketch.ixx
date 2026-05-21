@@ -5,6 +5,7 @@ module;
 import lxlib.Array2D;
 import lxlib.stuff;
 import lxlib.TextureRef;
+import lxlib.Rect;
 import lxlib.gpgpu;
 import lxlib.gpuBlur;
 import lxlib.SketchBase;
@@ -23,11 +24,11 @@ int sy = wsy / ::scale;
 float noiseTimeDim = 0.0f;
 const int MAX_AGE = 100;
 
-bool pause;
-const double M_PI = 3.14159265359;
+bool paused = false;
+const double kPi = 3.14159265359;
 vec3 complexToColor_HSV(vec2 comp) {
-	float hue = (float)M_PI + (float)atan2(comp.y, comp.x);
-	hue /= (float)(2 * M_PI);
+	float hue = (float)kPi + (float)atan2(comp.y, comp.x);
+	hue /= (float)(2 * kPi);
 	float lightness = length(comp);
 	lightness = .5f;
 	//lightness /= lightness + 1.0f;
@@ -123,7 +124,7 @@ export struct ParticleTraces2DSketch : public lx::SketchBase {
 	{
 		if (key == 'p')
 		{
-			pause = !pause;
+			paused = !paused;
 		}
 	}
 	float noiseProgressSpeed;
@@ -131,7 +132,7 @@ export struct ParticleTraces2DSketch : public lx::SketchBase {
 	void update() {
 		noiseProgressSpeed = .00008f;
 
-		if (!pause) {
+		if (!paused) {
 			noiseTimeDim += noiseProgressSpeed;
 
 			for(Walker & walker : walkers) {
@@ -176,8 +177,8 @@ export struct ParticleTraces2DSketch : public lx::SketchBase {
 		static lx::Array2D<vec3> sizeSource(sx, sy);
       static auto sizeSourceTex = lx::uploadTex(sizeSource);
       static auto walkerTex = lx::shade(sizeSourceTex, "_out.rgb = vec3(0.0);");
-		if (!pause) {
-          walkerTex = lx::shade(walkerTex, "_out.rgb = texture().xyz * 0.993;");
+		if (!paused) {
+		walkerTex = lx::shade(walkerTex, "_out.rgb = lxTexture().xyz * 0.993;");
 
 			glPointSize(2.5);
 			std::vector<vec4> color;
@@ -211,7 +212,7 @@ export struct ParticleTraces2DSketch : public lx::SketchBase {
 			}
 		}
       auto walkerTexThres = lx::shade(walkerTex,
-			"vec3 c = texture().xyz;"
+			"vec3 c = lxTexture().xyz;"
 			"float avg = dot(c, vec3(1)/3.0f);"
 			"if(avg < .25)"
 			"	 c = vec3(0);"
@@ -219,13 +220,13 @@ export struct ParticleTraces2DSketch : public lx::SketchBase {
 		);
       auto walkerTexB = lx::gpuBlur::run(walkerTexThres, 4);
 		auto walkerTex2 = lx::shade({ walkerTex, walkerTexB },
-			"vec3 c = texture().xyz;"
+			"vec3 c = lxTexture().xyz;"
 			"vec3 hsl = rgb2hsl(c);"
 			"hsl.z /= .5;"
 			"hsl.z = min(hsl.z, 1.0);"
 			"hsl.z = pow(hsl.z, 3.0);"
 			"c = hsl2rgb(hsl);"
-           "c += texture(tex1).xyz;"
+		   "c += lxTexture(tex1).xyz;"
 			"_out.rgb = c;",
          lx::ShadeOpts()
 				.ifmt(GL_RGB32F)

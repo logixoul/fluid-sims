@@ -1,5 +1,6 @@
 module;
 #include "precompiled.h"
+#include <cstdlib>
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 #include "imgui.h"
@@ -14,13 +15,14 @@ static void glfw_error_callback(int error, const char* description)
 {
 	fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
-namespace lx { class SketchScaffold; }
 
-lx::SketchScaffold* instance;
+export namespace lx { class SketchScaffold; }
 
-void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos);
-void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
-void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+static lx::SketchScaffold* instance = nullptr;
+
+static void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos);
+static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 export namespace lx {
 	class SketchScaffold {
@@ -64,7 +66,7 @@ public:
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO();
-		io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\segoeui.ttf", 18.0f);
+		//io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\segoeui.ttf", 18.0f);
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init("#version 430");
 		

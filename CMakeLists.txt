@@ -1,13 +1,29 @@
 cmake_minimum_required(VERSION 3.28)
 
+set(VCPKG_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg")
+if(NOT EXISTS "${VCPKG_ROOT}/vcpkg" AND NOT EXISTS "${VCPKG_ROOT}/vcpkg.exe")
+    message(STATUS "Bootstrapping vcpkg...")
+    if(WIN32)
+        execute_process(COMMAND "${VCPKG_ROOT}/bootstrap-vcpkg.bat" -disableMetrics
+                        WORKING_DIRECTORY "${VCPKG_ROOT}")
+    else()
+        execute_process(COMMAND "${VCPKG_ROOT}/bootstrap-vcpkg.sh" -disableMetrics
+                        WORKING_DIRECTORY "${VCPKG_ROOT}")
+    endif()
+endif()
+
+set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
+
 project(FluidSims LANGUAGES CXX C)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Use static MSVC runtime (/MT or /MTd) to match the vcpkg triplet
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+if(MSVC)
+    # Use static MSVC runtime (/MT or /MTd) to match the vcpkg triplet
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+endif()
 
 # ── Packages ──────────────────────────────────────────────────────────────────
 find_package(OpenGL REQUIRED)
@@ -16,9 +32,9 @@ find_package(glm    CONFIG REQUIRED)
 find_package(portaudio    CONFIG REQUIRED)
 # Workaround for vcpkg's kissfft config calling cmake_minimum_required(VERSION 3.3)
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
-find_package(kissfft CONFIG REQUIRED)
+find_package(kissfft CONFIG REQUIRED COMPONENTS float)
 
-find_path(VKFFT_INCLUDE_DIRS "VkFFT/vkFFT.h")
+#find_path(VKFFT_INCLUDE_DIRS "VkFFT/vkFFT.h")
 
 # ── Source lists ──────────────────────────────────────────────────────────────
 set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/third-party/imgui)
@@ -67,12 +83,15 @@ set(CXX_MODULE_SOURCES
 )
 
 # ── Target ────────────────────────────────────────────────────────────────────
-add_executable(App WIN32
+add_executable(App
     src/main.cpp
     src/lxlib/simplexnoise.cpp
     ${IMGUI_SOURCES}
-    ${THIRD_PARTY_SOURCES}
-  "src/lxlib/miniaudio.cpp")
+    ${THIRD_PARTY_SOURCES})
+
+if(WIN32)
+    set_target_properties(App PROPERTIES WIN32_EXECUTABLE ON)
+endif()
 
 # C++20 named module units
 target_sources(App
@@ -83,14 +102,15 @@ target_sources(App
 target_include_directories(App PRIVATE
     src
     ${IMGUI_DIR}
-    ${VKFFT_INCLUDE_DIRS}
+#    ${VKFFT_INCLUDE_DIRS}
     src/third-party/include
 )
 
-# Precompiled header – shared by .cpp and .ixx sources.
-# With VS 2022 17.5+ / VS 2026, /FI works with named modules:
-# the force-included PCH content is placed in the global module fragment.
-target_precompile_headers(App PRIVATE src/precompiled.h)
+# Precompiled headers interact badly with GCC's current named-modules flow,
+# so keep them on MSVC where this setup is known to work.
+if(MSVC)
+    target_precompile_headers(App PRIVATE src/precompiled.h)
+endif()
 
 # Third-party sources don't use our PCH.
 set_source_files_properties(
@@ -101,23 +121,25 @@ set_source_files_properties(
 )
 
 target_compile_definitions(App PRIVATE
-    WIN32
-    _WINDOWS
+    $<$<PLATFORM_ID:Windows>:WIN32>
+    $<$<PLATFORM_ID:Windows>:_WINDOWS>
     $<$<CONFIG:Debug>:_DEBUG>
     $<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>:NDEBUG>
 )
 
-target_compile_options(App PRIVATE
-    /W0
-    /Zm200
-    $<$<CONFIG:Release>:/O2 /fp:fast /arch:SSE2 /openmp /GS- /Zi>
-    $<$<CONFIG:RelWithDebInfo>:/O2 /fp:fast /arch:SSE2 /openmp /GS- /Zi>
-    $<$<CONFIG:Debug>:/RTC1 /Od>
-)
+if(MSVC)
+    target_compile_options(App PRIVATE
+        /W0
+        /Zm200
+        $<$<CONFIG:Release>:/O2 /fp:fast /arch:SSE2 /openmp /GS- /Zi>
+        $<$<CONFIG:RelWithDebInfo>:/O2 /fp:fast /arch:SSE2 /openmp /GS- /Zi>
+        $<$<CONFIG:Debug>:/RTC1 /Od>
+    )
 
-target_link_options(App PRIVATE
-    /DEBUG
-)
+    target_link_options(App PRIVATE
+        /DEBUG
+    )
+endif()
 
 target_link_libraries(App PRIVATE
     OpenGL::GL

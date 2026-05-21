@@ -2,9 +2,8 @@
   "dependencies": [
     "glfw3",
     "glm",
-    "vkfft",
     "kissfft",
-    "miniaudio",
     "portaudio"
+    
   ]
 }

@@ -294,3 +294,4 @@ __pycache__/
 
 # CMake build directory
 /build/
+/vcpkg_installed/

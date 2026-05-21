@@ -3,7 +3,6 @@ module;
 
 export module lxlib.shade;
 
-using namespace std;
 import lxlib.GlslProg;
 import lxlib.TextureRef;
 import lxlib.Array2D;
@@ -117,11 +116,11 @@ void lx::drawRect() {
   lx::VAO::unbind();
 }
 
-auto samplerSuffix = [&](int i) -> string {
+auto samplerSuffix = [](int i) -> string {
    return std::to_string(i);
 };
 
-auto samplerName = [&](int i) -> string {
+auto samplerName = [](int i) -> string {
 	return "tex" + samplerSuffix(i);
 };
 
@@ -154,11 +153,11 @@ std::string getCompleteFshader(vector<lx::gl::TextureRef> const& texv, vector<lx
 		<< uniformDeclarations.str()
         << "in vec2 texCoord;"
 		<< "out vec4 _out;"
-		<< "vec4 texture(sampler2D tex_) {"
+		<< "vec4 lxTexture(sampler2D tex_) {"
 		<< "	return texture(tex_, texCoord);"
 		<< "}"
-		<< "vec4 texture() {"
-       << "	return texture(tex0, texCoord);"
+		<< "vec4 lxTexture() {"
+	       << "	return texture(tex0, texCoord);"
 		<< "}"
 		<< functions
 		<< "void main() {"
@@ -200,11 +199,16 @@ lx::gl::TextureRef lx::shade(vector<lx::gl::TextureRef> const& texv, std::string
           shader = std::make_shared<lx::GlslProg>(completeFshader, completeVshader);
 			shaders[fshader] = shader;
 		} catch(std::runtime_error const& e) {
-			cout << "GlslProgCompileExc: " << e.what() << endl;
-			cout << "source:" << endl;
-			cout << completeFshader << endl;
-			string s; cin >> s;
-			throw;
+			cerr << "GlslProgCompileExc: " << e.what() << endl;
+			cerr << "Fragment shader source:" << endl;
+			cerr << completeFshader << endl;
+			cerr << "Vertex shader source:" << endl;
+			cerr << completeVshader << endl;
+			throw std::runtime_error(
+				string("GlslProgCompileExc: ") + e.what() +
+				"\nFragment shader source:\n" + completeFshader +
+				"\nVertex shader source:\n" + completeVshader
+			);
 		}
 	} else {
 		shader = shaders[fshader];
@@ -239,14 +243,10 @@ lx::gl::TextureRef lx::shade(vector<lx::gl::TextureRef> const& texv, std::string
 	int location = 0;
 	shader->uniform("viewportSize", viewportSize);
 	location++;
-	for (int i = 0; i < texv.size(); i++) {
-		shader->uniform(samplerName(i), i);
-		glActiveTexture(GL_TEXTURE0 + i);
-		texv[i]->bind();
-		//texv[i]->sendParamsToGPU();
-		shader->uniform("texelSize" + samplerSuffix(i), vec2(1.0f) / vec2(texv[i]->getSize()));
+ for (int i = 0; i < texv.size(); i++) {
+		shader->uniform(samplerName(i), i); texv[i]->bind(GL_TEXTURE0 + i);
+      shader->uniform("texelSize" + samplerSuffix(i), vec2(1.0f) / vec2(texv[i]->getSize()));
 	}
-	glActiveTexture(GL_TEXTURE0);
 	for (auto& uniform : opts._uniforms)
 	{
 		uniform.setter(shader);

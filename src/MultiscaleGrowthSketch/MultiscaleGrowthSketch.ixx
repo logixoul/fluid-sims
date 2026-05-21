@@ -1,5 +1,7 @@
 module;
 #include "../precompiled.h"
+#include <atomic>
+#include <cmath>
 #include <numeric>
 #include <lxlib/macros.h>
 
@@ -15,6 +17,7 @@ import lxlib.stuff;
 import lxlib.Array2D_imageProc;
 import lxlib.gpgpu;
 import lxlib.ConfigManager3;
+import lxlib.Rect;
 import lxlib.SketchBase;
 import lxlib.shade;
 import lxlib.TextureRef;
@@ -28,7 +31,31 @@ using namespace ThisSketch;
 
 lx::Array2D<float> img(256, 256);
 
-float micState = 0.0f;
+namespace {
+PaDeviceIndex findInputDevice()
+{
+	const PaDeviceIndex defaultDevice = Pa_GetDefaultInputDevice();
+	if (defaultDevice != paNoDevice) {
+		return defaultDevice;
+	}
+
+	const int deviceCount = Pa_GetDeviceCount();
+	if (deviceCount < 0) {
+		return paNoDevice;
+	}
+
+	for (PaDeviceIndex deviceIndex = 0; deviceIndex < deviceCount; ++deviceIndex) {
+		const PaDeviceInfo* deviceInfo = Pa_GetDeviceInfo(deviceIndex);
+		if (deviceInfo != nullptr && deviceInfo->maxInputChannels > 0) {
+			return deviceIndex;
+		}
+	}
+
+	return paNoDevice;
+}
+}
+
+std::atomic<float> micState = 0.0f;
 static int audioCallback(const void* inputBuffer,
 	void* outputBuffer,
 	unsigned long framesPerBuffer,
@@ -43,16 +70,18 @@ static int audioCallback(const void* inputBuffer,
 
 	const float* samples = (const float*)inputBuffer;
 
-	if (samples != nullptr && framesPerBuffer > 0)
+	if (samples != nullptr)
 	{
+		float peak = micState.load(std::memory_order_relaxed);
 		for (int i = 0; i < framesPerBuffer; i++) {
-			micState = std::max(micState, samples[i]);
+			peak = std::max(peak, std::fabs(samples[i]));
 		}
-		micState *= .99f;
+		micState.store(peak * 0.99f, std::memory_order_relaxed);
 	}
 
 	return paContinue;
 }
+
 export struct MultiscaleGrowthSketch : public lx::SketchBase {
 	struct Options {
 		float morphogenesisStrength;
@@ -64,7 +93,7 @@ export struct MultiscaleGrowthSketch : public lx::SketchBase {
 		float highPassStrength;
 		lx::ConfigManager3 cfg;
 
-		Options() : cfg("MultiscaleGrowthConfig.toml") {}
+		Options() : cfg("multiscaleGrowthConfig.toml") {}
 
 		void init() {
 			cfg.init();
@@ -82,6 +111,8 @@ export struct MultiscaleGrowthSketch : public lx::SketchBase {
 
 	Options options;
 	bool isPaused = false;
+	PaStream* micStream = nullptr;
+	bool portAudioInitialized = false;
 
 		
 	void setup()
@@ -92,42 +123,89 @@ export struct MultiscaleGrowthSketch : public lx::SketchBase {
 		setupMic();
 	}
 
-	int setupMic() {
+	~MultiscaleGrowthSketch()
+	{
+		shutdownMic();
+	}
+
+	void setupMic() {
 		PaError err;
-		PaStream* stream;
 
 		err = Pa_Initialize();
 		if (err != paNoError)
 		{
-			std::cerr << "PortAudio init failed.\n";
-			return -1;
+			const std::string message = "PortAudio init failed: " + std::string(Pa_GetErrorText(err));
+			std::cerr << message << "\n";
+			throw std::runtime_error(message);
+		}
+		portAudioInitialized = true;
+
+		const PaDeviceIndex inputDevice = findInputDevice();
+		if (inputDevice == paNoDevice) {
+			shutdownMic();
+			const std::string message = "No input audio device available.";
+			std::cerr << message << "\n";
+			throw std::runtime_error(message);
 		}
 
-		err = Pa_OpenDefaultStream(
-			&stream,
-			1,          // input channels
-			0,          // output channels
-			paFloat32,  // sample format
-			48000,      // sample rate
-			256,        // frames per buffer
+		const PaDeviceInfo* deviceInfo = Pa_GetDeviceInfo(inputDevice);
+		if (deviceInfo == nullptr) {
+			shutdownMic();
+			const std::string message = "PortAudio returned no info for the selected input device.";
+			std::cerr << message << "\n";
+			throw std::runtime_error(message);
+		}
+
+		PaStreamParameters inputParameters{};
+		inputParameters.device = inputDevice;
+		inputParameters.channelCount = 1;
+		inputParameters.sampleFormat = paFloat32;
+		inputParameters.suggestedLatency = deviceInfo->defaultLowInputLatency;
+		inputParameters.hostApiSpecificStreamInfo = nullptr;
+
+		const double sampleRate = deviceInfo->defaultSampleRate > 0.0
+			? deviceInfo->defaultSampleRate
+			: 48000.0;
+		cout << "Using audio input device: " << deviceInfo->name << " with sample rate: " << sampleRate << std::endl;
+		err = Pa_OpenStream(
+			&micStream,
+			&inputParameters,
+			nullptr,
+			sampleRate,
+			256,
+			paNoFlag,
 			audioCallback,
 			nullptr
 		);
 
 		if (err != paNoError)
 		{
-			std::cerr << "Failed to open stream.\n";
-			Pa_Terminate();
-			return -2;
+			const std::string message = "Failed to open input stream: " + std::string(Pa_GetErrorText(err));
+			std::cerr << message << "\n";
+			shutdownMic();
+			throw std::runtime_error(message);
 		}
 
-		err = Pa_StartStream(stream);
+		err = Pa_StartStream(micStream);
 		if (err != paNoError)
 		{
-			std::cerr << "Failed to start stream.\n";
-			Pa_CloseStream(stream);
+			const std::string message = "Failed to start input stream: " + std::string(Pa_GetErrorText(err));
+			std::cerr << message << "\n";
+			shutdownMic();
+			throw std::runtime_error(message);
+		}
+	}
+
+	void shutdownMic()
+	{
+		if (micStream != nullptr) {
+			Pa_StopStream(micStream);
+			Pa_CloseStream(micStream);
+			micStream = nullptr;
+		}
+		if (portAudioInitialized) {
 			Pa_Terminate();
-			return -3;
+			portAudioInitialized = false;
 		}
 	}
 
@@ -295,8 +373,8 @@ export struct MultiscaleGrowthSketch : public lx::SketchBase {
 	static lx::gl::TextureRef gpuHighpass(lx::gl::TextureRef in, float strength) {
 		auto blurred = gpuBlurClaude::blurWithInvKernel(in);
 		auto highpassed = lx::shade({ in, blurred }, MULTILINE(
-			float f = texture().x;
-       float fBlurred = texture(tex1).x;
+			float f = lxTexture().x;
+       float fBlurred = lxTexture(tex1).x;
 		float highPassed = f - fBlurred * highPassStrength;
 		_out.r = highPassed;
 			), lx::ShadeOpts().uniform("highPassStrength", strength)
@@ -306,8 +384,8 @@ export struct MultiscaleGrowthSketch : public lx::SketchBase {
 	static lx::gl::TextureRef gpuHighpassNew(lx::gl::TextureRef in, float strength) {
 		auto blurred = lx::gpuBlur::run(in, 2);
 		auto highpassed = lx::shade({ in, blurred }, MULTILINE(
-			float f = texture().x;
-		float fBlurred = texture(tex1).x;
+			float f = lxTexture().x;
+		float fBlurred = lxTexture(tex1).x;
 		float highPassed = f - fBlurred * highPassStrength;
 		_out.r = highPassed;
 			), lx::ShadeOpts().uniform("highPassStrength", strength)
@@ -320,14 +398,14 @@ export struct MultiscaleGrowthSketch : public lx::SketchBase {
 
 		auto imgTex = lx::uploadTex(img);
 		auto imgTexCentered = lx::shade(imgTex,
-			"float f = texture().x;"
+			"float f = lxTexture().x;"
 			"_out.r = f - .5;"
 		);
 
 		auto imgTexHighpassed = gpuHighpassNew(imgTexCentered, options.highPassStrength);
 		
 		auto result = lx::shade(imgTexHighpassed,
-			"float f = texture().x;"
+			"float f = lxTexture().x;"
 			"float fw = fwidth(f);"
 			"vec3 sum = vec3(0.0);"
 
@@ -346,8 +424,8 @@ export struct MultiscaleGrowthSketch : public lx::SketchBase {
 		result = op(result) + op(resultB) * 3.0;
 
 		result = lx::shade({ result, imgTex }, R"(
-			vec3 bloomedHiPass = texture(tex0).rgb;
-			vec3 original = vec3(texture(tex1).r);
+			vec3 bloomedHiPass = lxTexture(tex0).rgb;
+			vec3 original = vec3(lxTexture(tex1).r);
 			vec3 sum = bloomedHiPass * 4.0;
 			sum /= sum + vec3(1.0);
 			_out.rgb = sum;
@@ -361,7 +439,7 @@ export struct MultiscaleGrowthSketch : public lx::SketchBase {
 	{
 		lx::lxClear();
 		options.update();
-		m = micState * 4;
+		m = micState.load(std::memory_order_relaxed) * 4;
 		m = std::max(0.0, 1.0 - m*m);
 		cout << m << endl;
 		options.blendWeaken = m;

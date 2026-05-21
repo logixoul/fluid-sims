@@ -4,9 +4,10 @@ module;
 
 export module lxlib.Array2D_imageProc;
 
-using namespace std;
 import lxlib.Array2D;
 import lxlib.stuff;
+
+using namespace std;
 
 export namespace lx {
 	namespace WrapModes {

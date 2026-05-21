@@ -166,12 +166,12 @@ namespace ThisSketch {
 		return out;
 	}
 
-	lx::gl::TextureRef redToLuminance(lx::gl::TextureRef const& in) {
-		return lx::shade(in,
-			"_out.rgb = vec3(texture().x);",
-			lx::ShadeOpts().ifmt(GL_RGBA16F)
-		);
-	}
+lx::gl::TextureRef redToLuminance(lx::gl::TextureRef const& in) {
+return lx::shade(in,
+"_out.rgb = vec3(lxTexture().x);",
+lx::ShadeOpts().ifmt(GL_RGBA16F)
+);
+}
 
 	float blendHardLight(float base, float blend) {
 		if (blend < 0.5f) {
