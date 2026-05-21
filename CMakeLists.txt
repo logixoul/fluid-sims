@@ -1,16 +1,6 @@
 cmake_minimum_required(VERSION 3.28)
 
 set(VCPKG_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg")
-if(NOT EXISTS "${VCPKG_ROOT}/vcpkg" AND NOT EXISTS "${VCPKG_ROOT}/vcpkg.exe")
-    message(STATUS "Bootstrapping vcpkg...")
-    if(WIN32)
-        execute_process(COMMAND "${VCPKG_ROOT}/bootstrap-vcpkg.bat" -disableMetrics
-                        WORKING_DIRECTORY "${VCPKG_ROOT}")
-    else()
-        execute_process(COMMAND "${VCPKG_ROOT}/bootstrap-vcpkg.sh" -disableMetrics
-                        WORKING_DIRECTORY "${VCPKG_ROOT}")
-    endif()
-endif()
 
 set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
 
