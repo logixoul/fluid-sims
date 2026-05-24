@@ -11,7 +11,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 if(MSVC)
-    # Use static MSVC runtime (/MT or /MTd) to match the vcpkg triplet
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 endif()
 
@@ -70,6 +69,7 @@ set(CXX_MODULE_SOURCES
     src/ParticleTraces2DSketch/ParticleTraces2DSketch.ixx
     src/VarianceAddSketch/VarianceAddSketch.ixx
     src/FftRaysSketch/FftRaysSketch.ixx
+        src/BasicSketch/BasicSketch.ixx
 )
 
 # ── Target ────────────────────────────────────────────────────────────────────
@@ -140,16 +140,14 @@ target_link_libraries(App PRIVATE
 )
 
 
-# ── Runtime config copies: always checked, only copied when source is newer ───
+file(GLOB_RECURSE APP_RUNTIME_CONFIGS
+        CONFIGURE_DEPENDS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.toml"
+)
+
 add_custom_target(AppRuntimeConfigs
-    COMMAND ${CMAKE_COMMAND} -E copy_if_newer
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/GridFluidSketch/gridFluidConfig.toml
-        $<TARGET_FILE_DIR:App>/gridFluidConfig.toml
-    COMMAND ${CMAKE_COMMAND} -E copy_if_newer
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/MultiscaleGrowthSketch/multiscaleGrowthConfig.toml
-        $<TARGET_FILE_DIR:App>/multiscaleGrowthConfig.toml
-    COMMAND ${CMAKE_COMMAND} -E copy_if_newer
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/FftRaysSketch/FftRaysConfig.toml
-        $<TARGET_FILE_DIR:App>/FftRaysConfig.toml
+        COMMAND ${CMAKE_COMMAND} -E copy_if_newer
+        ${APP_RUNTIME_CONFIGS}
+        $<TARGET_FILE_DIR:App>
 )
 add_dependencies(App AppRuntimeConfigs)

@@ -10,7 +10,9 @@
 import lxlib.SketchScaffold;
 
 //import FftRaysSketch;
-import MultiscaleGrowthSketch;
+//import MultiscaleGrowthSketch; using StartupSketch = MultiscaleGrowthSketch;
+import BasicSketch;
+using StartupSketch = BasicSketch;
 //import ParticleTraces2DSketch;
 
 #ifdef _WIN32
@@ -28,6 +30,7 @@ int main() {
 		lx::SketchScaffold sketchScaffold(&sketch);
 		sketchScaffold.setup();
 		sketchScaffold.mainLoop();
+		return 0;
 	} catch (std::exception& e) {
 		std::ofstream("log.txt") << e.what() << '\n';
 		return -1;

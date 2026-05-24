@@ -109,9 +109,9 @@ export namespace lx {
 		lx::Array2D<T> dst1(src.width(), src.height());
 		lx::Array2D<T> dst2(src.width(), src.height());
  for(auto p : dst1.coords())
-		dst1(p) = .25f * (2.0f * get_clamped(src, p.x, p.y) + get_clamped(src, p.x - 1, p.y) + get_clamped(src, p.x + 1, p.y));
+		dst1(p) = .25f * (2.0f * WrapModes::Clamp::fetch(src, p.x, p.y) + WrapModes::Clamp::fetch(src, p.x - 1, p.y) + WrapModes::Clamp::fetch(src, p.x + 1, p.y));
  for(auto p : dst2.coords())
-		dst2(p) = .25f * (2.0f * get_clamped(dst1, p.x, p.y) + get_clamped(dst1, p.x, p.y - 1) + get_clamped(dst1, p.x, p.y + 1));
+		dst2(p) = .25f * (2.0f * WrapModes::Clamp::fetch(dst1, p.x, p.y) + WrapModes::Clamp::fetch(dst1, p.x, p.y - 1) + WrapModes::Clamp::fetch(dst1, p.x, p.y + 1));
         return dst2;
 	}
 
