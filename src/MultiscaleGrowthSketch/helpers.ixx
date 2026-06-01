@@ -2,7 +2,7 @@ module;
 #include "precompiled.h"
 #include <lxlib/macros.h>
 
-export module ThisSketch_ImageProcessingHelpers;
+export module MultiscaleGrowthSketch.helpers;
 
 import lxlib.Array2D_imageProc;
 import lxlib.gpgpu;
@@ -12,7 +12,7 @@ import lxlib.stuff;
 import lxlib.shade;
 import gpuBlurClaude;
 
-export namespace ThisSketch {
+export namespace MultiscaleGrowthSketch {
 
 	using Img = lx::Array2D<float>;
 
@@ -31,18 +31,6 @@ export namespace ThisSketch {
 
 	float mulContrastize(float i, float contrastizeStrength);
 
-	template<class T, class WrapPolicy>
-	float hessianDirectionalSecondDeriv(lx::Array2D<T>& src, ivec2 const& p, vec2 const& d) {
-		float fxx = WrapPolicy::fetch(src, p.x + 1, p.y) - 2.0f * WrapPolicy::fetch(src, p.x, p.y) + WrapPolicy::fetch(src, p.x - 1, p.y);
-		float fyy = WrapPolicy::fetch(src, p.x, p.y + 1) - 2.0f * WrapPolicy::fetch(src, p.x, p.y) + WrapPolicy::fetch(src, p.x, p.y - 1);
-		float fxy = 0.25f * (
-			WrapPolicy::fetch(src, p.x + 1, p.y + 1)
-			- WrapPolicy::fetch(src, p.x - 1, p.y + 1)
-			- WrapPolicy::fetch(src, p.x + 1, p.y - 1)
-			+ WrapPolicy::fetch(src, p.x - 1, p.y - 1));
-		return d.x * d.x * fxx + 2.0f * d.x * d.y * fxy + d.y * d.y * fyy;
-	}
-
 	//Array2D<float> resize(Array2D<float> src, ivec2 dstSize, const ci::FilterBase& filter);
 	std::vector<Img> buildGaussianPyramid(Img src, float scalePerLevel = 0.5f);
 
@@ -51,9 +39,9 @@ export namespace ThisSketch {
 
 	lx::Array2D<float> resize_referenceImplementation(lx::Array2D<float> const& src, ivec2 dstSize);
 
-} // namespace ThisSketch
+} // namespace MultiscaleGrowthSketch
 
-namespace ThisSketch {
+namespace MultiscaleGrowthSketch {
 
 	vec2 perpLeft(vec2 const& v) {
 		return vec2(-v.y, v.x);

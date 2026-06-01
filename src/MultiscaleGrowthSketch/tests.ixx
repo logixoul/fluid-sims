@@ -2,7 +2,7 @@ module;
 #include "../precompiled.h"
 export module MultiscaleGrowthSketch.tests;
 import lxlib.Array2D;
-import ThisSketch_ImageProcessingHelpers;
+import MultiscaleGrowthSketch.helpers;
 import gpuBlurClaude;
 import lxlib.stuff;
 
@@ -17,7 +17,7 @@ export namespace MultiscaleGrowthSketch::tests {
 		for (int testSize : testSizes) {
 			//auto newImpl = ThisSketch::resize_referenceImplementation(arr, ivec2(testSize, testSize)); // works
 			auto newImpl = gpuBlurClaude::singleblurLikeCinder(arr, ivec2(testSize, testSize));
-			auto oldImpl = ThisSketch::resize_referenceImplementation(arr, ivec2(testSize, testSize));
+			auto oldImpl = MultiscaleGrowthSketch::resize_referenceImplementation(arr, ivec2(testSize, testSize));
 			//mm("new", newImpl);
 			//mm("old", oldImpl);
 

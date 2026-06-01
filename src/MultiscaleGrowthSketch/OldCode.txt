@@ -20,3 +20,15 @@ if (false) {
 			auto img2Tex = lx::uploadTex(img2);
 		}
 		
+		
+	template<class T, class WrapPolicy>
+	float hessianDirectionalSecondDeriv(lx::Array2D<T>& src, ivec2 const& p, vec2 const& d) {
+		float fxx = WrapPolicy::fetch(src, p.x + 1, p.y) - 2.0f * WrapPolicy::fetch(src, p.x, p.y) + WrapPolicy::fetch(src, p.x - 1, p.y);
+		float fyy = WrapPolicy::fetch(src, p.x, p.y + 1) - 2.0f * WrapPolicy::fetch(src, p.x, p.y) + WrapPolicy::fetch(src, p.x, p.y - 1);
+		float fxy = 0.25f * (
+			WrapPolicy::fetch(src, p.x + 1, p.y + 1)
+			- WrapPolicy::fetch(src, p.x - 1, p.y + 1)
+			- WrapPolicy::fetch(src, p.x + 1, p.y - 1)
+			+ WrapPolicy::fetch(src, p.x - 1, p.y - 1));
+		return d.x * d.x * fxx + 2.0f * d.x * d.y * fxy + d.y * d.y * fyy;
+	}

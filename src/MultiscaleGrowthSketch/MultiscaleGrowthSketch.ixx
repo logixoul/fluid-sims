@@ -16,12 +16,11 @@ import lxlib.shade;
 import lxlib.TextureRef;
 import lxlib.gpuBlur;
 import lxlib.AudioSystem;
-import ThisSketch_ImageProcessingHelpers;
+import MultiscaleGrowthSketch.helpers;
 import gpuBlurClaude;
 import MultiscaleGrowthSketch.tests;
 
-using Img = ThisSketch::Img;
-
+using Img = MultiscaleGrowthSketch::Img;
 lx::Array2D<float> img(256, 256);
 export namespace MultiscaleGrowthSketch {
 	struct Sketch : public lx::SketchBase {
@@ -64,7 +63,7 @@ export namespace MultiscaleGrowthSketch {
 			for (int i = 0; i < framesPerBuffer; i++) {
 				peak = std::max(peak, std::fabs(samples[i]));
 			}
-			micState.store(peak * 0.99f, std::memory_order_relaxed);
+			micState.store(peak * 0.9f, std::memory_order_relaxed);
 		}
 
 
@@ -136,7 +135,7 @@ export namespace MultiscaleGrowthSketch {
 			for (auto p : result.coords()) {
 				float floatY = p.y / (float)result.height();
 				floatY = glm::mix(options.verticalBias, 1.0f - options.verticalBias, floatY);
-				result(p) = ThisSketch::blendHardLight(img(p), floatY);
+				result(p) = MultiscaleGrowthSketch::blendHardLight(img(p), floatY);
 			}
 			return result;
 		}
@@ -156,7 +155,7 @@ export namespace MultiscaleGrowthSketch {
 			return result;
 		}
 		Img multiscaleApply(Img src, function<Img(Img)> func) {
-			std::vector<Img> origScales = ThisSketch::buildGaussianPyramid(src, 0.5f);
+			std::vector<Img> origScales = MultiscaleGrowthSketch::buildGaussianPyramid(src, 0.5f);
 			std::vector<Img> updatedScales(origScales.size());
 			const int last = origScales.size() - 1;
 			updatedScales[last] = func(origScales[last]);
@@ -165,7 +164,7 @@ export namespace MultiscaleGrowthSketch {
 				auto diff = updatedScales[i] - origScales[i];
 				diff = diff * weights[i];
 				//auto const upscaledDiff = gpuBlurClaude::singleblurLikeCinder(diff, origScales[i - 1].size());
-				auto const upscaledDiff = ThisSketch::resize_referenceImplementation(diff, origScales[i - 1].size());
+				auto const upscaledDiff = MultiscaleGrowthSketch::resize_referenceImplementation(diff, origScales[i - 1].size());
 				auto& nextScale = updatedScales[i - 1];
 				nextScale = origScales[i - 1] + upscaledDiff;
 				nextScale = func(nextScale);
@@ -257,7 +256,7 @@ export namespace MultiscaleGrowthSketch {
 				tex = postprocess();
 			}
 			else {
-				tex = ThisSketch::redToLuminance(tex);
+				tex = MultiscaleGrowthSketch::redToLuminance(tex);
 			}
 			glViewport(0, 0, windowSize.x, windowSize.y);
 			lx::lxDraw(tex, lx::Rect<float>(0, 0, 1, 1));

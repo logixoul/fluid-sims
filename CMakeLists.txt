@@ -60,12 +60,11 @@ set(CXX_MODULE_SOURCES
     src/lxlib/VaoVbo.ixx
     src/lxlib/KissFFTWrapper.ixx
     src/MultiscaleGrowthSketch/gpuBlurClaude.ixx
-    src/MultiscaleGrowthSketch/ThisSketch_ImageProcessingHelpers.ixx
+    "src/MultiscaleGrowthSketch/helpers.ixx"
     src/MultiscaleGrowthSketch/MultiscaleGrowthSketch.ixx
     src/ParticleFluidSketch.ixx
     src/GridFluidSketch/GridFluidSketch.ixx
     src/ParticleTraces2DSketch/ParticleTraces2DSketch.ixx
-    src/VarianceAddSketch/VarianceAddSketch.ixx
     src/FftRaysSketch/FftRaysSketch.ixx
         src/BasicSketch/BasicSketch.ixx
  "src/lxlib/audio.ixx" "src/MultiscaleGrowthSketch/tests.ixx")
