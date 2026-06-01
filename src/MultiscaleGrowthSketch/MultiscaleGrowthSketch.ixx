@@ -104,28 +104,31 @@ export struct MultiscaleGrowthSketch : public lx::SketchBase {
 	{
 		auto img = aImg.clone();
 
-		auto gradients = lx::get_gradients<float, lx::WrapModes::Clamp>(img);
-		auto img2 = img.clone();
-        for(auto p : img.coords()) {
-			vec2 const& pf = vec2(p);
-			vec2 const& grad = gradients(p);
-           vec2 const& gradN = lx::safeNormalized(grad);
-			vec2 const& gradNPerp = perpLeft(gradN);
+		auto tex = lx::uploadTex(img);
+		auto gradsTex = lx::getGradients(tex, GL_CLAMP_TO_EDGE);
 
-			
-			// we call hessianDirectionalSecondDeriv instead of doing the following 4 lines, for performance reasons.
-			/*float here = img(p);
-			float atLeft = lx::getBilinear<float, lx::WrapModes::Clamp>(img, pf - gradNPerp);
-			float atRight = lx::getBilinear<float, lx::WrapModes::Clamp>(img, pf + gradNPerp);
-			float add = here - (atLeft + atRight) * 0.5f;*/
-			float add = -hessianDirectionalSecondDeriv<float, lx::WrapModes::Clamp>(img, p, gradNPerp);
-			
-			img2(p) += add * options.morphogenesisStrength;
-		}
-		auto img2Tex = lx::uploadTex(img2);
-		img2Tex = lx::gaussianBlur3x3(img2Tex, GL_CLAMP_TO_EDGE);
-		//auto blurredImg2 = ThisSketch::gaussianBlur3x3<float, lx::WrapModes::Clamp>(img2);
-		img = lx::downloadTex<float>(img2Tex);
+		tex->setWrap(GL_CLAMP_TO_EDGE);
+		tex->sendParamsToGPU();
+		gradsTex->setWrap(GL_CLAMP_TO_EDGE);
+		gradsTex->sendParamsToGPU();
+
+		auto tex2 = lx::shade({ tex, gradsTex }, R"(
+			float f = lxTexture().x;
+			_out.r = f;
+			vec2 grad = lxTexture(tex1).xy;
+			if(length(grad) == 0.0) {
+				return;
+			}
+			vec2 gradN = normalize(grad);
+			vec2 gradNPerp = vec2(-gradN.y, gradN.x);
+			float atLeft = texture(tex0, texCoord - gradNPerp * texelSize0).x;
+			float atRight = texture(tex0, texCoord + gradNPerp * texelSize0).x;
+			float add = f - (atLeft + atRight) * 0.5;
+			_out.r += add * morphogenesisStrength;
+		)",
+			lx::ShadeOpts().uniform("morphogenesisStrength", options.morphogenesisStrength));
+		tex2 = lx::gaussianBlur3x3(tex2, GL_CLAMP_TO_EDGE);
+		img = lx::downloadTex<float>(tex2);
 		img = applyVerticalGradient(img);
 
 		return img;

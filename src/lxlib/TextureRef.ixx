@@ -70,6 +70,7 @@ export namespace lx {
 			glActiveTexture(GL_TEXTURE0); // todo: is this necessary?
 		}
 		void sendParamsToGPU() {
+			bind();
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, mFormat.mMinFilter);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mFormat.mMagFilter);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, mFormat.mWrapS);

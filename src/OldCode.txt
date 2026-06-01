@@ -1,0 +1,22 @@
+if (false) {
+			auto gradients = lx::get_gradients<float, lx::WrapModes::Clamp>(img);
+			auto img2 = img.clone();
+			for (auto p : img.coords()) {
+				vec2 const& pf = vec2(p);
+				vec2 const& grad = gradients(p);
+				vec2 const& gradN = lx::safeNormalized(grad);
+				vec2 const& gradNPerp = perpLeft(gradN);
+
+
+				// we call hessianDirectionalSecondDeriv instead of doing the following 4 lines, for performance reasons.
+				/*float here = img(p);
+				float atLeft = lx::getBilinear<float, lx::WrapModes::Clamp>(img, pf - gradNPerp);
+				float atRight = lx::getBilinear<float, lx::WrapModes::Clamp>(img, pf + gradNPerp);
+				float add = here - (atLeft + atRight) * 0.5f;*/
+				float add = -hessianDirectionalSecondDeriv<float, lx::WrapModes::Clamp>(img, p, gradNPerp);
+
+				img2(p) += add * options.morphogenesisStrength;
+			}
+			auto img2Tex = lx::uploadTex(img2);
+		}
+		
