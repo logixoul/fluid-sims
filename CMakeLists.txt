@@ -128,12 +128,17 @@ if(MSVC)
     )
 endif()
 
+if(UNIX AND NOT APPLE)
+    # PipeWire ships JACK in a non-standard path; help the linker find it.
+    target_link_directories(App PRIVATE /usr/lib64/pipewire-0.3/jack)
+endif()
+
 target_link_libraries(App PRIVATE
     OpenGL::GL
     glfw
     glm::glm
     kissfft::kissfft-float
-    portaudio
+    portaudio_static
 )
 
 
@@ -143,7 +148,7 @@ file(GLOB_RECURSE APP_RUNTIME_CONFIGS
 )
 
 add_custom_target(AppRuntimeConfigs
-        COMMAND ${CMAKE_COMMAND} -E copy_if_newer
+        COMMAND ${CMAKE_COMMAND} -E copy
         ${APP_RUNTIME_CONFIGS}
         $<TARGET_FILE_DIR:App>
 )

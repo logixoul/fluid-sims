@@ -1,4 +1,6 @@
+module;
 #include <portaudio.h>
+#include "precompiled.h"
 
 export module lxlib.AudioSystem;
 

@@ -11,6 +11,7 @@ import lxlib.SketchBase;
 import lxlib.shade;
 import lxlib.VaoVbo;
 import lxlib.GlslProg;
+import lxlib.Rect;
 
 export module BasicSketch;
 
