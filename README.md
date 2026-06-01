@@ -14,3 +14,8 @@ Steps to build on Ubuntu:
 * in the vcpkg dir, run `bootstrap-vcpkg.sh`
 * cmake --preset=linux
 * cmake --build --preset=linux-release
+
+Packages needed on Fedora:
+* sudo dnf install curl zip unzip tar pkgconf-pkg-config gcc-c++ make ninja-build git # for vcpkg
+* sudo dnf install mesa-libGL-devel libX11-devel libXrandr-devel libXinerama-devel libXcursor-devel libXi-devel libXxf86vm-devel libXext-devel libXrender-devel libXfixes-devel libXau-devel libXdmcp-devel libxkbcommon-devel glu-devel # for opengl and glfw
+* sudo dnf install autoconf autoconf-archive automake libtool alsa-lib-devel # for alsa (for PortAudio)

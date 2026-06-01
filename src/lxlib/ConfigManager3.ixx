@@ -1,8 +1,32 @@
 module;
 #include "precompiled.h"
+#include <filesystem>
 #include "toml.hpp"
 
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#endif
+
 export module lxlib.ConfigManager3;
+
+static std::filesystem::path getExecutableDirectory()
+{
+#ifdef _WIN32
+	std::vector<char> buffer(MAX_PATH);
+	auto length = GetModuleFileNameA(nullptr, buffer.data(), static_cast<DWORD>(buffer.size()));
+	while (length == buffer.size()) {
+		buffer.resize(buffer.size() * 2);
+		length = GetModuleFileNameA(nullptr, buffer.data(), static_cast<DWORD>(buffer.size()));
+	}
+	if (length == 0) {
+		throw std::runtime_error("Failed to get executable path");
+	}
+	return std::filesystem::path(std::string(buffer.data(), length)).parent_path();
+#else
+	return std::filesystem::current_path();
+#endif
+}
 
 template<class T> T& getOpt_Base(std::string const& name, T defaultValue) {
 	static std::map<std::string, T> m;
@@ -20,7 +44,11 @@ private:
 public:
 	ConfigManager3(std::string const filePath)
 	{
-		tbl = toml::parse_file(filePath);
+       auto path = std::filesystem::path(filePath);
+		if (path.is_relative()) {
+			path = getExecutableDirectory() / path;
+		}
+		tbl = toml::parse_file(path.string());
 	}
 	void init() // to avoid static initialization order fiasco. Call this at the start of setup() in Sketch.
 	{
