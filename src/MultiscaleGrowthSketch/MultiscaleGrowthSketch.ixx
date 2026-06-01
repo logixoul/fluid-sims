@@ -4,10 +4,6 @@ module;
 #include <cmath>
 #include <numeric>
 #include <lxlib/macros.h>
-
-//#define MINIAUDIO_IMPLEMENTATION
-
-//#include <miniaudio.h>
 #include <portaudio.h>
 
 export module MultiscaleGrowthSketch;
@@ -22,6 +18,7 @@ import lxlib.SketchBase;
 import lxlib.shade;
 import lxlib.TextureRef;
 import lxlib.gpuBlur;
+import lxlib.AudioSystem;
 import ThisSketch_ImageProcessingHelpers;
 import gpuBlurClaude;
 
@@ -30,57 +27,6 @@ int wsx = 700, wsy = 700;
 using namespace ThisSketch;
 
 lx::Array2D<float> img(256, 256);
-
-namespace {
-PaDeviceIndex findInputDevice()
-{
-	const PaDeviceIndex defaultDevice = Pa_GetDefaultInputDevice();
-	if (defaultDevice != paNoDevice) {
-		return defaultDevice;
-	}
-
-	const int deviceCount = Pa_GetDeviceCount();
-	if (deviceCount < 0) {
-		return paNoDevice;
-	}
-
-	for (PaDeviceIndex deviceIndex = 0; deviceIndex < deviceCount; ++deviceIndex) {
-		const PaDeviceInfo* deviceInfo = Pa_GetDeviceInfo(deviceIndex);
-		if (deviceInfo != nullptr && deviceInfo->maxInputChannels > 0) {
-			return deviceIndex;
-		}
-	}
-
-	return paNoDevice;
-}
-}
-
-std::atomic<float> micState = 0.0f;
-static int audioCallback(const void* inputBuffer,
-	void* outputBuffer,
-	unsigned long framesPerBuffer,
-	const PaStreamCallbackTimeInfo* timeInfo,
-	PaStreamCallbackFlags statusFlags,
-	void* userData)
-{
-	(void)outputBuffer;
-	(void)timeInfo;
-	(void)statusFlags;
-	(void)userData;
-
-	const float* samples = (const float*)inputBuffer;
-
-	if (samples != nullptr)
-	{
-		float peak = micState.load(std::memory_order_relaxed);
-		for (int i = 0; i < framesPerBuffer; i++) {
-			peak = std::max(peak, std::fabs(samples[i]));
-		}
-		micState.store(peak * 0.99f, std::memory_order_relaxed);
-	}
-
-	return paContinue;
-}
 
 export struct MultiscaleGrowthSketch : public lx::SketchBase {
 	struct Options {
@@ -111,102 +57,34 @@ export struct MultiscaleGrowthSketch : public lx::SketchBase {
 
 	Options options;
 	bool isPaused = false;
-	PaStream* micStream = nullptr;
-	bool portAudioInitialized = false;
+	lx::AudioSystem audioSystem;
 
-		
+	std::atomic<float> micState = 0.0f;
+	void audioCallback(const void* inputBuffer, void* outputBuffer, unsigned long framesPerBuffer)
+	{
+		const float* samples = (const float*)inputBuffer;
+
+		float peak = micState.load(std::memory_order_relaxed);
+		for (int i = 0; i < framesPerBuffer; i++) {
+			peak = std::max(peak, std::fabs(samples[i]));
+		}
+		micState.store(peak * 0.99f, std::memory_order_relaxed);
+	}
+
+
 	void setup()
 	{
 		options.init();
 		reset();
 
-		setupMic();
+		audioSystem.setupMic([this](const void* inputBuffer, void* outputBuffer, unsigned long framesPerBuffer) {
+			audioCallback(inputBuffer, outputBuffer, framesPerBuffer);
+		});
 	}
 
 	~MultiscaleGrowthSketch()
 	{
-		shutdownMic();
-	}
-
-	void setupMic() {
-		PaError err;
-
-		err = Pa_Initialize();
-		if (err != paNoError)
-		{
-			const std::string message = "PortAudio init failed: " + std::string(Pa_GetErrorText(err));
-			std::cerr << message << "\n";
-			throw std::runtime_error(message);
-		}
-		portAudioInitialized = true;
-
-		const PaDeviceIndex inputDevice = findInputDevice();
-		if (inputDevice == paNoDevice) {
-			shutdownMic();
-			const std::string message = "No input audio device available.";
-			std::cerr << message << "\n";
-			throw std::runtime_error(message);
-		}
-
-		const PaDeviceInfo* deviceInfo = Pa_GetDeviceInfo(inputDevice);
-		if (deviceInfo == nullptr) {
-			shutdownMic();
-			const std::string message = "PortAudio returned no info for the selected input device.";
-			std::cerr << message << "\n";
-			throw std::runtime_error(message);
-		}
-
-		PaStreamParameters inputParameters{};
-		inputParameters.device = inputDevice;
-		inputParameters.channelCount = 1;
-		inputParameters.sampleFormat = paFloat32;
-		inputParameters.suggestedLatency = deviceInfo->defaultLowInputLatency;
-		inputParameters.hostApiSpecificStreamInfo = nullptr;
-
-		const double sampleRate = deviceInfo->defaultSampleRate > 0.0
-			? deviceInfo->defaultSampleRate
-			: 48000.0;
-		cout << "Using audio input device: " << deviceInfo->name << " with sample rate: " << sampleRate << std::endl;
-		err = Pa_OpenStream(
-			&micStream,
-			&inputParameters,
-			nullptr,
-			sampleRate,
-			256,
-			paNoFlag,
-			audioCallback,
-			nullptr
-		);
-
-		if (err != paNoError)
-		{
-			const std::string message = "Failed to open input stream: " + std::string(Pa_GetErrorText(err));
-			std::cerr << message << "\n";
-			shutdownMic();
-			throw std::runtime_error(message);
-		}
-
-		err = Pa_StartStream(micStream);
-		if (err != paNoError)
-		{
-			const std::string message = "Failed to start input stream: " + std::string(Pa_GetErrorText(err));
-			std::cerr << message << "\n";
-			shutdownMic();
-			throw std::runtime_error(message);
-		}
-	}
-
-	void shutdownMic()
-	{
-		if (micStream != nullptr) {
-			Pa_StopStream(micStream);
-			Pa_CloseStream(micStream);
-			micStream = nullptr;
-		}
-		if (portAudioInitialized) {
-			Pa_Terminate();
-			portAudioInitialized = false;
-		}
+		audioSystem.shutdownMic();
 	}
 
 	void keyDown(int key)

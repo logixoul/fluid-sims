@@ -23,8 +23,6 @@ find_package(portaudio    CONFIG REQUIRED)
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 find_package(kissfft CONFIG REQUIRED COMPONENTS float)
 
-#find_path(VKFFT_INCLUDE_DIRS "VkFFT/vkFFT.h")
-
 # ── Source lists ──────────────────────────────────────────────────────────────
 set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/third-party/imgui)
 
@@ -70,7 +68,7 @@ set(CXX_MODULE_SOURCES
     src/VarianceAddSketch/VarianceAddSketch.ixx
     src/FftRaysSketch/FftRaysSketch.ixx
         src/BasicSketch/BasicSketch.ixx
-)
+ "src/lxlib/audio.ixx")
 
 # ── Target ────────────────────────────────────────────────────────────────────
 add_executable(App
