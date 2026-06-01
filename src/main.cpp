@@ -10,9 +10,9 @@
 import lxlib.SketchScaffold;
 
 //import FftRaysSketch;
-//import MultiscaleGrowthSketch; using StartupSketch = MultiscaleGrowthSketch;
-import BasicSketch;
-using StartupSketch = BasicSketch;
+import MultiscaleGrowthSketch;
+using StartupSketch = MultiscaleGrowthSketch;
+//import BasicSketch; using StartupSketch = BasicSketch;
 //import ParticleTraces2DSketch;
 
 #ifdef _WIN32

@@ -82,7 +82,7 @@ export namespace lx {
         WrapPolicy::fetch(dst, ix + 1, iy + 1) += (fractx * fracty) * value;
 	}
 	template<class T, class WrapPolicy>
-	T getBilinear(lx::Array2D<T> const& src, glm::vec2 const& p)
+	T getBilinear(lx::Array2D<T>& src, glm::vec2 const& p)
 	{
 	int ix = p.x, iy = p.y;
 	float fx = ix, fy = iy;

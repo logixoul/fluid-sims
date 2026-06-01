@@ -235,9 +235,16 @@ export struct MultiscaleGrowthSketch : public lx::SketchBase {
 			vec2 const& grad = gradients(p);
            vec2 const& gradN = lx::safeNormalized(grad);
 			vec2 const& gradNPerp = perpLeft(gradN);
+
+			
+			// we call hessianDirectionalSecondDeriv instead of doing the following 4 lines, for performance reasons.
+			/*float here = img(p);
+			float atLeft = lx::getBilinear<float, lx::WrapModes::Clamp>(img, pf - gradNPerp);
+			float atRight = lx::getBilinear<float, lx::WrapModes::Clamp>(img, pf + gradNPerp);
+			float add = here - (atLeft + atRight) * 0.5f;*/
 			float add = -hessianDirectionalSecondDeriv<float, lx::WrapModes::Clamp>(img, p, gradNPerp);
+			
 			img2(p) += add * options.morphogenesisStrength;
-			//lx::splatBilinearPoint<float, lx::WrapModes::Clamp>(img2, pf - gradN * add, add * options.morphogenesisStrength);
 		}
 		auto kernel = lx::getGaussianKernel(3, lx::sigmaFromKsize(3));
 		//auto blurredImg2 = ::separableConvolve<float, WrapModes::Clamp>(img2, kernel);
