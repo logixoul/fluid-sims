@@ -9,7 +9,7 @@
 
 import lxlib.SketchScaffold;
 
-#define SKETCH_TO_RUN MultiscaleGrowthSketch
+#define SKETCH_TO_RUN BasicSketch
 
 import SKETCH_TO_RUN;
 
