@@ -86,7 +86,8 @@ namespace ThisSketch {
 				break;
 			scales.push_back(state);
 			ivec2 newSize = ivec2(vec2(state.size()) * scalePerLevel);
-			state = gpuBlurClaude::singleblurLikeCinder(state, newSize);
+			//state = gpuBlurClaude::singleblurLikeCinder(state, newSize);
+			state = resize_referenceImplementation(state, newSize);
 		}
 		return scales;
 	}

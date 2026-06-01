@@ -9,11 +9,9 @@
 
 import lxlib.SketchScaffold;
 
-//import FftRaysSketch;
-import MultiscaleGrowthSketch;
-using StartupSketch = MultiscaleGrowthSketch;
-//import BasicSketch; using StartupSketch = BasicSketch;
-//import ParticleTraces2DSketch;
+#define SKETCH_TO_RUN MultiscaleGrowthSketch
+
+import SKETCH_TO_RUN;
 
 #ifdef _WIN32
 int WINAPI WinMain(
@@ -26,7 +24,7 @@ int WINAPI WinMain(
 int main() {
 #endif
 	try {
-		StartupSketch sketch;
+		SKETCH_TO_RUN::Sketch sketch;
 		lx::SketchScaffold sketchScaffold(&sketch);
 		sketchScaffold.setup();
 		sketchScaffold.mainLoop();
