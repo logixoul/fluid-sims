@@ -217,6 +217,9 @@ export struct MultiscaleGrowthSketch : public lx::SketchBase {
 
 			float f1 = smoothstep(-fw/2.0, fw/2.0, f) - smoothstep(.01-fw/2.0, .01+fw/2.0, f);
 			sum += f1 * vec3(1.0, 0.1, micInfluence*micInfluence);
+			
+			//float f2 = smoothstep(-.01-fw/2.0, -.01+fw/2.0, f) - smoothstep(-.005-fw/2.0, -.005+fw/2.0, f);
+			//sum += f2 * vec3(0.0, 0.01, 1.0) * 10.0;
 			_out.rgb = sum;
 			)", lx::ShadeOpts()
 					.dstRectSize(ivec2(wsx, wsy))
@@ -232,6 +235,7 @@ export struct MultiscaleGrowthSketch : public lx::SketchBase {
 			vec3 original = vec3(lxTexture(tex1).r);
 			vec3 sum = bloomedHiPass * 4.0;
 			sum /= sum + vec3(1.0);
+			//sum = smoothstep(vec3(0.0), vec3(1.0), sum);
 			_out.rgb = sum;
 		)");
 
