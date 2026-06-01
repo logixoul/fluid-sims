@@ -133,14 +133,23 @@ if(UNIX AND NOT APPLE)
     target_link_directories(App PRIVATE /usr/lib64/pipewire-0.3/jack)
 endif()
 
-target_link_libraries(App PRIVATE
-    OpenGL::GL
-    glfw
-    glm::glm
-    kissfft::kissfft-float
-    portaudio_static
-)
-
+if(UNIX)
+    target_link_libraries(App PRIVATE
+        OpenGL::GL
+        glfw
+        glm::glm
+        kissfft::kissfft-float
+        portaudio_static
+    )
+else()
+    target_link_libraries(App PRIVATE
+        OpenGL::GL
+        glfw
+        glm::glm
+        kissfft::kissfft-float
+        portaudio
+    )
+endif()
 
 file(GLOB_RECURSE APP_RUNTIME_CONFIGS
         CONFIGURE_DEPENDS

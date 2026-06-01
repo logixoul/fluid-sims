@@ -6,13 +6,16 @@ module;
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#elif defined(__linux__)
+#include <unistd.h>
+#include <limits.h>
 #endif
 
 export module lxlib.ConfigManager3;
 
 static std::filesystem::path getExecutableDirectory()
 {
-#ifdef _WIN32
+#if defined(_WIN32)
 	std::vector<char> buffer(MAX_PATH);
 	auto length = GetModuleFileNameA(nullptr, buffer.data(), static_cast<DWORD>(buffer.size()));
 	while (length == buffer.size()) {
@@ -23,6 +26,12 @@ static std::filesystem::path getExecutableDirectory()
 		throw std::runtime_error("Failed to get executable path");
 	}
 	return std::filesystem::path(std::string(buffer.data(), length)).parent_path();
+#elif defined(__linux__)
+	char result[PATH_MAX];
+	ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
+	if (count != -1) {
+		return std::filesystem::path(std::string(result, count)).parent_path();
+	}
 #else
 	return std::filesystem::current_path();
 #endif
