@@ -2,9 +2,7 @@ module;
 #include "../precompiled.h"
 #include <atomic>
 #include <cmath>
-#include <numeric>
-#include <lxlib/macros.h>
-#include <portaudio.h>
+//#include <numeric>
 
 export module MultiscaleGrowthSketch;
 
@@ -35,7 +33,7 @@ export struct MultiscaleGrowthSketch : public lx::SketchBase {
 		float blendWeaken;
 		float weightFactor;
 		bool multiscale;
-		bool binarizePostprocessing;
+		bool doPostprocessing;
 		float highPassStrength;
 		lx::ConfigManager3 cfg;
 
@@ -50,7 +48,7 @@ export struct MultiscaleGrowthSketch : public lx::SketchBase {
 			blendWeaken = cfg.getFloat("blendWeaken");
 			weightFactor = cfg.getFloat("weightFactor");
 			multiscale = cfg.getBool("multiscale");
-			binarizePostprocessing = cfg.getBool("binarizePostprocessing");
+			doPostprocessing = cfg.getBool("doPostprocessing");
 			highPassStrength = cfg.getFloat("highPassStrength");
 		}
 	};
@@ -124,57 +122,10 @@ export struct MultiscaleGrowthSketch : public lx::SketchBase {
 			
 			img2(p) += add * options.morphogenesisStrength;
 		}
-		auto kernel = lx::getGaussianKernel(3, lx::sigmaFromKsize(3));
-		//auto blurredImg2 = ::separableConvolve<float, WrapModes::Clamp>(img2, kernel);
-		auto blurredImg2 = ThisSketch::gaussianBlur3x3<float, lx::WrapModes::Clamp>(img2);
-		img = blurredImg2;
-		img = applyVerticalGradient(img);
-
-		return img;
-	}
-	lx::Array2D<float> updateSingleScale_GPT(lx::Array2D<float> aImg)
-	{
-		auto img = aImg.clone();
-		auto tex = lx::uploadTex(img);
-		tex->setWrap(GL_CLAMP_TO_EDGE);
-		auto levelSetCurvatureTex = lx::shade(tex, R"(
-				float here = texture(tex0, texCoord).r;
-				float left = texture(tex0, texCoord - vec2(texelSize0.x, 0.0)).r;
-				float right = texture(tex0, texCoord + vec2(texelSize0.x, 0.0)).r;
-				float down = texture(tex0, texCoord - vec2(0.0, texelSize0.y)).r;
-				float up = texture(tex0, texCoord + vec2(0.0, texelSize0.y)).r;
-				float downLeft = texture(tex0, texCoord - texelSize0).r;
-				float downRight = texture(tex0, texCoord + vec2(texelSize0.x, -texelSize0.y)).r;
-				float upLeft = texture(tex0, texCoord + vec2(-texelSize0.x, texelSize0.y)).r;
-				float upRight = texture(tex0, texCoord + texelSize0).r;
-
-				float fx = (right - left) * 0.5;
-				float fy = (up - down) * 0.5;
-				float fxx = right - 2.0 * here + left;
-				float fyy = up - 2.0 * here + down;
-				float fxy = (upRight - upLeft - downRight + downLeft) * 0.25;
-
-				float gradSq = fx * fx + fy * fy;
-				if(gradSq <= 0.03) {
-					_out.r = 0.0;
-					return;
-				}
-
-				float numerator = fxx * fy * fy - 2.0 * fx * fy * fxy + fyy * fx * fx;
-				float denominator = pow(gradSq, 1.5);
-				float curvature = numerator / denominator;
-				_out.r = curvature;
-		)");
-		auto levelSetCurvature = lx::downloadTex<float>(levelSetCurvatureTex);
-		auto img2 = img.clone();
-		for (auto p : img.coords()) {
-			float curvature = levelSetCurvature(p);
-			img2(p) += -curvature * options.morphogenesisStrength;
-		}
-		auto kernel = lx::getGaussianKernel(3, lx::sigmaFromKsize(3));
-		//auto blurredImg2 = ::separableConvolve<float, WrapModes::Clamp>(img2, kernel);
-		auto blurredImg2 = ThisSketch::gaussianBlur3x3<float, lx::WrapModes::Clamp>(img2);
-		img = blurredImg2;
+		auto img2Tex = lx::uploadTex(img2);
+		img2Tex = lx::gaussianBlur3x3(img2Tex, GL_CLAMP_TO_EDGE);
+		//auto blurredImg2 = ThisSketch::gaussianBlur3x3<float, lx::WrapModes::Clamp>(img2);
+		img = lx::downloadTex<float>(img2Tex);
 		img = applyVerticalGradient(img);
 
 		return img;
@@ -222,7 +173,6 @@ export struct MultiscaleGrowthSketch : public lx::SketchBase {
 	void update() {
 		lx::Array2D<float> newImg;
 		if (options.multiscale)
-			//newImg = multiscaleApply(img, [this](auto arg) { return updateSingleScale(arg); });
 			newImg = multiscaleApply(img, [this](auto arg) { return updateSingleScale(arg); });
 		else
 			newImg = updateSingleScale(img);
@@ -233,76 +183,42 @@ export struct MultiscaleGrowthSketch : public lx::SketchBase {
 		//testMatchingFunctionality();
 	}
 
-	void testMatchingFunctionality() {
-		lx::Array2D<float> arr(100, 100);
-        for(auto p : arr.coords()) {
-         arr(p) = lx::randFloat();
-		}
-
-		std::vector<int> testSizes{ 50, 200, 67, 107, 3 };
-		for (int testSize : testSizes) {
-			//auto newImpl = ThisSketch::resize_referenceImplementation(arr, ivec2(testSize, testSize)); // works
-			auto newImpl = gpuBlurClaude::singleblurLikeCinder(arr, ivec2(testSize, testSize));
-			auto oldImpl = ThisSketch::resize_referenceImplementation(arr, ivec2(testSize, testSize));
-			//mm("new", newImpl);
-			//mm("old", oldImpl);
-				
-            for(auto p : newImpl.coords()) {
-				if (abs(newImpl(p) - oldImpl(p)) > 0.0001) {
-					std::cout << "[" << testSize << "] mismatch at " << p.x << ", " << p.y << ": " << newImpl(p) << " vs " << oldImpl(p) << std::endl;
-				}
-			}
-		}
-	}
+	
 
 	static lx::gl::TextureRef gpuHighpass(lx::gl::TextureRef in, float strength) {
-		auto blurred = gpuBlurClaude::blurWithInvKernel(in);
-		auto highpassed = lx::shade({ in, blurred }, MULTILINE(
-			float f = lxTexture().x;
-       float fBlurred = lxTexture(tex1).x;
-		float highPassed = f - fBlurred * highPassStrength;
-		_out.r = highPassed;
-			), lx::ShadeOpts().uniform("highPassStrength", strength)
-			);
-		return highpassed;
-	}
-	static lx::gl::TextureRef gpuHighpassNew(lx::gl::TextureRef in, float strength) {
 		auto blurred = lx::gpuBlur::run(in, 2);
-		auto highpassed = lx::shade({ in, blurred }, MULTILINE(
+		auto highpassed = lx::shade({ in, blurred }, R"(
 			float f = lxTexture().x;
-		float fBlurred = lxTexture(tex1).x;
-		float highPassed = f - fBlurred * highPassStrength;
-		_out.r = highPassed;
-			), lx::ShadeOpts().uniform("highPassStrength", strength)
+			float fBlurred = lxTexture(tex1).x;
+			float highPassed = f - fBlurred * highPassStrength;
+			_out.r = highPassed;
+			)", lx::ShadeOpts().uniform("highPassStrength", strength)
 			);
 		return highpassed;
 	}
-	lx::gl::TextureRef postprocessNew() {
-		auto imgClamped = img.clone();
-		for (auto p : imgClamped.coords()) imgClamped(p) = glm::clamp(imgClamped(p), 0.0f, 1.0f);
-
+	lx::gl::TextureRef postprocess() {
 		auto imgTex = lx::uploadTex(img);
-		auto imgTexCentered = lx::shade(imgTex,
-			"float f = lxTexture().x;"
-			"_out.r = f - .5;"
+		auto imgTexCentered = lx::shade(imgTex, R"(
+			float f = lxTexture().x;
+			_out.r = f - .5;
+			)"
 		);
 
-		auto imgTexHighpassed = gpuHighpassNew(imgTexCentered, options.highPassStrength);
+		auto imgTexHighpassed = gpuHighpass(imgTexCentered, options.highPassStrength);
 		
-		auto result = lx::shade(imgTexHighpassed,
-			"float f = lxTexture().x;"
-			"float fw = fwidth(f);"
-			"vec3 sum = vec3(0.0);"
+		auto result = lx::shade(imgTexHighpassed, R"(
+			float f = lxTexture().x;
+			float fw = fwidth(f);
+			vec3 sum = vec3(0.0);
 
 
-			"float f1 = smoothstep(-fw/2.0, fw/2.0, f) - smoothstep(.01-fw/2.0, .01+fw/2.0, f);"
-			"sum += f1 * vec3(1.0, 0.1, 1.0*m*m);"
-			"_out.rgb = sum;"
-			,
-			lx::ShadeOpts()
-			.dstRectSize(ivec2(wsx, wsy))
-			.ifmt(GL_RGBA16F)
-			.uniform("m", m)
+			float f1 = smoothstep(-fw/2.0, fw/2.0, f) - smoothstep(.01-fw/2.0, .01+fw/2.0, f);
+			sum += f1 * vec3(1.0, 0.1, micInfluence*micInfluence);
+			_out.rgb = sum;
+			)", lx::ShadeOpts()
+					.dstRectSize(ivec2(wsx, wsy))
+					.ifmt(GL_RGBA16F)
+					.uniform("micInfluence", options.blendWeaken)
 		);	
 		
 		auto resultB = gpuBlurClaude::blurWithInvKernel(result);
@@ -319,19 +235,21 @@ export struct MultiscaleGrowthSketch : public lx::SketchBase {
 		return result;
 	}
 	
-	float m;
+	float micInfluence;
 	void draw()
 	{
 		lx::lxClear();
 		options.update();
-		m = micState.load(std::memory_order_relaxed) * 4;
-		m = std::max(0.0, 1.0 - m*m);
-		cout << m << endl;
-		options.blendWeaken = m;
+
+		micInfluence = micState.load(std::memory_order_relaxed);
+		micInfluence *= 4;
+		micInfluence = std::max(0.0, 1.0 - micInfluence*micInfluence);
+		std::cout << micInfluence << std::endl;
+		options.blendWeaken = micInfluence;
 
         lx::gl::TextureRef tex = lx::uploadTex(img);
-		if (options.binarizePostprocessing) {
-			tex = postprocessNew();
+		if (options.doPostprocessing) {
+			tex = postprocess();
 		}
 		else {
 			tex = redToLuminance(tex);

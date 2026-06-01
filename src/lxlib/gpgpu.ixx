@@ -11,7 +11,7 @@ import lxlib.stuff;
 
 export namespace lx {
 	lx::gl::TextureRef getGradients(lx::gl::TextureRef src, GLuint wrap = GL_REPEAT);
-	lx::gl::TextureRef gaussianBlur3x3(lx::gl::TextureRef src);
+	lx::gl::TextureRef gaussianBlur3x3(lx::gl::TextureRef src, GLuint wrap = GL_CLAMP_TO_EDGE);
 	lx::gl::TextureRef getLaplace(lx::gl::TextureRef src, GLuint wrap);
 
 	struct Operable {
@@ -64,7 +64,10 @@ export namespace lx {
 	);
    }
 
-    lx::gl::TextureRef gaussianBlur3x3(lx::gl::TextureRef src) {
+    lx::gl::TextureRef gaussianBlur3x3(lx::gl::TextureRef src, GLuint wrap) {
+		src->setWrap(wrap);
+		src->bind();
+		src->sendParamsToGPU();
 		auto state = lx::shade(src,
 		"vec4 sum = vec4(0.0);"
               "sum += texture(tex0, texCoord + texelSize0 * vec2(-1.0, -1.0)) / 16.0;"

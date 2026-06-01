@@ -58,6 +58,6 @@ logarithmic = false
 type = "bool"
 default = true
 
-[param.binarizePostprocessing]
+[param.doPostprocessing]
 type = "bool"
 default = true
